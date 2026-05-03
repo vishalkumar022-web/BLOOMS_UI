@@ -127,6 +127,11 @@ if (loginForm) {
     loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();
 
+    // NAYA: Button ko pakdo aur text badlo
+        const loginBtn = loginForm.querySelector('button[type="submit"]');
+        loginBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Please wait, checking details...";
+        loginBtn.disabled = true; // Button disable kar do taaki user baar-baar na dabaye        
+
         const requestBody = {
             phoneNumber: document.getElementById('login-phone').value,
             password: document.getElementById('login-password').value

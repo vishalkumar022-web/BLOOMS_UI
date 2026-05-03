@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blooms - Login</title>
+
+    <!-- Font Awesome CDN Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="glass-container">
+        <!-- Top Link -->
+        <div class="top-link">
+            <span>New user?</span> <a href="register.html">Register Now</a>
+        </div>
+
+        <h1>blooms.in</h1>
+        <h2>LOGIN</h2>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label>Enter your Phone Number</label>
+                <input type="tel" id="login-phone" placeholder="1234567890" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="login-password" placeholder="........" required>
+                <!-- NAYA: Login ke liye bhi Eye Icon -->
+                <i class="fa-solid fa-eye eye-icon" id="toggle-login-password"></i>
+            </div>
+
+            <button type="submit" class="login-button">Login Now</button>
+            <button type="button" class="forgotten-password">Forgot Password?</button>
+        </form>
+    </div>
+
+    <!-- Yahan bhi wahi same JS file kaam karegi -->
+    <script src="script.js"></script>
+
+</body>
+</html>

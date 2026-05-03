@@ -222,3 +222,58 @@ body {
 }
 .action-btn i { margin-right: 8px; font-size: 18px; }
 .action-btn:hover { background-color: #f3f2ef; }
+
+/* =========================================================
+   🪟 MODAL (POP-UP) WALI STYLING
+   ========================================================= */
+.modal-overlay {
+    display: none; /* Shuru me chhupa rahega */
+    position: fixed; 
+    top: 0; left: 0; 
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* Kaala parda */
+    z-index: 1000; /* Sabse aage dikhega */
+    justify-content: center; 
+    align-items: center;
+}
+
+/* JS isme 'show' class lagayega toh ye display:flex bankar center me aa jayega */
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    animation: popIn 0.3s ease-out; /* Khulte hi jhatka (animation) dega */
+}
+
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    transition: 0.2s;
+}
+.close-btn:hover {
+    color: #ef4444; /* Laal rang cross par */
+}
+
+/* Likes aur Comment list ke andar ke item ki design */
+.list-item-box {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+}
+.list-item-box:last-child {
+    border-bottom: none;
+}

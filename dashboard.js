@@ -1,48 +1,63 @@
-// =========================================================
-// 🌐 1. SERVER ADDRESS AUR SECURITY CHECK
-// =========================================================
+// ============================================================================
+// 🌐 1. SETUP AUR SECURITY CHECK
+// ============================================================================
 const BASE_URL = "https://blog-management-system-blooms-2.onrender.com";
-const token = localStorage.getItem("token");
 
-// Bina token walo ko direct bahar phekne ka logic
-if (!token) {
+// Har action se pehle Token check karne wala function (Live Security)
+function checkTokenLive() {
+    const liveToken = localStorage.getItem("token");
+    if (!liveToken) {
+        alert("You are never allowed to access this function because of an expired/missing token! 🛑");
+        window.location.replace("login.html");
+        return false; 
+    }
+    return liveToken; 
+}
+
+const initialToken = localStorage.getItem("token");
+const myUserName = localStorage.getItem("userName"); 
+
+if (!initialToken) {
     document.body.style.display = "none"; 
     alert("Bhai, bina login ke entry mana hai! 🛑");
     window.location.replace("login.html"); 
 }
 
-// =========================================================
-// 📦 2. GLOBAL VARIABLES (Poore app me use hone wale)
-// =========================================================
-let currentPage = 0;       // Page 0 se shuru hoga
-const pageSize = 5;        // Ek page pe kitne blog
-let isSearching = false;   // Kya user search kar raha hai?
-let searchText = "";       // Search dabe me kya likha hai?
+
+// ============================================================================
+// 📦 2. GLOBAL VARIABLES
+// ============================================================================
+let currentPage = 0;       
+const pageSize = 5;        // Search result me ek page par 5 blogs aayenge
+let isSearching = false;   
+let searchText = "";       
+
+let myUserId = "";         
+let myFollowingList = [];  
+let currentLoadedBlogs = []; 
 
 
-// =========================================================
-// 👤 3. PROFILE FETCH KARNE KA FUNCTION
-// =========================================================
+// ============================================================================
+// 👤 3. PROFILE AUR FOLLOWING LIST MANGWANA
+// ============================================================================
 async function loadMyProfile() {
     try {
+        const liveToken = checkTokenLive(); if(!liveToken) return;
+
         const response = await fetch(BASE_URL + "/api/User/me", {
             method: "GET",
-            headers: {
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json"
-            }
+            headers: { "Authorization": "Bearer " + liveToken }
         });
-
         const data = await response.json();
 
-        // Agar token expire nahi hua hai toh data set karo
         if (data.success === true) {
             const user = data.data;
+            myUserId = user.userId; 
+            
             document.getElementById("sidebar-name").innerText = user.name || user.userName;
             document.getElementById("sidebar-role").innerText = user.role.toUpperCase() + " • Java Developer"; 
             document.getElementById("sidebar-userid").innerText = "ID: " + user.userId.substring(0,8);
             
-            // Profile image set karna (Fail hone par default image)
             if (user.profileUrl) {
                 const imgElement = document.getElementById("sidebar-profile-img");
                 imgElement.src = user.profileUrl;
@@ -50,8 +65,17 @@ async function loadMyProfile() {
                     this.src = `https://ui-avatars.com/api/?name=${user.name || 'User'}&background=0a66c2&color=fff&size=150`;
                 };
             }
+
+            const followResponse = await fetch(`${BASE_URL}/api/connection/following?userId=${myUserId}`, {
+                method: "GET", headers: { "Authorization": "Bearer " + liveToken }
+            });
+            const followData = await followResponse.json();
+            
+            if(followData.success === true) {
+                myFollowingList = followData.data.map(person => person.userId);
+            }
+
         } else {
-            // Agar token expire ho gaya toh batua saaf karo
             localStorage.clear();
             alert("Bhai, tera session expire ho gaya hai. Dobara login kar!");
             window.location.replace("login.html");
@@ -62,54 +86,55 @@ async function loadMyProfile() {
 }
 
 
-// =========================================================
-// 🟢 4. API CALLING FUNCTIONS (DATA MANGWANA)
-// =========================================================
-
-// A. Normal Blogs (Feed) mangwane ke liye
+// ============================================================================
+// 🟢 4. BLOGS FETCH KARNE WALE FUNCTIONS
+// ============================================================================
 async function getNormalBlogs() {
     showLoader(true); 
     try {
-        const url = `${BASE_URL}/api/BLog?page=${currentPage}&size=50`; // 50 blogs aayenge
-        const response = await fetch(url, {
-            method: "GET",
-            headers: { "Authorization": "Bearer " + token }
-        });
+        const liveToken = checkTokenLive(); if(!liveToken) return;
+
+        // 🚨 NAYA LOGIC: Normal page ke liye hum ek hi baar me zyada blogs (size=50) mangwayenge, 
+        // taaki user bina rukawat scroll kar sake. Yahan page hamesha 0 rahega.
+        const url = `${BASE_URL}/api/BLog?page=0&size=50`; 
+        const response = await fetch(url, { method: "GET", headers: { "Authorization": "Bearer " + liveToken } });
         const data = await response.json();
         showLoader(false); 
 
         if (data.success === true && data.data.length > 0) {
-            printBlogsOnScreen(data.data); // Screen pe chapo
-            printPaginationButtons(data.data.length); // Pagination check karo
+            currentLoadedBlogs = data.data; 
+            printBlogsOnScreen(data.data);  
+            // Yahan se bhi printPaginationButtons call hoga, 
+            // par uske andar ka if(isSearching === false) usko rok dega!
+            printPaginationButtons(data.data.length); 
         } else {
             document.getElementById("blog-feed").innerHTML = "<p style='text-align:center;'>Bhai, koi blog nahi mila!</p>";
         }
     } catch (error) {
         showLoader(false);
-        document.getElementById("blog-feed").innerHTML = "<p style='text-align:center;'>Server se connection toot gaya!</p>";
     }
 }
 
-// B. Search kiye hue blogs mangwane ke liye
 async function getSearchedBlogs() {
     showLoader(true);
     try {
+        const liveToken = checkTokenLive(); if(!liveToken) return;
+
+        // Search me hum page size 5 rakhenge taaki Pagination chal sake
         const url = `${BASE_URL}/api/BLog/search?title=${encodeURIComponent(searchText)}&page=${currentPage}&size=${pageSize}`;
-        const response = await fetch(url, {
-            method: "GET",
-            headers: { "Authorization": "Bearer " + token }
-        });
+        const response = await fetch(url, { method: "GET", headers: { "Authorization": "Bearer " + liveToken } });
         const data = await response.json();
         showLoader(false);
 
         if (data.success === true && data.data.length > 0) {
+            currentLoadedBlogs = data.data; 
             printBlogsOnScreen(data.data); 
-            printPaginationButtons(data.data.length); 
+            printPaginationButtons(data.data.length); // Yahan pagination button print hoga
         } else {
             document.getElementById("blog-feed").innerHTML = `
                 <div style="text-align:center; padding:30px;">
                     <h3>Bhai, "${searchText}" naam se koi blog nahi mila 😔</h3>
-                    <button onclick="resetSearch()" style="margin-top:15px; padding:10px; background:#0a66c2; color:white; border:none; border-radius:5px; cursor:pointer;">Go Back</button>
+                    <button onclick="resetSearch()" style="margin-top:15px; padding:10px; background:#0a66c2; color:white; border:none; border-radius:5px; cursor:pointer;">⬅️ Go Back to Main Feed</button>
                 </div>
             `;
         }
@@ -118,81 +143,78 @@ async function getSearchedBlogs() {
     }
 }
 
-// C. Decider (Faisla karne wala ki Normal lana hai ya Search wala)
 function fetchDecider() {
-    if (isSearching === true) {
-        getSearchedBlogs();
-    } else {
-        getNormalBlogs();
-    }
+    if (isSearching === true) getSearchedBlogs();
+    else getNormalBlogs();
 }
 
 
-// =========================================================
-// 🎨 5. UI GENERATION (HTML BANANA)
-// =========================================================
+// ============================================================================
+// 🎨 5. HTML BANAKAR SCREEN PAR CHHAPNA
+// ============================================================================
 function printBlogsOnScreen(blogArray) {
     let allHtml = "";
 
-    // Loop chalakar har ek blog ka HTML banana
+    // Search Mode ON hai, toh Back button dikhao
+    if (isSearching === true) {
+        allHtml += `
+            <div style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.08);">
+                <button onclick="resetSearch()" style="padding: 8px 15px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                    ⬅️ Back to Normal Feed
+                </button>
+                <h3 style="margin-top: 15px; color: #333;">Search Results for: "<span style="color:#0a66c2;">${searchText}</span>"</h3>
+            </div>
+        `;
+    }
+
     for (let blog of blogArray) {
-        
         let category = blog.categoryName || "General";
         let subCategory = blog.subCategoryName || "Updates";
 
-        // Date Format karna
         let timeString = "Just now"; 
         if (blog.createdDTTM) {
             let dateObj = new Date(blog.createdDTTM);
             timeString = dateObj.toLocaleDateString() + ", " + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
 
-        // 🟢 READ MORE LOGIC: Agar content lamba hai toh 2 hisso me baato
         let shortContent = blog.content;
         let fullContentHtml = "";
-        
         if (blog.content.length > 150) {
             shortContent = blog.content.substring(0, 150) + "...";
             fullContentHtml = `
-                <!-- Chhota Text -->
-                <p id="short-text-${blog.blogId}" class="blog-desc">
-                    ${shortContent} 
-                    <a href="javascript:void(0);" onclick="showFullText('${blog.blogId}')" style="color:#0a66c2; font-weight:600; text-decoration:none;">Read more</a>
-                </p>
-                <!-- Pura Text (Pehle chhupa rahega) -->
-                <p id="full-text-${blog.blogId}" class="blog-desc" style="display:none;">
-                    ${blog.content} 
-                    <a href="javascript:void(0);" onclick="showShortText('${blog.blogId}')" style="color:#0a66c2; font-weight:600; text-decoration:none;">Show less</a>
-                </p>
+                <p id="short-text-${blog.blogId}" class="blog-desc">${shortContent} <a href="javascript:void(0);" onclick="showFullText('${blog.blogId}')" style="color:#0a66c2; font-weight:600; text-decoration:none;">Read more</a></p>
+                <p id="full-text-${blog.blogId}" class="blog-desc" style="display:none;">${blog.content} <a href="javascript:void(0);" onclick="showShortText('${blog.blogId}')" style="color:#0a66c2; font-weight:600; text-decoration:none;">Show less</a></p>
             `;
         } else {
             fullContentHtml = `<p class="blog-desc">${blog.content}</p>`;
         }
 
-        // 🟢 COMMENTS LOGIC: Purane comments dikhane ka HTML
-        let commentsListHtml = "";
-        if (blog.comments && blog.comments.length > 0) {
-            for (let c of blog.comments) {
-                commentsListHtml += `
-                    <div style="background:#f3f2ef; padding:8px 12px; border-radius:8px; margin-bottom:8px;">
-                        <strong style="font-size:13px; color:#000;">${c.userName || 'Anonymous'}</strong>
-                        <p style="font-size:13px; color:#555; margin-top:3px;">${c.commentText}</p>
-                    </div>
-                `;
+        let isLikedByMe = blog.likedByUsers.includes(myUserName); 
+        let likeIconColor = isLikedByMe ? "#28a745" : "#666"; 
+        let likeText = isLikedByMe ? "Liked" : "Like";
+        let likedByNamesText = blog.likedByUsers.length > 0 ? blog.likedByUsers.join(", ") : "Be the first to like!";
+
+        let followBtnHtml = "";
+        if (blog.authorId !== myUserId) {
+            let isFollowing = myFollowingList.includes(blog.authorId);
+            if (isFollowing) {
+                followBtnHtml = `<button onclick="unfollowUser('${blog.authorId}')" style="padding:4px 15px; font-weight:bold; font-size:13px; border-radius:20px; background:transparent; border:1px solid #666; color:#666; cursor:pointer;">Unfollow</button>`;
+            } else {
+                followBtnHtml = `<button onclick="followUser('${blog.authorId}')" style="padding:4px 15px; font-weight:bold; font-size:13px; border-radius:20px; background:#0a66c2; border:none; color:white; cursor:pointer;">+ Follow</button>`;
             }
-        } else {
-            commentsListHtml = "<p style='font-size:12px; color:#888; text-align:center;'>No comments yet. Be the first to comment!</p>";
         }
 
-        // FINAL CARD HTML
         const card = `
             <div class="blog-card">
-                <div class="card-header">
-                    <img src="https://ui-avatars.com/api/?name=${blog.authorId}&background=random" class="author-pic">
-                    <div class="author-info">
-                        <h4>Author ID: ${blog.authorId.substring(0,8)}</h4>
-                        <p>${timeString} • Published</p> 
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="display:flex; align-items:center;">
+                        <img src="https://ui-avatars.com/api/?name=${blog.authorId}&background=random" class="author-pic">
+                        <div class="author-info">
+                            <h4><a href="viewprofile.html?userId=${blog.authorId}" style="text-decoration:none; color:#000; transition:color 0.2s;" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='#000'">Author ID: ${blog.authorId.substring(0,8)}</a></h4>
+                            <p>${timeString} • Published</p> 
+                        </div>
                     </div>
+                    <div>${followBtnHtml}</div> 
                 </div>
 
                 <div class="blog-meta">
@@ -205,35 +227,23 @@ function printBlogsOnScreen(blogArray) {
                 <div class="card-body">
                     <h2 class="blog-title">${blog.title}</h2>
                     <p style="font-size: 15px; color: #666; margin-bottom: 10px; font-weight:500;">${blog.description}</p>
-                    
-                    <!-- Read More / Show Less Wala Text Yahan Aayega -->
-                    ${fullContentHtml}
+                    ${fullContentHtml} 
                 </div>
                 
-                <div class="card-footer">
-                    <button class="action-btn" onclick="toggleLike('${blog.blogId}')">
-                        <i class="fa-regular fa-thumbs-up"></i> Like (${blog.likeCount})
-                    </button>
-                    <button class="action-btn" onclick="toggleCommentSection('${blog.blogId}')">
-                        <i class="fa-regular fa-comment-dots"></i> Comment (${blog.commentCount})
-                    </button>
-                </div>
-
-                <!-- 💬 COMMENT SECTION (Dabba) -->
-                <div id="comment-section-${blog.blogId}" style="display:none; padding: 15px; border-top: 1px solid #ebebeb;">
-                    <div style="max-height: 200px; overflow-y: auto; margin-bottom:15px; padding-right:5px;">
-                        ${commentsListHtml}
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <input type="text" id="comment-input-${blog.blogId}" placeholder="Write a comment..." 
-                            style="flex:1; padding:10px 15px; border-radius:20px; border:1px solid #ccc; outline:none; font-size:13px;">
-                        <button onclick="postComment('${blog.blogId}')" 
-                            style="background:#0a66c2; color:white; border:none; padding:8px 20px; border-radius:20px; cursor:pointer; font-weight:600;">
-                            Post
+                <div class="card-footer" style="flex-direction: column;">
+                    <p style="font-size: 12px; color: #666; margin-bottom: 10px; padding: 0 10px;">
+                        Liked by: <span style="font-weight:bold; color:#0a66c2; cursor:pointer;" onclick="openLikesModal('${blog.blogId}')">${likedByNamesText.substring(0, 50)}${likedByNamesText.length > 50 ? '...' : ''}</span>
+                    </p>
+                    
+                    <div style="display: flex; width: 100%;">
+                        <button class="action-btn" onclick="toggleLike('${blog.blogId}')" style="color: ${likeIconColor}; font-weight:bold;">
+                            <i class="fa-solid fa-thumbs-up"></i> ${likeText} (${blog.likeCount})
+                        </button>
+                        <button class="action-btn" onclick="openCommentsModal('${blog.blogId}')">
+                            <i class="fa-regular fa-comment-dots"></i> Comment (${blog.commentCount})
                         </button>
                     </div>
                 </div>
-
             </div>
         `;
         allHtml = allHtml + card;
@@ -243,144 +253,200 @@ function printBlogsOnScreen(blogArray) {
 }
 
 
-// =========================================================
-// ⚡ 6. INTERACTIVE FEATURES (Read More, Like, Comment)
-// =========================================================
+// ============================================================================
+// ⚡ 6. ACTIONS (Like, Comment, Follow) -> HAR ACTION PE TOKEN CHECK!
+// ============================================================================
 
-// A. Pura Text Dikhao (Read More click hone par)
-function showFullText(blogId) {
-    document.getElementById('short-text-' + blogId).style.display = 'none';
-    document.getElementById('full-text-' + blogId).style.display = 'block';
-}
-
-// B. Text Chhupao (Show Less click hone par)
-function showShortText(blogId) {
-    document.getElementById('full-text-' + blogId).style.display = 'none';
-    document.getElementById('short-text-' + blogId).style.display = 'block';
-}
-
-// C. Like Button Dbana
 async function toggleLike(blogId) {
+    const liveToken = checkTokenLive(); if(!liveToken) return;
+
     try {
-        const url = `${BASE_URL}/api/blog/like?blogId=${blogId}`;
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Authorization": "Bearer " + token }
+        const response = await fetch(`${BASE_URL}/api/blog/like?blogId=${blogId}`, {
+            method: "POST", headers: { "Authorization": "Bearer " + liveToken }
         });
         const data = await response.json();
-        
         if (data.success === true) {
-            fetchDecider(); // Page refresh karo taaki naya count dikhe
-        } else {
-            alert(data.message);
-        }
-    } catch (error) {
-        alert("Like karne me error aaya!");
-    }
+            alert("Blog liked/unliked successfully! 👍"); 
+            fetchDecider(); 
+        } else { alert(data.message); }
+    } catch (error) { alert("Like karne me error aaya!"); }
 }
 
-// D. Comment Section Kholna / Band Karna
-function toggleCommentSection(blogId) {
-    const section = document.getElementById('comment-section-' + blogId);
-    if (section.style.display === "none") {
-        section.style.display = "block";
-    } else {
-        section.style.display = "none";
-    }
-}
+async function submitModalComment() {
+    const liveToken = checkTokenLive(); if(!liveToken) return; 
 
-// E. Naya Comment Post Karna
-async function postComment(blogId) {
-    const inputElement = document.getElementById('comment-input-' + blogId);
+    const blogId = document.getElementById("modal-blog-id").value;
+    const inputElement = document.getElementById("modal-comment-input");
     const commentText = inputElement.value.trim();
 
-    if (commentText === "") {
-        alert("Bhai, kuch likh toh do!");
-        return;
-    }
+    if (commentText === "") { alert("Bhai, khali comment thodi post hoga!"); return; }
 
     try {
         const url = `${BASE_URL}/api/blog/comment?blogId=${blogId}&text=${encodeURIComponent(commentText)}`;
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Authorization": "Bearer " + token }
-        });
+        const response = await fetch(url, { method: "POST", headers: { "Authorization": "Bearer " + liveToken } });
         const data = await response.json();
         
         if (data.success === true) {
-            fetchDecider(); // Page refresh karo taaki naya comment list me dikhe
-        } else {
-            alert("Error: " + data.message);
-        }
-    } catch (error) {
-        alert("Server error, comment post nahi hua!");
-    }
+            alert("Comment posted successfully! 💬");
+            inputElement.value = ""; 
+            closeModal("comments-modal"); 
+            fetchDecider(); 
+        } else { alert("Error: " + data.message); }
+    } catch (error) { alert("Server error!"); }
+}
+
+async function followUser(targetUserId) {
+    const liveToken = checkTokenLive(); if(!liveToken) return; 
+
+    try {
+        const response = await fetch(`${BASE_URL}/api/connection/follow?targetUserId=${targetUserId}`, {
+            method: "POST", headers: { "Authorization": "Bearer " + liveToken }
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert("Successfully followed! ✅"); 
+            myFollowingList.push(targetUserId); 
+            fetchDecider(); 
+        } else { alert(data.message); }
+    } catch (error) { alert("Follow karne me error aa gaya bhai!"); }
+}
+
+async function unfollowUser(targetUserId) {
+    const liveToken = checkTokenLive(); if(!liveToken) return; 
+
+    try {
+        const response = await fetch(`${BASE_URL}/api/connection/unfollow?targetUserId=${targetUserId}`, {
+            method: "POST", headers: { "Authorization": "Bearer " + liveToken }
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert("Successfully unfollowed! ❌"); 
+            myFollowingList = myFollowingList.filter(id => id !== targetUserId); 
+            fetchDecider(); 
+        } else { alert(data.message); }
+    } catch (error) { alert("Unfollow karne me error aa gaya bhai!"); }
 }
 
 
-// =========================================================
-// ⏭️ 7. PAGINATION (Search ke liye Previous/Next)
-// =========================================================
-function printPaginationButtons(blogsCount) {
-    if (isSearching === false) return; // Sirf search me dikhega
+// ============================================================================
+// 🪟 7. MODALS (Pop-ups)
+// ============================================================================
+function openLikesModal(blogId) {
+    const blog = currentLoadedBlogs.find(b => b.blogId === blogId);
+    let html = "";
+    if (blog && blog.likedByUsers.length > 0) {
+        for (let user of blog.likedByUsers) {
+            html += `<div class="list-item-box"><strong style="color:#0a66c2;">${user}</strong></div>`;
+        }
+    } else {
+        html = "<p style='text-align:center; color:#888;'>No likes yet.</p>";
+    }
+    document.getElementById("likes-list-container").innerHTML = html;
+    document.getElementById("likes-modal").classList.add("show"); 
+}
 
+function openCommentsModal(blogId) {
+    const blog = currentLoadedBlogs.find(b => b.blogId === blogId);
+    let html = "";
+    if (blog && blog.comments.length > 0) {
+        for (let c of blog.comments) {
+            html += `<div class="list-item-box" style="background:#f9f9f9; border-radius:8px; margin-bottom:8px;">
+                        <strong style="font-size:14px;">${c.userName || 'Anonymous'}</strong>
+                        <p style="font-size:13px; color:#555; margin-top:2px;">${c.commentText}</p>
+                     </div>`;
+        }
+    } else {
+        html = "<p style='text-align:center; color:#888;'>No comments yet. Start the conversation!</p>";
+    }
+    document.getElementById("comments-list-container").innerHTML = html;
+    document.getElementById("modal-blog-id").value = blogId; 
+    document.getElementById("comments-modal").classList.add("show"); 
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove("show");
+}
+
+
+// ============================================================================
+// ⏭️ 8. PAGINATION (Next/Prev Buttons) - 🚨 FIX: Sirf Search Par Chalega!
+// ============================================================================
+function printPaginationButtons(blogsCount) {
+    // 🚨 NAYA LOGIC: Agar normal page hai (Search mode OFF hai), toh yahin se laut jao.
+    // Isse normal page par Previous/Next button banega hi nahi!
+    if (isSearching === false) {
+        return; 
+    }
+    
+    // Yahan se aage ka code sirf SEARCH result aane par hi chalega
     const feedContainer = document.getElementById("blog-feed");
     const btnDiv = document.createElement("div");
-    btnDiv.style = "display:flex; justify-content:space-between; margin-bottom: 40px;";
+    btnDiv.style = "display:flex; justify-content:space-between; margin-top: 20px; margin-bottom: 40px;";
 
     // Previous Button
     const prevBtn = document.createElement("button");
     prevBtn.innerText = "⬅️ Previous";
-    prevBtn.style = "padding: 10px; cursor: pointer; border:none; color:white; border-radius:5px;";
+    prevBtn.style = `padding: 10px 20px; cursor: pointer; border:none; color:white; border-radius:5px; font-weight:bold; background: ${currentPage === 0 ? '#ccc' : '#0a66c2'};`;
     
     if (currentPage === 0) {
-        prevBtn.style.background = "#ccc"; 
         prevBtn.disabled = true;
     } else {
-        prevBtn.style.background = "#0a66c2"; 
-        prevBtn.onclick = function() {
+        prevBtn.onclick = () => { 
             currentPage--; 
             fetchDecider(); 
         };
     }
 
+    // Page Number Dikhana
+    const pageText = document.createElement("span");
+    pageText.innerText = `Page ${currentPage + 1}`;
+    pageText.style = "align-self: center; font-weight: bold; color: #666;";
+
     // Next Button
     const nextBtn = document.createElement("button");
     nextBtn.innerText = "Next ➡️";
-    nextBtn.style = "padding: 10px; cursor: pointer; border:none; color:white; border-radius:5px;";
+    nextBtn.style = `padding: 10px 20px; cursor: pointer; border:none; color:white; border-radius:5px; font-weight:bold; background: ${blogsCount < pageSize ? '#ccc' : '#0a66c2'};`;
     
     if (blogsCount < pageSize) {
-        nextBtn.style.background = "#ccc";
         nextBtn.disabled = true;
     } else {
-        nextBtn.style.background = "#0a66c2";
-        nextBtn.onclick = function() {
+        nextBtn.onclick = () => { 
             currentPage++; 
             fetchDecider(); 
         };
     }
 
     btnDiv.appendChild(prevBtn);
+    btnDiv.appendChild(pageText);
     btnDiv.appendChild(nextBtn);
+    
     feedContainer.appendChild(btnDiv);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
 }
 
 
-// =========================================================
-// 🛠️ 8. EVENT LISTENERS & HELPERS
-// =========================================================
+// ============================================================================
+// ⚙️ 9. LISTENERS AUR HELPERS
+// ============================================================================
 
-// Search par 'Enter' dabane ka logic
+function showFullText(blogId) {
+    document.getElementById('short-text-' + blogId).style.display = 'none';
+    document.getElementById('full-text-' + blogId).style.display = 'block';
+}
+
+function showShortText(blogId) {
+    document.getElementById('full-text-' + blogId).style.display = 'none';
+    document.getElementById('short-text-' + blogId).style.display = 'block';
+}
+
 document.getElementById("search-input").addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
         event.preventDefault(); 
         let userInput = this.value.trim();
-        
         if (userInput !== "") {
             isSearching = true; 
-            searchText = userInput;
-            currentPage = 0; 
+            searchText = userInput; 
+            currentPage = 0; // Naye search me page 0 se shuru hoga
             fetchDecider();
         } else {
             resetSearch(); 
@@ -388,29 +454,28 @@ document.getElementById("search-input").addEventListener("keypress", function(ev
     }
 });
 
-// Search reset karna
+// Wapas Normal Feed Par Aana
 function resetSearch() {
     document.getElementById("search-input").value = "";
     isSearching = false; 
-    searchText = "";
-    currentPage = 0;
+    searchText = ""; 
+    currentPage = 0; // Wapas pehle page par aao
     fetchDecider();
 }
 
-// Loader dikhana/chupana
-function showLoader(show) {
-    document.getElementById("loading").style.display = show ? "block" : "none";
-}
+function showLoader(show) { document.getElementById("loading").style.display = show ? "block" : "none"; }
 
-// Logout karna
-document.getElementById("logout-btn").addEventListener("click", function() {
-    localStorage.clear();
-    window.location.replace("login.html");
+document.getElementById("logout-btn").addEventListener("click", function() { 
+    localStorage.clear(); 
+    window.location.replace("login.html"); 
 });
 
-
-// =========================================================
-// 🚀 APP START
-// =========================================================
-loadMyProfile(); 
-fetchDecider();
+// ============================================================================
+// 🎬 10. APP START 
+// ============================================================================
+async function startApp() {
+    showLoader(true);
+    await loadMyProfile(); 
+    fetchDecider();        
+}
+startApp();

@@ -10,9 +10,8 @@
 </head>
 <body>
 
-    <!-- 🟢 TOP NAVBAR -->
+    <!-- 🟢 TOP NAVBAR ... (Tera purana navbar code same rahega) ... -->
     <nav class="navbar">
-        <!-- Naya wrapper taaki sab paas-paas rahe -->
         <div class="nav-content">
             <div class="nav-left">
                 <h1 class="logo"><i class="fa-solid fa-leaf"></i> Blooms</h1>
@@ -23,7 +22,6 @@
             </div>
             
             <div class="nav-right">
-                <!-- ✅ FIX: Ab ye aage naye pages par le jayenge -->
                 <a href="dashboard.html" class="nav-item active"><i class="fa-solid fa-home"></i><span>Home</span></a>
                 <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
                 <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
@@ -38,19 +36,13 @@
         </div>
     </nav>
 
-    <!-- 🟢 MAIN LAYOUT -->
+    <!-- 🟢 MAIN LAYOUT ... (Tera purana sidebar wagarah same rahega) ... -->
     <div class="main-container">
-        
         <!-- 🟡 LEFT SIDEBAR: BADA PROFILE CARD -->
         <div class="left-sidebar">
             <div class="profile-card">
-                <!-- Background Banner thoda lamba (taller) kiya -->
                 <div class="profile-background"></div>
-                
-                <!-- ✅ FIX: Badi aur Gol Image. 'onerror' lagaya hai ki agar photo fail ho toh default dikh jaye -->
                 <img id="sidebar-profile-img" src="https://ui-avatars.com/api/?name=User&background=random" onerror="this.src='https://ui-avatars.com/api/?name=U&background=0a66c2&color=fff'" alt="Profile Image" class="profile-main-img">
-                
-                <!-- User Details -->
                 <div class="profile-info">
                     <h3 id="sidebar-name">Loading...</h3>
                     <p id="sidebar-role" class="text-muted">Loading role...</p>
@@ -68,27 +60,51 @@
             <div id="blog-feed"></div>
         </div>
 
-        <!-- 🟡 RIGHT SIDEBAR: TRENDING TOPICS (Wikipedia Linked) -->
+        <!-- 🟡 RIGHT SIDEBAR: TRENDING TOPICS -->
         <div class="right-sidebar">
             <div class="trending-box">
                 <h3>LinkedIn News</h3>
                 <p class="trending-subtitle">Trending Topics on Blooms</p>
-                
-                <a href="https://en.wikipedia.org/wiki/Technology" target="_blank" class="trending-item">
-                    <span class="dot">•</span> Technology & Future
-                </a>
-                <a href="https://en.wikipedia.org/wiki/Artificial_intelligence" target="_blank" class="trending-item">
-                    <span class="dot">•</span> Artificial Intelligence
-                </a>
-                <a href="https://en.wikipedia.org/wiki/Web_development" target="_blank" class="trending-item">
-                    <span class="dot">•</span> Web Development
-                </a>
-                <a href="https://en.wikipedia.org/wiki/Software_engineering" target="_blank" class="trending-item">
-                    <span class="dot">•</span> Software Engineering
-                </a>
+                <a href="https://en.wikipedia.org/wiki/Technology" target="_blank" class="trending-item"><span class="dot">•</span> Technology & Future</a>
+                <a href="https://en.wikipedia.org/wiki/Artificial_intelligence" target="_blank" class="trending-item"><span class="dot">•</span> Artificial Intelligence</a>
+                <a href="https://en.wikipedia.org/wiki/Web_development" target="_blank" class="trending-item"><span class="dot">•</span> Web Development</a>
+                <a href="https://en.wikipedia.org/wiki/Software_engineering" target="_blank" class="trending-item"><span class="dot">•</span> Software Engineering</a>
             </div>
         </div>
+    </div>
 
+    <!-- ======================================================= -->
+    <!-- 🪟 NAYA: LIKES WALA POP-UP (MODAL) -->
+    <!-- ======================================================= -->
+    <div class="modal-overlay" id="likes-modal">
+        <div class="modal-content" style="width: 350px;">
+            <span class="close-btn" onclick="closeModal('likes-modal')">&times;</span>
+            <h3 style="margin-bottom: 10px;">Liked By</h3>
+            <hr style="border:none; border-top:1px solid #eee; margin-bottom: 15px;">
+            <!-- Yahan JS se logo ke naam aayenge -->
+            <div id="likes-list-container" style="max-height: 250px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- 🪟 NAYA: COMMENTS WALA POP-UP (MODAL) -->
+    <!-- ======================================================= -->
+    <div class="modal-overlay" id="comments-modal">
+        <div class="modal-content" style="width: 450px;">
+            <span class="close-btn" onclick="closeModal('comments-modal')">&times;</span>
+            <h3 style="margin-bottom: 10px;">Comments</h3>
+            <hr style="border:none; border-top:1px solid #eee; margin-bottom: 15px;">
+            
+            <!-- Yahan JS se comments chapenge -->
+            <div id="comments-list-container" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px; padding-right: 5px;"></div>
+            
+            <!-- Naya Comment type karne ka dabba -->
+            <div style="display:flex; gap:10px;">
+                <input type="hidden" id="modal-blog-id"> <!-- Chhupi hui blog ID taaki JS ko pata rahe kahan comment post karna hai -->
+                <input type="text" id="modal-comment-input" placeholder="Write a comment..." style="flex:1; padding:10px; border-radius:20px; border:1px solid #ccc; outline:none;">
+                <button onclick="submitModalComment()" style="background:#0a66c2; color:white; border:none; padding:8px 20px; border-radius:20px; cursor:pointer;">Post</button>
+            </div>
+        </div>
     </div>
 
     <script src="dashboard.js"></script>

@@ -37,8 +37,8 @@ let myFollowingList = [];
 let currentLoadedBlogs = []; 
 
 
-// ============================================================================
-// 👤 3. PROFILE AUR FOLLOWING LIST MANGWANA
+// // ============================================================================
+// 👤 3. PROFILE AUR FOLLOWING LIST MANGWANE WALA FUNCTION
 // ============================================================================
 async function loadMyProfile() {
     try {
@@ -54,10 +54,12 @@ async function loadMyProfile() {
             const user = data.data;
             myUserId = user.userId; 
             
+            // 1. Basic Details
             document.getElementById("sidebar-name").innerText = user.name || user.userName;
             document.getElementById("sidebar-role").innerText = user.role.toUpperCase() + " • Java Developer"; 
             document.getElementById("sidebar-userid").innerText = "ID: " + user.userId.substring(0,8);
             
+            // 2. Profile DP Set Karna
             if (user.profileUrl) {
                 const imgElement = document.getElementById("sidebar-profile-img");
                 imgElement.src = user.profileUrl;
@@ -66,6 +68,20 @@ async function loadMyProfile() {
                 };
             }
 
+            // 🟢 3. NAYA LOGIC: Background Image Set Karna
+            if (user.profileBackgroundUrl) {
+                // CSS background-image property ko JS se badal rahe hain
+                document.getElementById("sidebar-bg-img").style.backgroundImage = `url('${user.profileBackgroundUrl}')`;
+            }
+
+            // 🟢 4. NAYA LOGIC: About Me Set Karna
+            if (user.aboutMe) {
+                document.getElementById("sidebar-about").innerText = `"${user.aboutMe}"`;
+            } else {
+                document.getElementById("sidebar-about").innerText = "No bio added yet. Tell us about yourself!";
+            }
+
+            // 5. Following List Mangwana
             const followResponse = await fetch(`${BASE_URL}/api/connection/following?userId=${myUserId}`, {
                 method: "GET", headers: { "Authorization": "Bearer " + liveToken }
             });
@@ -84,7 +100,6 @@ async function loadMyProfile() {
         document.getElementById("sidebar-name").innerText = "Error Loading";
     }
 }
-
 
 // ============================================================================
 // 🟢 4. BLOGS FETCH KARNE WALE FUNCTIONS
@@ -211,7 +226,7 @@ function printBlogsOnScreen(blogArray) {
                         <img src="https://ui-avatars.com/api/?name=${blog.authorId}&background=random" class="author-pic">
                         <div class="author-info">
                             <h4><a href="viewprofile.html?userId=${blog.authorId}" style="text-decoration:none; color:#000; transition:color 0.2s;" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='#000'">Author ID: ${blog.authorId.substring(0,8)}</a></h4>
-                            <p>${timeString} • Published</p> 
+                            <p>${timeString} • ${blog.status }</p> 
                         </div>
                     </div>
                     <div>${followBtnHtml}</div> 
@@ -222,7 +237,8 @@ function printBlogsOnScreen(blogArray) {
                     <span>${category} • ${subCategory}</span>
                 </div>
 
-                <img src="https://picsum.photos/seed/${blog.blogId}/800/400" class="blog-image">
+                <!-- 🟢 NAYA LOGIC: Asli image URL dikhao. Agar user ne image nahi dali hai, toh default "No Image" dikhao jisse UI na fite -->
+            <img src="${blog.blogImageUrl || 'https://via.placeholder.com/800x400?text=No+Image+Available'}" class="blog-image">
 
                 <div class="card-body">
                     <h2 class="blog-title">${blog.title}</h2>

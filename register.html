@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blooms - Register</title>
-
-    <!-- Font Awesome CDN Link - Yahi se saare naye icons aayenge -->
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -36,7 +34,7 @@
                 <input type="text" id="reg-username" placeholder="Create a username" required>
             </div>
 
-            <div class="form-group" >
+            <div class="form-group">
                 <label>Email Address</label>
                 <input type="email" id="reg-email" placeholder="Enter your email" required>
             </div>
@@ -48,13 +46,24 @@
 
             <div class="form-group">
                 <label>Profile Image URL</label>
-                <input type="url" id="reg-profile-url" placeholder="Paste image link here" required>
+                <input type="url" id="reg-profile-url" placeholder="Paste your DP link here" required>
+            </div>
+
+            <!-- 🟢 NAYA DABBA 1: Background Image URL -->
+            <div class="form-group">
+                <label>Background Image URL</label>
+                <input type="url" id="reg-bg-url" placeholder="Paste your banner image link here" required>
+            </div>
+
+            <!-- 🟢 NAYA DABBA 2: About Me (Lamba text likhne ke liye textarea) -->
+            <div class="form-group">
+                <label>About Me</label>
+                <textarea id="reg-about" rows="3" placeholder="Tell us about your skills, hobbies etc." required></textarea>
             </div>
 
             <div class="form-group">
                 <label>Password</label>
                 <input type="password" id="reg-password" placeholder="Create a password" required>
-                <!-- NAYA: Font awesome ka solid Eye Icon -->
                 <i class="fa-solid fa-eye eye-icon" id="toggle-reg-password"></i>
             </div>
 

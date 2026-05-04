@@ -242,3 +242,23 @@ input[readonly] {
     opacity: 0.7; /* Thoda dhundla kar diya */
     cursor: not-allowed; /* Mouse le jane par 'block' wala icon aayega */
 }
+
+
+/* 🟢 NAYA ADD KIYA HAI: About Me wale dabe ka design (Textarea) */
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    background: #eef2f5; 
+    font-size: 16px;
+    outline: none;
+    color: #333;
+    resize: vertical; /* Isse user daba lamba kar sakta hai, par chauda nahi */
+}
+
+.form-group textarea:focus {
+    background: #e0e5eb; 
+    box-shadow: 0 0 5px rgba(13, 110, 253, 0.5);
+    border: #0b5ed7 solid 1px;
+}

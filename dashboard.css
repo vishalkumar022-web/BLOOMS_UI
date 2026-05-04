@@ -11,8 +11,9 @@ body {
 }
 
 /* ================== NAVBAR ================== */
+/* Navbar ekdum ziddi bankar hamesha top (0px) par chipka rahega */
 .navbar {
-    position: fixed;
+    position: fixed; /* FIXED: Kyunki ise hamesha screen ke chat (top) par rehna hai */
     top: 0;
     width: 100%;
     background-color: #ffffff;
@@ -20,12 +21,11 @@ body {
     display: flex;
     justify-content: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    z-index: 100;
+    z-index: 100; /* Z-INDEX: Ye hamesha sabse aage (upar) dikhega, blogs iske peeche se niklenge */
 }
 
 .nav-content {
     display: flex;
-    /* ✅ FIX 1: justify-content: space-between HATA DIYA taaki menus dur na bhagein */
     align-items: center;
     width: 100%;
     max-width: 1400px;
@@ -49,10 +49,10 @@ body {
     padding: 8px 15px;
     display: flex;
     align-items: center;
-    width: 280px; /* Normal chhoto width */
-    border-radius: 20px; /* Halka sa gol */
-    border: 2px solid transparent; /* Shuru me border chhupaya hai */
-    transition: all 0.3s ease; /* Badhne ki speed (Makkhan jaisi smooth) */
+    width: 280px; 
+    border-radius: 20px; 
+    border: 2px solid transparent; 
+    transition: all 0.3s ease; 
 }
 
 .search-box input {
@@ -69,11 +69,10 @@ body {
     color: #666;
 }   
 
-/* 🪄 MAGIC: Jab input click hoga, toh poora search box bada aur color change hoga */
 .search-box:focus-within {
-    width: 400px; /* Expand hokar chauda hoga */
-    border: 2px solid #0a66c2; /* Blue border aayega */
-    background-color: #fff; /* Background white hoga */
+    width: 400px; 
+    border: 2px solid #0a66c2; 
+    background-color: #fff; 
 }
 
 /* ================== MENU ITEMS ================== */
@@ -81,8 +80,8 @@ body {
     display: flex;
     align-items: center;
     gap: 60px; 
-    margin-left: 60px; /* ✅ FIX 2: Search bar se thodi doori par laakar rakha */
-    transition: all 0.3s ease; /* Jab search bar push karega toh smooth move hoga */
+    margin-left: 60px; 
+    transition: all 0.3s ease; 
 }
 
 .nav-item {
@@ -110,18 +109,44 @@ body {
 }
 
 /* ================== MAIN LAYOUT ================== */
+/* Kyunki navbar FIXED hai, wo apni jagah chhod chuka hai. 
+   Agar hum 'margin-top: 80px' na lagayein, toh feed navbar ke piche ghus jayega! */
 .main-container {
     display: flex;
     justify-content: center;
     max-width: 1400px; 
-    margin: 80px auto 0 auto; 
+    margin: 80px auto 0 auto; /* Upar se 80px jagah chodi hai navbar ke liye */
     gap: 25px;
     padding: 0 20px;
+    align-items: flex-start; /* 🚨 ZAROORI MAGIC: Iske bina 'sticky' sidebars kaam hi nahi karenge! Ye dabbon ko lamba khinchne se rokta hai. */
 }
 
-.left-sidebar { width: 300px; position: sticky; top: 80px; height: fit-content; }
-.feed-container { width: 650px; }
-.right-sidebar { width: 320px; position: sticky; top: 80px; height: fit-content; }
+/* 🟢 LEFT SIDEBAR (Profile) */
+.left-sidebar { 
+    width: 300px; 
+    position: sticky; /* STICKY: Ye scroll ke sath chipkega */
+    top: 80px; /* CHIPAKNE KI JAGAH: Navbar (60px) ke theek thoda niche chipkega */
+    max-height: calc(100vh - 100px); /* HEIGHT LIMIT: Screen ki height se 100px kam tak hi lamba ho sakta hai */
+    overflow-y: auto; /* SCROLL: Agar tera "About Me" bohot lamba ho gaya, toh poora page scroll na ho, sirf ye dabba andar hi andar scroll ho jaye */
+}
+
+/* Left sidebar ke andar ka bhadda scrollbar gayab karne ke liye */
+.left-sidebar::-webkit-scrollbar {
+    display: none; 
+}
+
+/* 🟢 FEED CONTAINER (Beech wala hissa jo ghoomega) */
+.feed-container { 
+    width: 650px; 
+}
+
+/* 🟢 RIGHT SIDEBAR (Trending News) */
+.right-sidebar { 
+    width: 320px; 
+    position: sticky; /* STICKY: Ye bhi scroll ke sath chipkega */
+    top: 80px; /* CHIPAKNE KI JAGAH: Navbar ke neeche */
+    height: fit-content; /* Ye lamba nahi khinchega, sirf andar likhe content jitna bada banega */
+}
 
 /* ================== PROFILE CARD ================== */
 .profile-card {
@@ -227,17 +252,16 @@ body {
    🪟 MODAL (POP-UP) WALI STYLING
    ========================================================= */
 .modal-overlay {
-    display: none; /* Shuru me chhupa rahega */
+    display: none; 
     position: fixed; 
     top: 0; left: 0; 
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.6); /* Kaala parda */
-    z-index: 1000; /* Sabse aage dikhega */
+    background: rgba(0, 0, 0, 0.6); 
+    z-index: 1000; 
     justify-content: center; 
     align-items: center;
 }
 
-/* JS isme 'show' class lagayega toh ye display:flex bankar center me aa jayega */
 .modal-overlay.show {
     display: flex;
 }
@@ -247,7 +271,7 @@ body {
     border-radius: 12px;
     padding: 20px;
     position: relative;
-    animation: popIn 0.3s ease-out; /* Khulte hi jhatka (animation) dega */
+    animation: popIn 0.3s ease-out; 
 }
 
 @keyframes popIn {
@@ -264,10 +288,9 @@ body {
     transition: 0.2s;
 }
 .close-btn:hover {
-    color: #ef4444; /* Laal rang cross par */
+    color: #ef4444; 
 }
 
-/* Likes aur Comment list ke andar ke item ki design */
 .list-item-box {
     padding: 10px;
     border-bottom: 1px solid #f0f0f0;

@@ -76,9 +76,14 @@ if (roleSelect) {
 const registerForm = document.getElementById('register-form');
 
 if (registerForm) {
-    // async ka matlab: "Is function me kuch kaam me time lagega (internet connection)"
     registerForm.addEventListener('submit', async function(event) {
         event.preventDefault(); // Page refresh roko
+
+        // 🟢 NAYA: Button ka text change karke user ko rukne bolo
+        const submitBtn = registerForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerText;
+        submitBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Creating Account...";
+        submitBtn.disabled = true;
 
         // 1. Dabba (JSON body) taiyar karo HTML se data utha kar
         const requestBody = {
@@ -87,6 +92,11 @@ if (registerForm) {
             email: document.getElementById('reg-email').value,
             name: document.getElementById('reg-name').value,
             profileUrl: document.getElementById('reg-profile-url').value,
+            
+            // 🟢 NAYA LOGIC: Ye dono naye data backend bhej rahe hain
+            profileBackgroundUrl: document.getElementById('reg-bg-url').value, 
+            aboutMe: document.getElementById('reg-about').value, 
+            
             password: document.getElementById('reg-password').value,
             phoneNumber: document.getElementById('reg-phone').value,
             role: document.getElementById('reg-role').value
@@ -94,25 +104,27 @@ if (registerForm) {
 
         try {
             // 2. Delivery Boy (Fetch) ko bhejo
-            // await ka matlab: "Jab tak backend se jawab na aaye, yahin ruko"
             const response = await fetch(BASE_URL + "/api/auth/register", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" }, // Bata rahe hain ki data JSON format me hai
-                body: JSON.stringify(requestBody) // JS object ko String me badal diya
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify(requestBody) 
             });
 
-            // 3. Jawab ko JS me wapas badlo
             const data = await response.json();
 
-            // 4. Success ya Error check karo
+            // 3. Success ya Error check karo
             if (data.success === true) {
-                alert("🎉 Success: " + data.message); // Backend wala message dikhao
+                alert("🎉 Success: " + data.message); 
                 window.location.href = "login.html"; // Login page par bhej do
             } else {
-                alert("❌ Error: " + data.message); // Agar user pehle se hai toh error dikhao
+                alert("❌ Error: " + data.message); 
             }
         } catch (error) {
             alert("⚠️ Server down hai ya internet nahi chal raha!");
+        } finally {
+            // Button wapas theek kardo
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }
     });
 }
@@ -153,6 +165,7 @@ if (loginForm) {
                 localStorage.setItem("token", data.data.token);
                 localStorage.setItem("role", data.data.role);
                 localStorage.setItem("userName", data.data.userName);
+                localStorage.setItem("userId", data.data.userId);
                 
                 // Login ke baad Dashboard/Home page par bhejna (Abhi ke liye alert)
                 alert("Ab tu andar aa gaya hai! (Dashboard par redirect hoga)");

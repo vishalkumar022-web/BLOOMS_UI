@@ -38,14 +38,26 @@
 
     <!-- 🟢 MAIN LAYOUT ... (Tera purana sidebar wagarah same rahega) ... -->
     <div class="main-container">
+      
         <!-- 🟡 LEFT SIDEBAR: BADA PROFILE CARD -->
         <div class="left-sidebar">
             <div class="profile-card">
-                <div class="profile-background"></div>
-                <img id="sidebar-profile-img" src="https://ui-avatars.com/api/?name=User&background=random" onerror="this.src='https://ui-avatars.com/api/?name=U&background=0a66c2&color=fff'" alt="Profile Image" class="profile-main-img">
+                <!-- Background Banner (Iski photo ab JS se set hogi) -->
+                <div class="profile-background" id="sidebar-bg-img"></div>
+                
+                <!-- Profile Image -->
+                <img id="sidebar-profile-img" src="https://via.placeholder.com/150" onerror="this.src='https://ui-avatars.com/api/?name=U&background=0a66c2&color=fff'" alt="Profile Image" class="profile-main-img">
+                
+                <!-- User Details -->
                 <div class="profile-info">
                     <h3 id="sidebar-name">Loading...</h3>
-                    <p id="sidebar-role" class="text-muted">Loading role...</p>
+                    <p id="sidebar-role" class="text-muted" style="margin-bottom: 10px;">Loading role...</p>
+                    
+                    <!-- 🟢 NAYA DABBA: About Me yahan dikhega -->
+                    <p id="sidebar-about" style="font-size: 13px; color: #444; font-style: italic; line-height: 1.4; padding: 5px 10px; background: #f9f9f9; border-radius: 5px;">
+                        Fetching your bio...
+                    </p>
+
                     <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
                     <p id="sidebar-userid" class="text-small">ID: ---</p>
                 </div>
@@ -61,14 +73,26 @@
         </div>
 
         <!-- 🟡 RIGHT SIDEBAR: TRENDING TOPICS -->
+      <!-- 🟡 RIGHT SIDEBAR: TRENDING TOPICS -->
         <div class="right-sidebar">
-            <div class="trending-box">
-                <h3>LinkedIn News</h3>
-                <p class="trending-subtitle">Trending Topics on Blooms</p>
+            <div class="trending-box" style="padding-bottom: 25px;"> <!-- Naya: padding thodi badha di -->
+                
+                <!-- Naya: Heading "Trending News" kar di -->
+                <h3>Trending News</h3>
+                <p class="trending-subtitle">Hot Topics on Blooms</p>
+                
+                <!-- Naye Links Wikipedia ke saath -->
                 <a href="https://en.wikipedia.org/wiki/Technology" target="_blank" class="trending-item"><span class="dot">•</span> Technology & Future</a>
                 <a href="https://en.wikipedia.org/wiki/Artificial_intelligence" target="_blank" class="trending-item"><span class="dot">•</span> Artificial Intelligence</a>
+                <a href="https://en.wikipedia.org/wiki/Blockchain" target="_blank" class="trending-item"><span class="dot">•</span> Blockchain</a> <!-- Naya -->
+                <a href="https://en.wikipedia.org/wiki/Cryptocurrency" target="_blank" class="trending-item"><span class="dot">•</span> Cryptocurrency</a> <!-- Naya -->
+                <a href="https://en.wikipedia.org/wiki/Cybersecurity" target="_blank" class="trending-item"><span class="dot">•</span> Cybersecurity</a> <!-- Naya -->
                 <a href="https://en.wikipedia.org/wiki/Web_development" target="_blank" class="trending-item"><span class="dot">•</span> Web Development</a>
+                <a href="https://en.wikipedia.org/wiki/Cloud_computing" target="_blank" class="trending-item"><span class="dot">•</span> Cloud Computing</a> <!-- Naya -->
                 <a href="https://en.wikipedia.org/wiki/Software_engineering" target="_blank" class="trending-item"><span class="dot">•</span> Software Engineering</a>
+                <a href="https://en.wikipedia.org/wiki/Quantum_computing" target="_blank" class="trending-item"><span class="dot">•</span> Quantum Computing</a> <!-- Naya -->
+                <a href="https://en.wikipedia.org/wiki/Metaverse" target="_blank" class="trending-item"><span class="dot">•</span> Metaverse</a> <!-- Naya -->
+                
             </div>
         </div>
     </div>

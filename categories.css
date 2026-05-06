@@ -324,3 +324,19 @@ body {
 .scrollable-desc::-webkit-scrollbar-track {
     background: #f0f0f0; 
 }
+
+
+/* =========================================================
+   🚨 MAGIC GLOW EFFECT (JASOOS WALA EFFECT FOR CATEGORIES)
+   ========================================================= */
+@keyframes glowMagic {
+    0% { box-shadow: 0 0 5px #0a66c2; border: 2px solid transparent; }
+    50% { box-shadow: 0 0 30px #0a66c2; border: 2px solid #0a66c2; transform: scale(1.02); }
+    100% { box-shadow: 0 0 5px #0a66c2; border: 2px solid transparent; }
+}
+
+.glowing-card {
+    /* 🚨 !important lagaya taaki koi dusra CSS isko rok na sake */
+    animation: glowMagic 2.5s ease-in-out !important; 
+    border-radius: 12px;
+}

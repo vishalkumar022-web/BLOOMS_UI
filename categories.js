@@ -3,7 +3,6 @@
 // ============================================================================
 const BASE_URL = "https://blog-management-system-blooms-2.onrender.com";
 
-// Same security check as Dashboard to ensure only logged in users access
 function checkTokenLive() {
     const liveToken = localStorage.getItem("token");
     if (!liveToken) {
@@ -18,50 +17,43 @@ function checkTokenLive() {
 // 📦 2. GLOBAL VARIABLES
 // ============================================================================
 let currentPage = 0;       
-const pageSize = 6;        // 3-3 ke 2 rows par page (Total 6 dabbe per page)
+const pageSize = 6;        
 let isSearching = false;   
 let searchText = "";       
 
 // ============================================================================
 // 🟢 3. API CALLING FUNCTIONS (GET CATEGORIES)
 // ============================================================================
-
-// A. Normal Categories Fetch (Infinite Scroll Jaisa)
 async function getCategories() {
     showLoader(true); 
     try {
         const liveToken = checkTokenLive(); if(!liveToken) return;
 
-        // API used: GET /api/Category/all?page=0&size=50 (Page 0 fix)
-        // Taaki user normally saari categories bina page fite scroll kar sake
         const url = `${BASE_URL}/api/Category/all?page=0&size=50`; 
         const response = await fetch(url, { method: "GET", headers: { "Authorization": "Bearer " + liveToken } });
         const data = await response.json();
         showLoader(false); 
 
         if (data.success === true && data.data.length > 0) {
-            printCategoriesOnScreen(data.data); //  Print categories on screen function call ;
-
-
-            printPaginationButtons(data.data.length); // Yahan bhi paginate call hoga, par ander jaakar band ho jayega kyunki search off hai
+            printCategoriesOnScreen(data.data); 
+            printPaginationButtons(data.data.length); 
+            
+            // 🚨 FIX: Jasoos ko jagao!
+            highlightFocusedCard(); 
         } else {
             document.getElementById("categories-grid").innerHTML = "<h3 style='grid-column: 1 / -1; text-align:center;'>Bhai, koi category nahi mili!</h3>";
             document.getElementById("pagination-container").innerHTML = ""; 
         }
     } catch (error) {
         showLoader(false);
-        document.getElementById("categories-grid").innerHTML = "<p style='grid-column: 1 / -1; text-align:center;'>Server Error!</p>";
     }
 }
 
-// B. Search Ki Hui Categories Fetch (PAGINATED 6)
 async function getSearchedCategories() {
     showLoader(true);
     try {
         const liveToken = checkTokenLive(); if(!liveToken) return;
 
-        // API used: GET /api/Category/search?title=...&page=...&size=6
-        // Taaki searched results me 6-6 per page dikhein aur pagination kaam kare
         const url = `${BASE_URL}/api/Category/search?title=${encodeURIComponent(searchText)}&page=${currentPage}&size=${pageSize}`;
         const response = await fetch(url, { method: "GET", headers: { "Authorization": "Bearer " + liveToken } });
         const data = await response.json();
@@ -69,7 +61,10 @@ async function getSearchedCategories() {
 
         if (data.success === true && data.data.length > 0) {
             printCategoriesOnScreen(data.data); 
-            printPaginationButtons(data.data.length); // Search mode me ye buttons active rahenge
+            printPaginationButtons(data.data.length); 
+            
+            // 🚨 FIX: Jasoos ko jagao!
+            highlightFocusedCard(); 
         } else {
             document.getElementById("categories-grid").innerHTML = `
                 <div style="grid-column: 1 / -1; text-align:center; padding:30px;">
@@ -84,13 +79,14 @@ async function getSearchedCategories() {
     }
 }
 
-// C. Decision maker for which API to call
 function fetchDecider() {
     if (isSearching === true) getSearchedCategories();
     else getCategories();
 }
 
-
+// ============================================================================
+// 🎨 4. HTML BANAKAR SCREEN PAR CHHAPNA
+// ============================================================================
 function printCategoriesOnScreen(categoryArray) {
     let allHtml = "";
 
@@ -106,7 +102,6 @@ function printCategoriesOnScreen(categoryArray) {
     }
 
     for (let cat of categoryArray) {
-        
         let timeString = "Just now"; 
         if (cat.createdDTTM) {
             let dateObj = new Date(cat.createdDTTM);
@@ -132,10 +127,6 @@ function printCategoriesOnScreen(categoryArray) {
             </div>
         `;
 
-        // ====================================================================
-        // 🚨 NAYA LOGIC: CATEGORY ID WALA DABBA (Full ID for user convenience)
-        // ====================================================================
-        // Isme hum cat.id.substring() use NAHI kar rahe, directly pura cat.id de rahe hain.
         let metaHtml = `
             <div class="category-id-box">
                 <strong>Category ID :-</strong> ${cat.id}
@@ -149,6 +140,7 @@ function printCategoriesOnScreen(categoryArray) {
         let fullDescription = cat.desc;
         let finalDescriptionHtml = "";
         
+        // 🚨 NAYA LOGIC: SCROLLABLE READ MORE (Overlap Fix)
         if (fullDescription.length > 100) {
             let shortDescription = fullDescription.substring(0, 100) + "...";
             finalDescriptionHtml = `
@@ -156,10 +148,11 @@ function printCategoriesOnScreen(categoryArray) {
                     ${shortDescription} 
                     <a href="javascript:void(0);" onclick="showFullDesc('${cat.id}')" class="read-more-link">Read More</a>
                 </p>
-                <p id="full-desc-${cat.id}" class="category-desc" style="display:none;">
+                <div id="full-desc-${cat.id}" class="category-desc scrollable-desc" style="display:none;">
                     ${fullDescription} 
+                    <br><br>
                     <a href="javascript:void(0);" onclick="showShortDesc('${cat.id}')" class="read-more-link">Show Less</a>
-                </p>
+                </div>
             `;
         } else {
             finalDescriptionHtml = `<p class="category-desc">${fullDescription}</p>`;
@@ -172,10 +165,11 @@ function printCategoriesOnScreen(categoryArray) {
             </div>
         `;
 
+        // 🚨 NAYA: Har dabbe ko ek special HTML id di hai (`id="card-${cat.id}"`) taaki jasoos dhundh sake
         const completeCard = `
-            <div class="category-card">
+            <div class="category-card" id="card-${cat.id}">
                 ${cardHeaderHtml}
-                ${metaHtml} <!-- Full Category ID Print Hogi -->
+                ${metaHtml} 
                 ${cardImageHtml}
                 ${cardBodyHtml}
             </div>
@@ -187,23 +181,59 @@ function printCategoriesOnScreen(categoryArray) {
 }
 
 // ============================================================================
-// ⏭️ 5. PAGINATION (Next/Prev Buttons) - ONLY FOR SEARCH
+// 🚨 5. JASOOS (THE HIGHLIGHT / AUTO-SCROLL MAGIC FOR CATEGORY)
 // ============================================================================
-// 🤔 Kyu banaya?: Taaki jab search ho tabhi page 1, 2, 3 dikhein, main page par user bas scroll kare.
+// 🤔 Kyu banaya?: Jab user subcategories.html ke modal se click karke aaye, 
+// toh ye URL check karega aur usi dabbe par scroll karke neeli light jala dega.
+// ============================================================================
+// 🚨 5. JASOOS (THE HIGHLIGHT / AUTO-SCROLL MAGIC FOR CATEGORY)
+// ============================================================================
+function highlightFocusedCard() {
+    // 1. URL me check karo ki kya "?focusId=kuch_ID" likha hai?
+    const urlParams = new URLSearchParams(window.location.search);
+    const focusId = urlParams.get('focusId');
+
+    // Agar URL me ID mili hai, tabhi aage badho
+    if (focusId) {
+        
+        // 🚨 NAYA FIX: setTimeout lagaya! 
+        // Browser ko screen par dabbe draw karne ka thoda time de rahe hain (300 milliseconds / 0.3 second)
+        setTimeout(() => {
+            
+            // 2. Wo dabba dhundho jiska ID url me aayi ID se match hota hai
+            const targetCard = document.getElementById("card-" + focusId);
+            
+            if (targetCard) {
+                // 3. Page ko smoothly waha tak sarka do (Auto-Scroll)
+                targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // 4. Us dabbe par ek special CSS class (glowing-card) laga do jisse wo chamakne lage
+                targetCard.classList.add("glowing-card");
+                
+                // 5. 2.5 second (2500 ms) ke baad class hata do, taaki chamakna band ho jaye
+                setTimeout(() => {
+                    targetCard.classList.remove("glowing-card");
+                }, 2500);
+            } else {
+                console.log("Bhai, Dabba abhi bhi nahi mila screen par!");
+            }
+            
+        }, 300); // <-- Ye raha 300 milliseconds ka wait time. Ye magic ki tarah kaam karega!
+    }
+}
+
+// ============================================================================
+// ⏭️ 6. PAGINATION (Search Only)
+// ============================================================================
 function printPaginationButtons(currentCount) {
     const paginationContainer = document.getElementById("pagination-container");
     paginationContainer.innerHTML = ""; 
 
-    // THE SECURITY GUARD: Agar user normally categories dekh rha hai (isSearching off hai),
-    // toh wapas jaao. Main page par Previous/Next banega hi nahi, feed infinite scroll lgegi!
-    if (isSearching === false) {
-        return; 
-    }
+    if (isSearching === false) { return; }
     
     const btnDiv = document.createElement("div");
     btnDiv.style = "display:flex; justify-content:space-between; margin-top: 30px; margin-bottom: 40px; width: 100%; grid-column: 1 / -1;";
 
-    // Previous Button logic
     const prevBtn = document.createElement("button");
     prevBtn.innerText = "⬅️ Previous";
     prevBtn.style = `padding: 10px 20px; cursor: pointer; border:none; color:white; border-radius:5px; font-weight:bold; background: ${currentPage === 0 ? '#ccc' : '#0a66c2'};`;
@@ -214,7 +244,6 @@ function printPaginationButtons(currentCount) {
     pageText.innerText = `Page ${currentPage + 1}`;
     pageText.style = "align-self: center; font-weight: bold; color: #666;";
 
-    // Next Button logic
     const nextBtn = document.createElement("button");
     nextBtn.innerText = "Next ➡️";
     nextBtn.style = `padding: 10px 20px; cursor: pointer; border:none; color:white; border-radius:5px; font-weight:bold; background: ${currentCount < pageSize ? '#ccc' : '#0a66c2'};`;
@@ -229,73 +258,33 @@ function printPaginationButtons(currentCount) {
     window.scrollTo({ top: 0, behavior: 'smooth' }); 
 }
 
-
 // ============================================================================
-// ⚙️ 6. LISTENERS & HELPERS (Readmore, Search)
+// ⚙️ 7. LISTENERS & HELPERS 
 // ============================================================================
+function showFullDesc(catId) { document.getElementById('short-desc-' + catId).style.display = 'none'; document.getElementById('full-desc-' + catId).style.display = 'block'; }
+function showShortDesc(catId) { document.getElementById('full-desc-' + catId).style.display = 'none'; document.getElementById('short-desc-' + catId).style.display = 'block'; }
 
-// Read more functions (Brute force: get ID, hide short tag, show full tag)
-function showFullDesc(catId) {
-    document.getElementById('short-desc-' + catId).style.display = 'none';
-    document.getElementById('full-desc-' + catId).style.display = 'block';
-}
-
-function showShortDesc(catId) {
-    document.getElementById('full-desc-' + catId).style.display = 'none';
-    document.getElementById('short-desc-' + catId).style.display = 'block';
-}
-
-// Navbar search input enter press listener (Active Category search API)
 document.getElementById("search-input").addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
-        event.preventDefault(); // Stop form from auto-submitting
+        event.preventDefault(); 
         let userInput = this.value.trim();
-        if (userInput !== "") {
-            isSearching = true; // Turn ON search mode
-            searchText = userInput; // Save search text
-            currentPage = 0; // Reset pagination to first page
-            fetchDecider();
-        } else {
-            resetSearch(); // If input is empty, reset to "Show all" mode
-        }
+        if (userInput !== "") { isSearching = true; searchText = userInput; currentPage = 0; fetchDecider(); } 
+        else { resetSearch(); }
     }
 });
 
-// Wapas "Show All Categories" mode me jane ke liye (Main page fetch karega)
 function resetSearch() {
-    document.getElementById("search-input").value = ""; // Clear input box
-    isSearching = false; // Turn OFF search mode
-    searchText = ""; // Clear search text
-    currentPage = 0; 
-    fetchDecider();
+    document.getElementById("search-input").value = ""; 
+    isSearching = false; searchText = ""; currentPage = 0; fetchDecider();
 }
 
 function showLoader(show) { document.getElementById("loading").style.display = show ? "block" : "none"; }
-
-document.getElementById("logout-btn").addEventListener("click", function() { 
-    localStorage.clear(); 
-    window.location.replace("login.html"); 
-});
-
+document.getElementById("logout-btn").addEventListener("click", function() { localStorage.clear(); window.location.replace("login.html"); });
 
 // ============================================================================
-// 🪟 7. NAYA: POP-UP (MODAL) LOGIC (Show Subcategories)
-// 🔗 API: GET /api/Category/subcategories?categoryId={id}
-//🤔 Kyu banaya?: Taaki jab user 'Subcategories' button dabaye, toh is particular category
-//   ke under ke saare subcategories backend se load ho hoker popup me dikhein.
+// 🪟 8. POP-UP (MODAL) LOGIC (100% FIXED)
 // ============================================================================
-
-
-
-// 🤔 Kyu banaya?: Ye main function hai jo "Show Subcategory" button dabaane par chalega.
-// 0-Level brute force: modal kholo -> ID pakdo -> API hit karo -> Response list popup me chappo
-
-// ============================================================================
-// 🪟 7. NAYA: POP-UP (MODAL) LOGIC (100% FIXED)
-// ============================================================================
-
 async function openSubcategoryModal(categoryId, categoryTitle) {
-    // 🚨 NAYA FIX: Button dabte hi HTML se taza-taza (fresh) elements uthao
     const modalTitle = document.getElementById("modal-category-title");
     const subListContainer = document.getElementById("subcategory-list-container");
     const subModalOverlay = document.getElementById("subcategory-modal");
@@ -303,48 +292,36 @@ async function openSubcategoryModal(categoryId, categoryTitle) {
 
     modalTitle.innerText = `Subcategories under "${categoryTitle}"`; 
     subListContainer.innerHTML = ""; 
-    subModalOverlay.classList.add("show"); // Popup khol do
-    subModalLoader.style.display = "block"; // Loader ghuma do
+    subModalOverlay.classList.add("show"); 
+    subModalLoader.style.display = "block"; 
 
     try {
         const liveToken = checkTokenLive(); if(!liveToken) return;
 
         const url = `${BASE_URL}/api/Category/subcategories?categoryId=${categoryId}`;
-        const response = await fetch(url, { 
-            method: "GET", 
-            headers: { "Authorization": "Bearer " + liveToken } 
-        });
-        
+        const response = await fetch(url, { method: "GET", headers: { "Authorization": "Bearer " + liveToken } });
         const data = await response.json();
-        subModalLoader.style.display = "none"; // Loader band
+        
+        subModalLoader.style.display = "none"; 
 
         if (data.success === true && data.data.length > 0) {
            let listHtml = "";
             for (let subcat of data.data) {
-                // 🚨 NAYA LOGIC: Name aur ID dono ko BOLD kar diya hai.
-                // ID ka color blue kar diya hai taaki alag se chamke aur copy karne me aasaani ho.
                 listHtml += `
                     <li>
                         <a href="subcategories.html?focusId=${subcat.subCategoryId}" class="subcat-link-item" style="text-decoration:none; display:block; padding:12px 15px; border-bottom:1px solid #f0f0f0; transition:0.2s;">
-                            
-                            <!-- Subcategory ka Naam (Bada aur Bold) -->
                             <div class="subcat-name" style="font-size: 16px; font-weight: bold; color: #000;">
                                 <i class="fa-solid fa-tags" style="color:#0a66c2;"></i> ${subcat.subCategoryTittle}
                             </div>
-                            
-                            <!-- Subcategory ki ID (Bold, Blue aur thodi choti) -->
                             <div class="subcat-id" style="font-size: 13px; font-weight: bold; color: #0a66c2; margin-top: 5px; margin-left: 24px;">
                                 ID :- ${subcat.subCategoryId}
                             </div>
-                            
                         </a>
                     </li>
                 `;
             }
             subListContainer.innerHTML = listHtml; 
-
-        } 
-        else {
+        } else {
             subListContainer.innerHTML = "<p style='text-align:center; padding: 20px; color:#888;'>No subcategories found for this category.</p>";
         }
 
@@ -354,31 +331,14 @@ async function openSubcategoryModal(categoryId, categoryTitle) {
     }
 }
 
-// 🚨 NAYA FIX: Close function ko ekdum direct aur simple kar diya
-function closeSubcategoryModal() {
-    // Button dabte hi direct ID dhundho aur class 'show' hata do
-    document.getElementById("subcategory-modal").classList.remove("show"); 
-}
-
-// 🚨 NAYA FIX: Popup ke bahar click karne par band hone wala logic
+function closeSubcategoryModal() { document.getElementById("subcategory-modal").classList.remove("show"); }
 window.addEventListener('click', function(event) {
-    let modal = document.getElementById("subcategory-modal");
-    // Agar mouse ka click modal-content ke bahar (kaale parde par) hua hai, toh band kar do
-    if (event.target === modal) {
-        closeSubcategoryModal();
-    }
+    if (event.target === document.getElementById("subcategory-modal")) { closeSubcategoryModal(); }
 });
 
 // ============================================================================
-// 🎬 8. APP START
+// 🎬 9. APP START
 // ============================================================================
 if (checkTokenLive()) {
-    fetchDecider();
-}
-// ============================================================================
-// 🎬 8. APP START (MAIN LOOP)
-// ============================================================================
-if (checkTokenLive()) {
-    // Shuru me categories loading
     fetchDecider();
 }

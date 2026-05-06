@@ -17,21 +17,18 @@ function checkTokenLive() {
 // 📦 2. GLOBAL VARIABLES
 // ============================================================================
 let currentPage = 0;       
-const pageSize = 6;        // Search ke liye 6 dabbe per page
+const pageSize = 6;        
 let isSearching = false;   
 let searchText = "";       
 
 // ============================================================================
 // 🟢 3. API CALLING FUNCTIONS (GET SUBCATEGORIES)
 // ============================================================================
-
-// A. Normal Subcategories Fetch
 async function getSubCategories() {
     showLoader(true); 
     try {
         const liveToken = checkTokenLive(); if(!liveToken) return;
 
-        // API used: /api/SubCategory/all
         const url = `${BASE_URL}/api/SubCategory/all?page=0&size=50`; 
         const response = await fetch(url, { method: "GET", headers: { "Authorization": "Bearer " + liveToken } });
         const data = await response.json();
@@ -40,25 +37,19 @@ async function getSubCategories() {
         if (data.success === true && data.data.length > 0) {
             printSubCategoriesOnScreen(data.data);  
             printPaginationButtons(data.data.length); 
-            
-            // 🚨 JASOOS: Saare dabbe banne ke baad, check karo kya humein kisi par focus karna hai?
             highlightFocusedCard(); 
         } else {
             document.getElementById("subcategories-grid").innerHTML = "<h3 style='grid-column: 1 / -1; text-align:center;'>Bhai, koi subcategory nahi mili!</h3>";
             document.getElementById("pagination-container").innerHTML = ""; 
         }
-    } catch (error) {
-        showLoader(false);
-    }
+    } catch (error) { showLoader(false); }
 }
 
-// B. Search Ki Hui Subcategories
 async function getSearchedSubCategories() {
     showLoader(true);
     try {
         const liveToken = checkTokenLive(); if(!liveToken) return;
 
-        // API used: /api/SubCategory/search
         const url = `${BASE_URL}/api/SubCategory/search?title=${encodeURIComponent(searchText)}&page=${currentPage}&size=${pageSize}`;
         const response = await fetch(url, { method: "GET", headers: { "Authorization": "Bearer " + liveToken } });
         const data = await response.json();
@@ -76,9 +67,7 @@ async function getSearchedSubCategories() {
             `;
             document.getElementById("pagination-container").innerHTML = "";
         }
-    } catch (error) {
-        showLoader(false);
-    }
+    } catch (error) { showLoader(false); }
 }
 
 function fetchDecider() {
@@ -87,7 +76,7 @@ function fetchDecider() {
 }
 
 // ============================================================================
-// 🎨 4. HTML BANAKAR SCREEN PAR CHHAPNA (The Builder)
+// 🎨 4. HTML BANAKAR SCREEN PAR CHHAPNA
 // ============================================================================
 function printSubCategoriesOnScreen(subCategoryArray) {
     let allHtml = "";
@@ -104,7 +93,6 @@ function printSubCategoriesOnScreen(subCategoryArray) {
     }
 
     for (let subcat of subCategoryArray) {
-        
         let timeString = "Just now"; 
         if (subcat.createdDTTM) {
             let dateObj = new Date(subcat.createdDTTM);
@@ -112,12 +100,9 @@ function printSubCategoriesOnScreen(subCategoryArray) {
         }
 
         let subcatStatus = subcat.status ? subcat.status.toUpperCase() : "PUBLISHED";
-        
-        // Backend variable matches Category exactly? Let's check SubCategoryResponse.
         let creatorIdFromBackend = subcat.createdBy || subcat.subCategoryId; 
         let creatorPicUrl = `https://ui-avatars.com/api/?name=${creatorIdFromBackend}&background=random`;
 
-        // 🚨 NAYA: Button ab Category details kholne ko bolega
         let showCategoryBtnHtml = `<button class="show-sub-btn" onclick="openCategoryModal('${subcat.categoryId}')">Category</button>`;
 
         let cardHeaderHtml = `
@@ -133,7 +118,6 @@ function printSubCategoriesOnScreen(subCategoryArray) {
             </div>
         `;
 
-        // Dabba ID change to SubCategory ID
         let metaHtml = `
             <div class="category-id-box">
                 <strong>SubCategory ID :-</strong> ${subcat.subCategoryId}
@@ -145,6 +129,7 @@ function printSubCategoriesOnScreen(subCategoryArray) {
 
         let statusBadgeHtml = `<span class="status-badge">Active</span>`;
 
+        // 🚨 NAYA LOGIC: SCROLLABLE READ MORE (Overlap Fix)
         let fullDescription = subcat.subCategoryDesc;
         let finalDescriptionHtml = "";
         
@@ -155,10 +140,11 @@ function printSubCategoriesOnScreen(subCategoryArray) {
                     ${shortDescription} 
                     <a href="javascript:void(0);" onclick="showFullDesc('${subcat.subCategoryId}')" class="read-more-link">Read More</a>
                 </p>
-                <p id="full-desc-${subcat.subCategoryId}" class="category-desc" style="display:none;">
+                <div id="full-desc-${subcat.subCategoryId}" class="category-desc scrollable-desc" style="display:none;">
                     ${fullDescription} 
+                    <br><br>
                     <a href="javascript:void(0);" onclick="showShortDesc('${subcat.subCategoryId}')" class="read-more-link">Show Less</a>
-                </p>
+                </div>
             `;
         } else {
             finalDescriptionHtml = `<p class="category-desc">${fullDescription}</p>`;
@@ -171,8 +157,6 @@ function printSubCategoriesOnScreen(subCategoryArray) {
             </div>
         `;
 
-        // 🚨 NAYA: Har dabbe ko ek special HTML id di hai (`id="card-${subcat.subCategoryId}"`)
-        // Jisse humara Jasoos auto-scroll karte waqt isko dhundh sake
         const completeCard = `
             <div class="category-card" id="card-${subcat.subCategoryId}">
                 ${cardHeaderHtml}
@@ -187,39 +171,35 @@ function printSubCategoriesOnScreen(subCategoryArray) {
     document.getElementById("subcategories-grid").innerHTML = allHtml;
 }
 
-
 // ============================================================================
-// 🚨 5. JASOOS (THE HIGHLIGHT / AUTO-SCROLL MAGIC)
+// 🚨 5. JASOOS (THE HIGHLIGHT / AUTO-SCROLL MAGIC FOR SUBCATEGORY)
 // ============================================================================
-// 🤔 Kyu banaya?: Jab user pichle page se click karke yaha aaye, toh ye URL check karega,
-// aur usi dabbe par page scroll karke 'Neeli Light' jala dega.
+// ============================================================================
+// 🚨 5. JASOOS (THE HIGHLIGHT / AUTO-SCROLL MAGIC FOR SUBCATEGORY)
+// ============================================================================
 function highlightFocusedCard() {
-    // 1. URL me check karo ki kya "?focusId=kuch_ID" likha hai?
     const urlParams = new URLSearchParams(window.location.search);
     const focusId = urlParams.get('focusId');
 
     if (focusId) {
-        // 2. Wo dabba dhundho jiska ID url me aayi ID se match hota hai
-        const targetCard = document.getElementById("card-" + focusId);
-        
-        if (targetCard) {
-            // 3. Page ko smoothly waha tak sarka do (Auto-Scroll)
-            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // 🚨 Yahan bhi 300ms ka wait lagayenge, taaki Subcategory ki photos bhi aaram se load ho jayein
+        setTimeout(() => {
+            const targetCard = document.getElementById("card-" + focusId);
             
-            // 4. Us dabbe par ek special CSS class (glowing-card) laga do jisse wo chamakne lage
-            targetCard.classList.add("glowing-card");
-
-            // 5. 2 second ke baad class hata do, taaki chamakna band ho jaye
-            setTimeout(() => {
-                targetCard.classList.remove("glowing-card");
-            }, 2500);
-        }
+            if (targetCard) {
+                targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetCard.classList.add("glowing-card");
+                
+                setTimeout(() => {
+                    targetCard.classList.remove("glowing-card");
+                }, 2500);
+            }
+        }, 300); // 0.3 second wait for Image layout shift fix
     }
 }
 
-
 // ============================================================================
-// ⏭️ 6. PAGINATION (Search Only)
+// ⏭️ 6. PAGINATION
 // ============================================================================
 function printPaginationButtons(currentCount) {
     const paginationContainer = document.getElementById("pagination-container");
@@ -233,8 +213,7 @@ function printPaginationButtons(currentCount) {
     const prevBtn = document.createElement("button");
     prevBtn.innerText = "⬅️ Previous";
     prevBtn.style = `padding: 10px 20px; cursor: pointer; border:none; color:white; border-radius:5px; font-weight:bold; background: ${currentPage === 0 ? '#ccc' : '#0a66c2'};`;
-    if (currentPage === 0) { prevBtn.disabled = true; } 
-    else { prevBtn.onclick = () => { currentPage--; fetchDecider(); }; }
+    if (currentPage === 0) { prevBtn.disabled = true; } else { prevBtn.onclick = () => { currentPage--; fetchDecider(); }; }
 
     const pageText = document.createElement("span");
     pageText.innerText = `Page ${currentPage + 1}`;
@@ -243,8 +222,7 @@ function printPaginationButtons(currentCount) {
     const nextBtn = document.createElement("button");
     nextBtn.innerText = "Next ➡️";
     nextBtn.style = `padding: 10px 20px; cursor: pointer; border:none; color:white; border-radius:5px; font-weight:bold; background: ${currentCount < pageSize ? '#ccc' : '#0a66c2'};`;
-    if (currentCount < pageSize) { nextBtn.disabled = true; } 
-    else { nextBtn.onclick = () => { currentPage++; fetchDecider(); }; }
+    if (currentCount < pageSize) { nextBtn.disabled = true; } else { nextBtn.onclick = () => { currentPage++; fetchDecider(); }; }
 
     btnDiv.appendChild(prevBtn);
     btnDiv.appendChild(pageText);
@@ -255,7 +233,7 @@ function printPaginationButtons(currentCount) {
 }
 
 // ============================================================================
-// ⚙️ 7. LISTENERS & HELPERS (Readmore, Search)
+// ⚙️ 7. LISTENERS & HELPERS
 // ============================================================================
 function showFullDesc(id) { document.getElementById('short-desc-' + id).style.display = 'none'; document.getElementById('full-desc-' + id).style.display = 'block'; }
 function showShortDesc(id) { document.getElementById('full-desc-' + id).style.display = 'none'; document.getElementById('short-desc-' + id).style.display = 'block'; }
@@ -264,11 +242,8 @@ document.getElementById("search-input").addEventListener("keypress", function(ev
     if (event.key === "Enter") {
         event.preventDefault(); 
         let userInput = this.value.trim();
-        if (userInput !== "") {
-            isSearching = true; searchText = userInput; currentPage = 0; fetchDecider();
-        } else {
-            resetSearch(); 
-        }
+        if (userInput !== "") { isSearching = true; searchText = userInput; currentPage = 0; fetchDecider(); } 
+        else { resetSearch(); }
     }
 });
 
@@ -280,13 +255,9 @@ function resetSearch() {
 function showLoader(show) { document.getElementById("loading").style.display = show ? "block" : "none"; }
 document.getElementById("logout-btn").addEventListener("click", function() { localStorage.clear(); window.location.replace("login.html"); });
 
-
 // ============================================================================
 // 🪟 8. CATEGORY WALA POP-UP (MODAL) LOGIC 
-// 🔗 API: GET /api/Category/id?categoryId={id}
-// 🤔 Kyu banaya?: Subcategory ke andar user uske "Bap" (Parent Category) ki ID aur Name dekh sake.
 // ============================================================================
-
 async function openCategoryModal(categoryId) {
     const detailsContainer = document.getElementById("category-details-container");
     const modalOverlay = document.getElementById("parent-category-modal");
@@ -299,7 +270,6 @@ async function openCategoryModal(categoryId) {
     try {
         const liveToken = checkTokenLive(); if(!liveToken) return;
 
-        // 🔗 Hit your backend API: GET /api/Category/id?categoryId=...
         const url = `${BASE_URL}/api/Category/id?categoryId=${categoryId}`;
         const response = await fetch(url, { method: "GET", headers: { "Authorization": "Bearer " + liveToken } });
         const data = await response.json();
@@ -308,9 +278,9 @@ async function openCategoryModal(categoryId) {
 
         if (data.success === true && data.data) {
             let cat = data.data;
-            // 🚨 NAYA LOGIC: Parent Category ka naam aur ID bold/blue style me dikhao!
+            // 🚨 FIX: Poore dabbe ko <a href="..."> tag ke andar daal diya jisme focusId bhej rahe hain!
             detailsContainer.innerHTML = `
-                <div style="background: #f3f9ff; padding: 15px; border-radius: 8px; border: 1px solid #cce5ff;">
+                <a href="categories.html?focusId=${cat.id}" class="subcat-link-item" style="text-decoration:none; display:block; padding:15px; border-radius:8px; border:1px solid #cce5ff; background:#f3f9ff; transition:0.2s;">
                     <div style="font-size: 18px; font-weight: bold; color: #000; margin-bottom: 5px;">
                         <i class="fa-solid fa-layer-group" style="color:#0a66c2;"></i> ${cat.title}
                     </div>
@@ -320,7 +290,7 @@ async function openCategoryModal(categoryId) {
                     <div style="font-size: 13px; color: #555; margin-top: 10px; line-height: 1.5;">
                         ${cat.desc ? cat.desc.substring(0,100) + '...' : 'No description.'}
                     </div>
-                </div>
+                </a>
             `;
         } else {
             detailsContainer.innerHTML = "<p style='text-align:center; padding: 20px; color:#888;'>Category details not found.</p>";

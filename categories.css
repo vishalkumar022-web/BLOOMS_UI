@@ -301,3 +301,26 @@ body {
     font-family: monospace; /* Font ko code jaisa dikhata hai */
     margin-left: 24px; /* Icon ke aage se shuru karne ke liye */
 }
+
+
+/* =========================================================
+   🚨 NAYA: SCROLLABLE DESCRIPTION (OVERLAP FIX)
+   ========================================================= */
+.scrollable-desc {
+    max-height: 120px; /* Dabba 120px se bada nahi hoga */
+    overflow-y: auto; /* Text bada hua toh scroll aa jayega */
+    padding-right: 8px; /* Scrollbar ke liye jagah chhod di */
+    margin-bottom: 15px; 
+}
+
+/* Scrollbar ko thoda sundar (Blue) aur patla banane ke liye */
+.scrollable-desc::-webkit-scrollbar {
+    width: 6px;
+}
+.scrollable-desc::-webkit-scrollbar-thumb {
+    background-color: #0a66c2; 
+    border-radius: 10px;
+}
+.scrollable-desc::-webkit-scrollbar-track {
+    background: #f0f0f0; 
+}

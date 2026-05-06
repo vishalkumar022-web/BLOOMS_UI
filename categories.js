@@ -42,7 +42,7 @@ async function getCategories() {
         if (data.success === true && data.data.length > 0) {
             printCategoriesOnScreen(data.data); //  Print categories on screen function call ;
 
-            
+
             printPaginationButtons(data.data.length); // Yahan bhi paginate call hoga, par ander jaakar band ho jayega kyunki search off hai
         } else {
             document.getElementById("categories-grid").innerHTML = "<h3 style='grid-column: 1 / -1; text-align:center;'>Bhai, koi category nahi mili!</h3>";
@@ -91,9 +91,6 @@ function fetchDecider() {
 }
 
 
-// ============================================================================
-// 🎨 4. HTML BANAKAR SCREEN PAR CHHAPNA (The Builder)
-// ============================================================================
 function printCategoriesOnScreen(categoryArray) {
     let allHtml = "";
 
@@ -110,38 +107,24 @@ function printCategoriesOnScreen(categoryArray) {
 
     for (let cat of categoryArray) {
         
-        // --------------------------------------------------------------------
-        // 🕒 A. DATE, TIME & STATUS SETUP
-        // --------------------------------------------------------------------
         let timeString = "Just now"; 
-        // Check kar rahe hain ki backend se 'createdDTTM' aaya hai ya nahi
         if (cat.createdDTTM) {
             let dateObj = new Date(cat.createdDTTM);
             timeString = dateObj.toLocaleDateString() + ", " + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
 
-        // Status Setup: Agar backend se status aaya (e.g. Published), toh wo dikhao, warna 'Published' default.
         let catStatus = cat.status ? cat.status.toUpperCase() : "PUBLISHED";
-
-
-        // --------------------------------------------------------------------
-        // 👤 B. CREATOR INFO & PROFILE LINK SETUP
-        // --------------------------------------------------------------------
-        // Creator ki ID pakdo. Agar backend ne nahi bheji, toh category ki ID use kar lo photo ke liye
         let creatorIdFromBackend = cat.createdByUserId || cat.id; 
         let creatorPicUrl = `https://ui-avatars.com/api/?name=${creatorIdFromBackend}&background=random`;
 
         let showSubBtnHtml = `<button class="show-sub-btn" onclick="openSubcategoryModal('${cat.id}', '${cat.title}')">Subcategories</button>`;
 
-        // 🚨 NAYA LOGIC: Author ID par click karne se viewprofile.html par jayega (Same as Blog)
         let cardHeaderHtml = `
             <div class="card-header">
                 <div style="display:flex; align-items:center;">
                     <img src="${creatorPicUrl}" class="author-pic">
                     <div class="author-info">
-                        <!-- Yahan <a> tag lagaya hai Profile page par bhejne ke liye -->
                         <h4><a href="viewprofile.html?userId=${creatorIdFromBackend}" style="text-decoration:none; color:#000; transition:color 0.2s;" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='#000'">Author ID: ${creatorIdFromBackend.substring(0,8)}</a></h4>
-                        <!-- Time aur Status ko ek sath chipka diya -->
                         <p>${timeString} • ${catStatus}</p> 
                     </div>
                 </div>
@@ -149,45 +132,32 @@ function printCategoriesOnScreen(categoryArray) {
             </div>
         `;
 
-
-        // --------------------------------------------------------------------
-        // 🆔 C. CATEGORY ID WALA DABBA (Image ke theek upar)
-        // --------------------------------------------------------------------
-        // Jaise blog me ID dikhti hai, waisi hi yahan Category ID dikhegi
+        // ====================================================================
+        // 🚨 NAYA LOGIC: CATEGORY ID WALA DABBA (Full ID for user convenience)
+        // ====================================================================
+        // Isme hum cat.id.substring() use NAHI kar rahe, directly pura cat.id de rahe hain.
         let metaHtml = `
-            <div style="padding: 10px 15px 5px 15px; font-size: 12px; color: #888; text-transform: uppercase; font-weight: 600;">
-                <span>ID: ${cat.id.substring(0,8)}...</span>
+            <div class="category-id-box">
+                <strong>Category ID :-</strong> ${cat.id}
             </div>
         `;
 
-
-        // --------------------------------------------------------------------
-        // 🖼️ D. IMAGE SETUP
-        // --------------------------------------------------------------------
         let imgSource = cat.categoryUrl ? cat.categoryUrl : "https://via.placeholder.com/400x250?text=No+Image+Available";
         let cardImageHtml = `<img src="${imgSource}" class="category-img" alt="${cat.title}">`;
 
-
-        // --------------------------------------------------------------------
-        // 📖 E. READ MORE / SHOW LESS LOGIC (100% Fixed)
-        // --------------------------------------------------------------------
         let statusBadgeHtml = `<span class="status-badge">Active</span>`;
-
         let fullDescription = cat.desc;
         let finalDescriptionHtml = "";
         
-        // Agar description 100 character se lamba hai, toh usko kaato aur Read More lagao
         if (fullDescription.length > 100) {
             let shortDescription = fullDescription.substring(0, 100) + "...";
             finalDescriptionHtml = `
                 <p id="short-desc-${cat.id}" class="category-desc">
                     ${shortDescription} 
-                    <!-- NAYA: onclick function text ko toggle karega -->
                     <a href="javascript:void(0);" onclick="showFullDesc('${cat.id}')" class="read-more-link">Read More</a>
                 </p>
                 <p id="full-desc-${cat.id}" class="category-desc" style="display:none;">
                     ${fullDescription} 
-                    <!-- NAYA: Wapas chota karne ke liye -->
                     <a href="javascript:void(0);" onclick="showShortDesc('${cat.id}')" class="read-more-link">Show Less</a>
                 </p>
             `;
@@ -202,13 +172,10 @@ function printCategoriesOnScreen(categoryArray) {
             </div>
         `;
 
-        // --------------------------------------------------------------------
-        // 🧱 F. FINAL CARD ASSEMBLY
-        // --------------------------------------------------------------------
         const completeCard = `
             <div class="category-card">
                 ${cardHeaderHtml}
-                ${metaHtml} <!-- Category ID yahan print hogi -->
+                ${metaHtml} <!-- Full Category ID Print Hogi -->
                 ${cardImageHtml}
                 ${cardBodyHtml}
             </div>
@@ -318,69 +285,96 @@ document.getElementById("logout-btn").addEventListener("click", function() {
 //   ke under ke saare subcategories backend se load ho hoker popup me dikhein.
 // ============================================================================
 
-const subModalOverlay = document.getElementById("subcategory-modal");
-const subListContainer = document.getElementById("subcategory-list-container");
-const subModalLoader = document.getElementById("subcategory-loader");
-const modalTitle = document.getElementById("modal-category-title");
+
 
 // 🤔 Kyu banaya?: Ye main function hai jo "Show Subcategory" button dabaane par chalega.
 // 0-Level brute force: modal kholo -> ID pakdo -> API hit karo -> Response list popup me chappo
+
+// ============================================================================
+// 🪟 7. NAYA: POP-UP (MODAL) LOGIC (100% FIXED)
+// ============================================================================
+
 async function openSubcategoryModal(categoryId, categoryTitle) {
-    // 1. Popup overlay and contents ko center me kholo
-    modalTitle.innerText = `Subcategories under "${categoryTitle}"`; // Popup header change kardo
-    subListContainer.innerHTML = ""; // Purani list mita do
-    subModalOverlay.classList.add("show"); // Popup dikhao (CSS standard)
-    
-    subModalLoader.style.display = "block"; // Start loader spinner within popup
+    // 🚨 NAYA FIX: Button dabte hi HTML se taza-taza (fresh) elements uthao
+    const modalTitle = document.getElementById("modal-category-title");
+    const subListContainer = document.getElementById("subcategory-list-container");
+    const subModalOverlay = document.getElementById("subcategory-modal");
+    const subModalLoader = document.getElementById("subcategory-loader");
+
+    modalTitle.innerText = `Subcategories under "${categoryTitle}"`; 
+    subListContainer.innerHTML = ""; 
+    subModalOverlay.classList.add("show"); // Popup khol do
+    subModalLoader.style.display = "block"; // Loader ghuma do
 
     try {
         const liveToken = checkTokenLive(); if(!liveToken) return;
 
-        // 🔗 Hit your backend API (as provided in swagger img image_16.png)
-        // URL is: BASE_URL + "/api/Category/subcategories?categoryId={catId}"
         const url = `${BASE_URL}/api/Category/subcategories?categoryId=${categoryId}`;
-        
         const response = await fetch(url, { 
             method: "GET", 
             headers: { "Authorization": "Bearer " + liveToken } 
         });
         
         const data = await response.json();
-        subModalLoader.style.display = "none"; // Stop loader
+        subModalLoader.style.display = "none"; // Loader band
 
         if (data.success === true && data.data.length > 0) {
-            // 2. RESPONSE PAKADO aur unki list chappo (Brute Force loop)
-            let listHtml = "";
+           let listHtml = "";
             for (let subcat of data.data) {
-                // simple list item tag `<li>` banaye rkhein Bullet rhega professional
-                // `subcat.name` comes from backend response object (swagger image_16.png example value list)
-                listHtml += `<li><i class="fa-solid fa-tags" style="color:#666; margin-right:10px;"></i> ${subcat.name}</li>`;
+                // 🚨 NAYA LOGIC: Name aur ID dono ko BOLD kar diya hai.
+                // ID ka color blue kar diya hai taaki alag se chamke aur copy karne me aasaani ho.
+                listHtml += `
+                    <li>
+                        <a href="subcategories.html?focusId=${subcat.subCategoryId}" class="subcat-link-item" style="text-decoration:none; display:block; padding:12px 15px; border-bottom:1px solid #f0f0f0; transition:0.2s;">
+                            
+                            <!-- Subcategory ka Naam (Bada aur Bold) -->
+                            <div class="subcat-name" style="font-size: 16px; font-weight: bold; color: #000;">
+                                <i class="fa-solid fa-tags" style="color:#0a66c2;"></i> ${subcat.subCategoryTittle}
+                            </div>
+                            
+                            <!-- Subcategory ki ID (Bold, Blue aur thodi choti) -->
+                            <div class="subcat-id" style="font-size: 13px; font-weight: bold; color: #0a66c2; margin-top: 5px; margin-left: 24px;">
+                                ID :- ${subcat.subCategoryId}
+                            </div>
+                            
+                        </a>
+                    </li>
+                `;
             }
-            subListContainer.innerHTML = listHtml; // Inject the assembled list to UI
-        } else {
-            // 3. NO DATA logic: Agar list khali aaaye toh proper message dikhao
+            subListContainer.innerHTML = listHtml; 
+
+        } 
+        else {
             subListContainer.innerHTML = "<p style='text-align:center; padding: 20px; color:#888;'>No subcategories found for this category.</p>";
         }
 
     } catch (error) {
-        subModalLoader.style.display = "none"; // Stop loader
+        subModalLoader.style.display = "none"; 
         subListContainer.innerHTML = "<p style='text-align:center; padding: 20px; color:#ef4444;'>Failed to load subcategories. Server Error!</p>";
     }
 }
 
-//🤔 Kyu banaya?: Popup band karne ke liye jab user X button dabaye.
+// 🚨 NAYA FIX: Close function ko ekdum direct aur simple kar diya
 function closeSubcategoryModal() {
-    subModalOverlay.classList.remove("show"); // Remove class 'show' to hide popup overlay (CSS standard)
+    // Button dabte hi direct ID dhundho aur class 'show' hata do
+    document.getElementById("subcategory-modal").classList.remove("show"); 
 }
 
-// 🤔 Kyu banaya?: Professional UX - Agar user popup ke bahar click kare toh wo automatically band ho jaye.
+// 🚨 NAYA FIX: Popup ke bahar click karne par band hone wala logic
 window.addEventListener('click', function(event) {
-    if (event.target === subModalOverlay) {
+    let modal = document.getElementById("subcategory-modal");
+    // Agar mouse ka click modal-content ke bahar (kaale parde par) hua hai, toh band kar do
+    if (event.target === modal) {
         closeSubcategoryModal();
     }
 });
 
-
+// ============================================================================
+// 🎬 8. APP START
+// ============================================================================
+if (checkTokenLive()) {
+    fetchDecider();
+}
 // ============================================================================
 // 🎬 8. APP START (MAIN LOOP)
 // ============================================================================

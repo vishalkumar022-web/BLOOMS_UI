@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blooms - Subcategories</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="subcategories.css">
+</head>
+<body>
+
+    <!-- ================== NAVBAR ================== -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-left">
+                <h1 class="logo"><i class="fa-solid fa-leaf"></i> Blooms</h1>
+                <div class="search-box">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search subcategories...">
+                </div>
+            </div>
+            
+            <div class="nav-right">
+                <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
+                <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
+                <!-- NAYA: 'active' class ab Subcategories par laga di hai -->
+                <a href="subcategories.html" class="nav-item active"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
+                <a href="ai-chat.html" class="nav-item"><i class="fa-solid fa-robot"></i><span>AI Chat</span></a>
+                <a href="chat.html" class="nav-item"><i class="fa-solid fa-comments"></i><span>Chat</span></a>
+                
+                <div class="nav-divider"></div>
+
+                <button id="profile-btn" class="nav-item btn-style"><i class="fa-solid fa-user-circle"></i><span>Profile</span></button>
+                <button id="logout-btn" class="nav-item btn-style logout"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ================== MAIN CONTENT ================== -->
+    <div class="main-container">
+        <div class="categories-section">
+            <div id="loading" class="loading-spinner">
+                <i class="fa-solid fa-spinner fa-spin"></i> Loading subcategories...
+            </div>
+            
+            <!-- Yahan JS ek row me 3 card wale dabbe banayega -->
+            <div id="subcategories-grid" class="grid-layout"></div>
+            
+            <div id="pagination-container"></div>
+        </div>
+    </div>
+
+    <!-- ================== 🪟 NAYA: CATEGORY WALA POP-UP (MODAL) ================== -->
+    <div class="modal-overlay" id="parent-category-modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeCategoryModal()">&times;</span>
+            <h3 style="margin-bottom: 10px; color:#0a66c2;">Parent Category Details</h3>
+            <hr style="border:none; border-top:1px solid #eee; margin-bottom: 15px;">
+            
+            <div id="category-loader" class="sub-loading" style="display:none; text-align:center;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Fetching Category...
+            </div>
+
+            <!-- Yahan JS Parent category ka result chhapega -->
+            <div id="category-details-container" class="sub-list" style="padding:10px;"></div>
+        </div>
+    </div>
+
+    <script src="subcategories.js"></script>
+</body>
+</html>

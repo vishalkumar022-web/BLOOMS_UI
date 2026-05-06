@@ -1,0 +1,81 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body { background-color: #f3f2ef; color: #333; }
+
+/* NAVBAR (Same) */
+.navbar { position: fixed; top: 0; width: 100%; background-color: #ffffff; height: 60px; display: flex; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 100; }
+.nav-content { display: flex; align-items: center; width: 100%; max-width: 1400px; padding: 0 20px; }
+.nav-left { display: flex; align-items: center; }
+.logo { color: #0a66c2; font-size: 24px; margin-right: 30px; }
+.search-box { background-color: #eef3f8; padding: 8px 15px; display: flex; align-items: center; width: 280px; border-radius: 20px; border: 2px solid transparent; transition: all 0.3s ease; }
+.search-box input { width: 100%; border: none; background: transparent; font-size: 14px; outline: none; margin-left: 10px; }
+.search-box:focus-within { width: 400px; border: 2px solid #0a66c2; background-color: #fff; }
+.nav-right { display: flex; align-items: center; gap: 60px; margin-left: 60px; transition: all 0.3s ease; }
+.nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #666; font-size: 13px; font-weight: 500; transition: 0.3s; cursor: pointer; }
+.nav-item i { font-size: 22px; margin-bottom: 3px; }
+.nav-item:hover, .nav-item.active { color: #000; border-bottom: 2px solid #000; }
+.btn-style { background: transparent; border: none; }
+.btn-style:hover { border-bottom: none; color: #0a66c2;}
+.logout:hover { color: #ef4444 !important; }
+.nav-divider { height: 40px; width: 1px; background-color: #e0e0e0; margin: 0 5px; }
+
+/* MAIN CONTAINER (3 Grid) */
+.main-container { display: flex; justify-content: center; max-width: 1200px; margin: 80px auto 40px auto; padding: 0 20px; }
+.categories-section { width: 100%; }
+.loading-spinner { text-align: center; padding: 30px; color: #666; font-size: 18px; }
+.grid-layout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+
+/* CARD DESIGN */
+.category-card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; }
+.category-card:hover { transform: translateY(-5px); box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 8px 15px rgba(0,0,0,0.1); }
+.card-header { display: flex; align-items: center; justify-content: space-between; padding: 15px; border-bottom: 1px solid #f3f2ef; }
+.author-pic { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover; }
+.author-info h4 { font-size: 14px; color: #000; font-weight: 600; }
+.author-info p { font-size: 12px; color: #666; }
+
+/* SHOW CATEGORY BUTTON */
+.show-sub-btn { padding: 4px 12px; font-size: 11px; font-weight: bold; border-radius: 15px; background-color: transparent; color: #0a66c2; border: 1px solid #0a66c2; cursor: pointer; transition: 0.3s; }
+.show-sub-btn:hover { background-color: #f3f9ff; color: #004b93; border: 1px solid #004b93; }
+
+/* ID BOX */
+.category-id-box { padding: 8px 15px; background-color: #f8f9fa; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; font-size: 13px; color: #333; word-wrap: break-word; }
+.category-id-box strong { color: #0a66c2; }
+
+/* CARD BODY */
+.category-img { width: 100%; height: 250px; object-fit: cover; background-color: #e0e0e0; }
+.category-body { padding: 25px; flex-grow: 1; }
+.category-title { font-size: 22px; color: #000; margin-bottom: 10px; font-weight: 700; }
+.category-desc { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 15px; }
+.read-more-link { color: #0a66c2; font-weight: 600; text-decoration: none; font-size: 14px; cursor: pointer; }
+.read-more-link:hover { text-decoration: underline; }
+.status-badge { display: inline-block; padding: 3px 10px; font-size: 11px; font-weight: bold; border-radius: 20px; background-color: #e6f4ea; color: #28a745; margin-left: 10px; vertical-align: middle; }
+
+/* =========================================================
+   🪟 MODAL (POP-UP) KI STYLING
+   ========================================================= */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 1000; justify-content: center; align-items: center; }
+.modal-overlay.show { display: flex; }
+.modal-content { background: white; border-radius: 12px; padding: 25px; width: 100%; max-width: 450px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.3s ease-out; }
+@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.close-btn { position: absolute; top: 15px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa; transition: 0.2s; }
+.close-btn:hover { color: #ef4444; }
+
+/* =========================================================
+   🚨 MAGIC GLOW EFFECT (JASOOS WALA EFFECT)
+   ========================================================= */
+@keyframes glowMagic {
+    0% { box-shadow: 0 0 5px #0a66c2; border: 2px solid transparent; }
+    50% { box-shadow: 0 0 25px #0a66c2; border: 2px solid #0a66c2; transform: scale(1.02); }
+    100% { box-shadow: 0 0 5px #0a66c2; border: 2px solid transparent; }
+}
+
+/* Ye class JS sirf 2 second ke liye lagayega us dabbe par jo pichle page se click hoke aaya hai */
+.glowing-card {
+    animation: glowMagic 2s ease-in-out;
+    border-radius: 12px; /* Taaki border gol rahe */
+}

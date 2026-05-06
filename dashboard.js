@@ -165,12 +165,13 @@ function fetchDecider() {
 
 
 // ============================================================================
-// 🎨 5. HTML BANAKAR SCREEN PAR CHHAPNA
+// 🎨 HTML BANAKAR SCREEN PAR CHHAPNA
 // ============================================================================
+// Ye function backend se aayi blogs ki list ko padhta hai aur unka HTML card banata hai
 function printBlogsOnScreen(blogArray) {
     let allHtml = "";
 
-    // Search Mode ON hai, toh Back button dikhao
+    // Agar User ne search kiya hai, toh upar ek "Back" button aur Heading dikhao
     if (isSearching === true) {
         allHtml += `
             <div style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.08);">
@@ -182,16 +183,19 @@ function printBlogsOnScreen(blogArray) {
         `;
     }
 
+    // Ek-ek karke saare blogs ko loop me padho
     for (let blog of blogArray) {
         let category = blog.categoryName || "General";
         let subCategory = blog.subCategoryName || "Updates";
 
+        // Time set karna (Kab post hua tha)
         let timeString = "Just now"; 
         if (blog.createdDTTM) {
             let dateObj = new Date(blog.createdDTTM);
             timeString = dateObj.toLocaleDateString() + ", " + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
 
+        // Read More / Show Less logic (Lamba text aadha karne ke liye)
         let shortContent = blog.content;
         let fullContentHtml = "";
         if (blog.content.length > 150) {
@@ -204,21 +208,41 @@ function printBlogsOnScreen(blogArray) {
             fullContentHtml = `<p class="blog-desc">${blog.content}</p>`;
         }
 
+        // Like button ka rang (Agar maine like kiya hai toh Green, nahi toh Grey)
         let isLikedByMe = blog.likedByUsers.includes(myUserName); 
         let likeIconColor = isLikedByMe ? "#28a745" : "#666"; 
         let likeText = isLikedByMe ? "Liked" : "Like";
         let likedByNamesText = blog.likedByUsers.length > 0 ? blog.likedByUsers.join(", ") : "Be the first to like!";
 
+        // ====================================================================
+        // 🛡️ THE SECURITY GUARD: FOLLOW / UNFOLLOW / MY POST LOGIC
+        // ====================================================================
         let followBtnHtml = "";
-        if (blog.authorId !== myUserId) {
+        
+        // String(...) isliye lagaya taaki spaces ka koi issue na ho.
+        // Check karo: Kya Blog ka Malik (authorId) aur Login wala User (myUserId) alag hain?
+        if (String(blog.authorId) !== String(myUserId)) {
+            
+            // YAHAN TABHI AAYEGA JAB BLOG KISI DUSRE AADMI KA HOGA
+            // Check karo ki kya hum is bande ko pehle se follow karte hain?
             let isFollowing = myFollowingList.includes(blog.authorId);
+            
             if (isFollowing) {
+                // Agar follow karte hain, toh "Unfollow" wala button dikhao
                 followBtnHtml = `<button onclick="unfollowUser('${blog.authorId}')" style="padding:4px 15px; font-weight:bold; font-size:13px; border-radius:20px; background:transparent; border:1px solid #666; color:#666; cursor:pointer;">Unfollow</button>`;
             } else {
+                // Agar follow NAHI karte, toh "+ Follow" wala blue button dikhao
                 followBtnHtml = `<button onclick="followUser('${blog.authorId}')" style="padding:4px 15px; font-weight:bold; font-size:13px; border-radius:20px; background:#0a66c2; border:none; color:white; cursor:pointer;">+ Follow</button>`;
             }
+            
+        } else {
+            // 🚨 YAHAN TAB AAYEGA JAB BLOG TERA KHUD KA HOGA!
+            // Yahan hum button ki jagah ek tag dikha denge "My Post"
+            followBtnHtml = `<span style="padding:4px 15px; font-weight:bold; font-size:12px; color:#0a66c2; background:#eef3f8; border-radius:20px;">👤 My Post</span>`;
         }
+        // ====================================================================
 
+        // HTML Card banakar jodo
         const card = `
             <div class="blog-card">
                 <div class="card-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -226,9 +250,10 @@ function printBlogsOnScreen(blogArray) {
                         <img src="https://ui-avatars.com/api/?name=${blog.authorId}&background=random" class="author-pic">
                         <div class="author-info">
                             <h4><a href="viewprofile.html?userId=${blog.authorId}" style="text-decoration:none; color:#000; transition:color 0.2s;" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='#000'">Author ID: ${blog.authorId.substring(0,8)}</a></h4>
-                            <p>${timeString} • ${blog.status }</p> 
+                            <p>${timeString} • Published</p> 
                         </div>
                     </div>
+                    <!-- Yahan hamara upar banaya hua Guard (Follow/Unfollow/My Post) aayega -->
                     <div>${followBtnHtml}</div> 
                 </div>
 
@@ -237,8 +262,8 @@ function printBlogsOnScreen(blogArray) {
                     <span>${category} • ${subCategory}</span>
                 </div>
 
-                <!-- 🟢 NAYA LOGIC: Asli image URL dikhao. Agar user ne image nahi dali hai, toh default "No Image" dikhao jisse UI na fite -->
-            <img src="${blog.blogImageUrl || 'https://via.placeholder.com/800x400?text=No+Image+Available'}" class="blog-image">
+                <!-- Image load hogi -->
+                <img src="${blog.blogImageUrl || 'https://via.placeholder.com/800x400?text=No+Image+Available'}" class="blog-image">
 
                 <div class="card-body">
                     <h2 class="blog-title">${blog.title}</h2>

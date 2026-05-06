@@ -1,0 +1,243 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f3f2ef; 
+    color: #333;
+}
+
+/* ================== NAVBAR (Dashboard Jaisa) ================== */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #ffffff;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+.nav-content { display: flex; align-items: center; width: 100%; max-width: 1400px; padding: 0 20px; }
+.nav-left { display: flex; align-items: center; }
+.logo { color: #0a66c2; font-size: 24px; margin-right: 30px; }
+
+.search-box {
+    background-color: #eef3f8; padding: 8px 15px; display: flex; align-items: center;
+    width: 280px; border-radius: 20px; border: 2px solid transparent; transition: all 0.3s ease; 
+}
+.search-box input { width: 100%; border: none; background: transparent; font-size: 14px; outline: none; margin-left: 10px; }
+.search-box:focus-within { width: 400px; border: 2px solid #0a66c2; background-color: #fff; }
+
+.nav-right { display: flex; align-items: center; gap: 60px; margin-left: 60px; transition: all 0.3s ease; }
+.nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #666; font-size: 13px; font-weight: 500; transition: 0.3s; cursor: pointer; }
+.nav-item i { font-size: 22px; margin-bottom: 3px; }
+.nav-item:hover, .nav-item.active { color: #000; border-bottom: 2px solid #000; }
+.btn-style { background: transparent; border: none; }
+.btn-style:hover { border-bottom: none; color: #0a66c2;}
+.logout:hover { color: #ef4444 !important; }
+.nav-divider { height: 40px; width: 1px; background-color: #e0e0e0; margin: 0 5px; }
+
+/* ================== MAIN CONTAINER ================== */
+.main-container {
+    display: flex;
+    justify-content: center;
+    max-width: 1200px; 
+    margin: 80px auto 40px auto; 
+    padding: 0 20px;
+}
+
+.categories-section {
+    width: 100%;
+}
+
+.loading-spinner { text-align: center; padding: 30px; color: #666; font-size: 18px; }
+
+/* 🟢 GRID: Ek line me 3 dabbe. Ise mat mitaana, ye full screen failure ka fix hai. */
+.grid-layout {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px; 
+}
+
+/* ================== CATEGORY CARD DESIGN (Naya professional style) ================== */
+.category-card {
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden; 
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 8px 15px rgba(0,0,0,0.1);
+}
+
+/* 🚨 NAYA: Card ka header jisme Creator aur Date aayegi (Blog style) */
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* L: Creator, R: Subcategory button */
+    padding: 15px;
+    border-bottom: 1px solid #f3f2ef;
+}
+
+.author-pic { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover; }
+.author-info h4 { font-size: 14px; color: #000; font-weight: 600; }
+.author-info p { font-size: 12px; color: #666; }
+
+/* 🚨 NAYA: Show Subcategory wala button (Jahan Follow button tha) */
+.show-sub-btn {
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 20px;
+    background-color: transparent;
+    color: #0a66c2; /* Blooms ka blue color */
+    border: 1px solid #0a66c2;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.show-sub-btn:hover {
+    background-color: #f3f9ff;
+    color: #004b93;
+    border: 1px solid #004b93;
+}
+
+/* Category ki Image (Choti kar di kyuki header add ho gaya hai) */
+.category-img {
+    width: 100%;
+    height: 160px; /* Thodi choti */
+    object-fit: cover; 
+    background-color: #e0e0e0;
+}
+
+.category-body {
+    padding: 20px; 
+    flex-grow: 1; 
+}
+
+.category-title {
+    font-size: 20px;
+    color: #000;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.category-desc {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+/* ReadMore link (Blog Jaisa exact standard) */
+.read-more-link {
+    color: #0a66c2;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+.read-more-link:hover { text-decoration: underline; }
+
+/* Active Status wala badge (Location safe rakhi hai upar title ke pas) */
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 20px;
+    background-color: #e6f4ea; /* Green light */
+    color: #28a745;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+/* =========================================================
+   🪟 NAYA: POP-UP (MODAL) KA DESIGN
+   ========================================================= */
+
+/* Overlay: Poori screen cover karne wala kaala background */
+.modal-overlay {
+    display: none; /* Shuru me chhupa rahega */
+    position: fixed; 
+    top: 0; left: 0; 
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* 60% transparent black */
+    z-index: 1000; /* Sabse aage dikhana hai main page ke upar */
+    justify-content: center; /* Center me popup ko lane ke liye */
+    align-items: center;
+}
+
+/* Javascript class toggle karega jab popup show hoga */
+.modal-overlay.show {
+    display: flex;
+}
+
+/* Asli Pop-up (Shishe jaisa) */
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: popIn 0.3s ease-out; /* Smooth pop animation */
+}
+
+/* Smooth zoom-in animation popup khulte waqt */
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Close (X) button */
+.close-btn {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #aaa;
+    transition: 0.2s;
+}
+.close-btn:hover {
+    color: #ef4444; /* Mouse le jane par laal ho jayega */
+}
+
+/* Loading dabba (spinner) pop up ke andar */
+.sub-loading {
+    color: #888;
+    font-size: 14px;
+    padding: 10px 0;
+}
+
+/* Subcategory ki list */
+.sub-list {
+    list-style: none; /* No dots (bullet points) */
+    max-height: 250px; /* Lamba na khinche isliye max-height set ki */
+    overflow-y: auto; /* Agar jyada hon subcategory toh scroll bar aa jaye */
+    padding-right: 5px;
+}
+
+/* Ek specific subcategory item */
+.sub-list li {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 15px;
+    color: #333;
+    font-weight: 500;
+}
+.sub-list li:last-child {
+    border-bottom: none; /* Last wale par line nahi dikhani */
+}

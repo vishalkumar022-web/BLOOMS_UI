@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blooms - Categories</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="categories.css">
+</head>
+<body>
+
+    <!-- ================== NAVBAR (Same as Dashboard) ================== -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-left">
+                <h1 class="logo"><i class="fa-solid fa-leaf"></i> Blooms</h1>
+                <div class="search-box">
+                    <i class="fa-solid fa-search"></i>
+                    <!-- NAYA: Placeholder change karke 'Search categories...' kar diya -->
+                    <input type="text" id="search-input" placeholder="Search categories...">
+                </div>
+            </div>
+            
+            <div class="nav-right">
+                <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
+                <!-- NAYA: 'active' class ab Categories par laga di hai -->
+                <a href="categories.html" class="nav-item active"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
+                <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
+                <a href="ai-chat.html" class="nav-item"><i class="fa-solid fa-robot"></i><span>AI Chat</span></a>
+                <a href="chat.html" class="nav-item"><i class="fa-solid fa-comments"></i><span>Chat</span></a>
+                
+                <div class="nav-divider"></div>
+
+                <button id="profile-btn" class="nav-item btn-style"><i class="fa-solid fa-user-circle"></i><span>Profile</span></button>
+                <button id="logout-btn" class="nav-item btn-style logout"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ================== MAIN CONTENT (No sidebars) ================== -->
+    <div class="main-container">
+        
+        <!-- Pura section center aur bada dikhega -->
+        <div class="categories-section">
+            <div id="loading" class="loading-spinner">
+                <i class="fa-solid fa-spinner fa-spin"></i> Loading categories...
+            </div>
+            
+            <!-- Yahan JS ek row me 3 card wale dabbe banayega -->
+            <div id="categories-grid" class="grid-layout"></div>
+            
+            <!-- Pagination yahan aayega -->
+            <div id="pagination-container"></div>
+        </div>
+
+    </div>
+
+
+
+
+    <!-- Tere baaki code ke niche, just above </body> -->
+
+    <!-- ======================================================= -->
+    <!-- 🪟 NAYA: SUBCATEGORY WALA POP-UP (MODAL) -->
+    <!-- ======================================================= -->
+    <!-- overlay: Ye poori screen ka kaala background hai jo main page ko dhak dega -->
+    <div class="modal-overlay" id="subcategory-modal">
+        <!-- modal-content: Ye asli shishe wala dabba hai jo popup me dikhega -->
+        <div class="modal-content">
+            <!-- X button pop band karne ke liye -->
+            <span class="close-btn" onclick="closeSubcategoryModal()">&times;</span>
+            <h3 id="modal-category-title" style="margin-bottom: 10px; color:#0a66c2;">Subcategories</h3>
+            <hr style="border:none; border-top:1px solid #eee; margin-bottom: 15px;">
+            
+            <!-- isloading dabba pop up ke andar jab tak data loading ho rha ho tab dikhega -->
+            <div id="subcategory-loader" class="sub-loading" style="display:none; text-align:center;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Loading...
+            </div>
+
+            <!-- Yahan JS un saari subcategories ki list banakar chhapega -->
+            <ul id="subcategory-list-container" class="sub-list"></ul>
+        </div>
+    </div>
+
+    <script src="categories.js"></script>
+</body>
+</html>
+
+
+    <script src="categories.js"></script>
+</body>
+</html>

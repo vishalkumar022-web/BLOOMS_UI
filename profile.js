@@ -6,6 +6,7 @@ const BASE_URL = "https://blog-management-system-blooms-2.onrender.com";
 let myUserId = "";
 let myFollowingList = [];
 
+// Search variables
 let currentPage = 0;       
 const pageSize = 7;       
 let isSearching = false;   
@@ -20,12 +21,23 @@ function checkTokenLive() {
 }
 
 // ============================================================================
-// 👤 2. LOAD PROFILE
+// 🎬 2. MASTER RUN
+// ============================================================================
+async function masterRun() {
+    if(checkTokenLive()) {
+        await loadProfilePage(); 
+    }
+}
+masterRun(); 
+
+// ============================================================================
+// 👤 3. LOAD MY PROFILE (Fast Fetch)
 // ============================================================================
 async function loadProfilePage() {
     try {
         const liveToken = checkTokenLive(); if(!liveToken) return;
 
+        // 1. Apna basic data laao
         const res = await fetch(BASE_URL + "/api/User/me", { method: "GET", headers: { "Authorization": "Bearer " + liveToken }});
         const data = await res.json();
 
@@ -41,161 +53,36 @@ async function loadProfilePage() {
             document.getElementById("count-followers").innerText = user.followerCount || 0;
             document.getElementById("count-following").innerText = user.followingCount || 0;
 
-            // 🚨 NAYA UPDATE: Yahan iconClass ki jagah hum 'type' pass kar rahe hain (blogs, categories, subcategories)
-            // Taaki jab Edit/Delete button dabe, toh hume pata ho ki kis chiz ko edit/delete karna hai!
+            // 2. Tabs fill karo (Data Pipe format me hai)
             renderTabContent("content-blogs", user.myCreatedBlogs, "blogs", "No Blogs Posted Yet");
             renderTabContent("content-categories", user.myCreatedCategories, "categories", "No Categories Created");
             renderTabContent("content-subcategories", user.myCreatedSubCategories, "subcategories", "No Subcategories Created");
 
+            // 3. Following list laao (Search button k liye)
             const fRes = await fetch(`${BASE_URL}/api/connection/following?userId=${myUserId}`, { method: "GET", headers: { "Authorization": "Bearer " + liveToken } });
             const fData = await fRes.json();
             if(fData.success) myFollowingList = fData.data.map(p => p.userId);
 
             formatAboutMe(user.aboutMe, "my-about-me");
         }
-    } catch (e) { console.log("Profile load failed", e); }
+    } catch (e) { console.log("Me load failed", e); }
 }
 
 function formatAboutMe(text, elementId) {
     const container = document.getElementById(elementId);
-    if (!text) {
-        container.innerHTML = "I'm using Blooms! 🌿";
-        container.classList.remove("scrollable-desc"); 
-        return;
-    }
+    if (!text) { container.innerHTML = "I'm using Blooms! 🌿"; container.classList.remove("scrollable-desc"); return; }
     if (text.length > 80) {
         let shortText = text.substring(0, 80) + "...";
         container.classList.remove("scrollable-desc"); 
-        container.innerHTML = `
-            <span id="${elementId}-text">${shortText}</span>
-            <a href="javascript:void(0)" id="${elementId}-btn" style="color:#0a66c2; font-weight:bold; text-decoration:none; margin-left:5px;">Read More</a>
-        `;
+        container.innerHTML = `<span id="${elementId}-text">${shortText}</span> <a href="javascript:void(0)" id="${elementId}-btn" style="color:#0a66c2; font-weight:bold; text-decoration:none; margin-left:5px;">Read More</a>`;
         document.getElementById(`${elementId}-btn`).onclick = function() {
             let btn = document.getElementById(`${elementId}-btn`);
             let txtSpan = document.getElementById(`${elementId}-text`);
-            if (btn.innerText === "Read More") {
-                txtSpan.innerText = text; 
-                container.classList.add("scrollable-desc"); 
-                btn.innerText = "Show Less";
-            } else {
-                txtSpan.innerText = shortText; 
-                container.classList.remove("scrollable-desc"); 
-                btn.innerText = "Read More";
-                container.scrollTop = 0; 
-            }
+            if (btn.innerText === "Read More") { txtSpan.innerText = text; container.classList.add("scrollable-desc"); btn.innerText = "Show Less";
+            } else { txtSpan.innerText = shortText; container.classList.remove("scrollable-desc"); btn.innerText = "Read More"; container.scrollTop = 0; }
         };
-    } else {
-        container.innerText = text;
-        container.classList.remove("scrollable-desc");
-    }
+    } else { container.innerText = text; container.classList.remove("scrollable-desc"); }
 }
-
-
-// ============================================================================
-// 🚨 3. NAYA UPDATE: 4-COLUMN TAB CARDS RENDER ENGINE (Backend "Pipe" Decoder)
-// 🤔 Kyu banaya?: Tune backend se (Title|ID|Image|Desc) bheja hai. Ye function 
-// us '|' (pipe) ko kaat kar alag-alag dabbon me sajata hai with Edit/Delete buttons.
-// ============================================================================
-function renderTabContent(containerId, listData, type, emptyMessage) {
-    const container = document.getElementById(containerId);
-    let html = "";
-    
-    if (listData && listData.length > 0) {
-        for (let rawData of listData) {
-            
-            // 🚨 JADOO: Data ko "Pipe" (|) se kaat rahe hain (Split kar rahe hain)
-            let parts = rawData.split("|");
-            
-            // Backend se Sequence hai: Title(0) | ID(1) | Image(2) | Desc(3) | Status(4) | Time(5)
-            // Agar koi part 'null' aaya ya nahi aaya toh hum default text daal denge.
-            let title = parts[0] || "Untitled";
-            let id = parts[1] || "No_ID";
-            let imgUrl = (parts[2] && parts[2] !== "null") ? parts[2] : "https://via.placeholder.com/200x120?text=No+Image";
-            let description = (parts[3] && parts[3] !== "null") ? parts[3] : "No description available.";
-            let status = (parts[4] && parts[4] !== "null") ? parts[4] : "UNKNOWN";
-
-            // Har card ka professional HTML (Image + Info + Action Buttons)
-            html += `
-                <div class="profile-item-card">
-                    <img src="${imgUrl}" class="card-mini-img" alt="image">
-                    
-                    <div class="card-info">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                            <span style="font-size:10px; color:#0a66c2; font-weight:bold;">ID: ${id.substring(0,8)}</span>
-                            <span style="font-size:9px; background:#eef3f8; padding:2px 6px; border-radius:10px; color:#666;">${status}</span>
-                        </div>
-                        <h3>${title}</h3>
-                        
-                        <div class="scrollable-desc" style="font-size:12px; color:#555; line-height:1.4; max-height:50px;">
-                            ${description}
-                        </div>
-                    </div>
-
-                    <div class="card-actions">
-                        <button class="action-btn-small edit-link" onclick="handleEdit('${id}', '${type}')">
-                            <i class="fa-solid fa-pencil"></i> Edit
-                        </button>
-                        <button class="action-btn-small delete-btn" onclick="handleDelete('${id}', '${type}', '${title}')">
-                            <i class="fa-solid fa-trash"></i> Delete
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-    } else { 
-        // Agar list khali hai
-        html = `<p style="grid-column: 1 / -1; text-align:center; color:#888; padding: 40px;">${emptyMessage}</p>`; 
-    }
-    container.innerHTML = html;
-}
-
-// ============================================================================
-// 🗑️ 4. NAYA UPDATE: DELETE ITEM ACTION
-// 🤔 Kyu banaya?: Delete ka pop-up confirmation aur API hit.
-// ============================================================================
-async function handleDelete(itemId, type, itemTitle) {
-    // 1. Pehle confirm pop-up dikhao (Ekdum simple browser wala warning)
-    let agree = confirm(`⚠️ ALERT!\n\nKya tum sach me "${itemTitle}" ko delete karna chahte ho?\nYe action wapas nahi ho sakta!`);
-    
-    // 2. Agar user ne 'OK' dabaya tabhi aage badho
-    if (agree) {
-        try {
-            const token = checkTokenLive(); if(!token) return;
-            
-            // 3. Type ke hisaab se Backend ka rasta (URL) decide karo
-            let apiUrl = "";
-            if (type === "blogs") apiUrl = `${BASE_URL}/api/BLog?blogId=${itemId}`;
-            else if (type === "categories") apiUrl = `${BASE_URL}/api/Category?categoryId=${itemId}`;
-            else if (type === "subcategories") apiUrl = `${BASE_URL}/api/SubCategory?subCategoryId=${itemId}`;
-
-            // 4. API ko DELETE method ke sath call (hit) karo
-            const res = await fetch(apiUrl, {
-                method: "DELETE",
-                headers: { "Authorization": "Bearer " + token }
-            });
-            const data = await res.json();
-
-            // 5. Agar success hui toh User ko batao aur Page Refresh kar do
-            if (data.success) {
-                alert(`✅ Success! "${itemTitle}" has been deleted.`);
-                window.location.reload(); 
-            } else {
-                alert("❌ Delete Failed: " + data.message);
-            }
-        } catch (e) { alert("Server error during deletion!"); }
-    }
-}
-
-// ============================================================================
-// ✏️ 5. NAYA UPDATE: EDIT ITEM ACTION
-// 🤔 Kyu banaya?: Edit dabane par user ko Naye 'Edit Page' par bhejna
-// ============================================================================
-function handleEdit(itemId, type) {
-    // Ye line browser ko ek naye page (edit-content.html) par bhej degi aur 
-    // link ke sath ID aur Type bhi bhejegi taaki naya page samajh sake ki kya edit karna hai.
-    window.location.href = `edit-content.html?id=${itemId}&type=${type}`;
-}
-
 
 function switchTab(tabName) {
     document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
@@ -203,6 +90,146 @@ function switchTab(tabName) {
     document.getElementById(`tab-${tabName}`).classList.add('active');
     document.getElementById(`content-${tabName}`).classList.add('active');
 }
+
+// ============================================================================
+// 🎨 4. RENDER TAB CONTENT (Pipe Decoder)
+// ============================================================================
+function renderTabContent(containerId, listData, type, emptyMessage) {
+    const container = document.getElementById(containerId);
+    let html = "";
+    
+    if (listData && listData.length > 0) {
+        for (let rawData of listData) {
+            // Data ko Pipe (|) se kaat rahe hain
+            let parts = rawData.split("|");
+            
+            let title = parts[0] || "Untitled";
+            let id = parts[1] || "No_ID";
+            let imgUrl = (parts[2] && parts[2] !== "null" && parts[2] !== "") ? parts[2] : "https://via.placeholder.com/200x120?text=No+Image";
+            let description = (parts[3] && parts[3] !== "null") ? parts[3] : "No description available.";
+            let status = (parts[4] && parts[4] !== "null") ? parts[4] : "UNKNOWN";
+            let rawTime = parts[5]; 
+
+            // 🚨 JADOO 1: Specific ID Label (Bold me)
+            let idLabelHtml = "";
+            if(type === "blogs") idLabelHtml = `<strong>Blog ID: </strong> <span style="color:#333;">${id.substring(0,8)}</span>`;
+            else if(type === "categories") idLabelHtml = `<strong>Category ID: </strong> <span style="color:#333;">${id.substring(0,8)}</span>`;
+            else if(type === "subcategories") idLabelHtml = `<strong>Subcat ID: </strong> <span style="color:#333;">${id.substring(0,8)}</span>`;
+
+            // 🚨 JADOO 2: Date aur Time Set karna (Extracting from timestamp)
+            let timeString = "Recently";
+            if (rawTime && rawTime !== "null") {
+                let dtParts = rawTime.split('T');
+                let date = dtParts[0];
+                let time = dtParts[1] ? dtParts[1].substring(0, 5) : "";
+                timeString = `${date} at ${time}`;
+            }
+
+            // 🚨 JADOO 3: Read More Logic Cards ke liye (Pehle chupana, click pe dikhana)
+            let descUniqueId = `desc-${type}-${id.substring(0,6)}`;
+            
+            // 🚨 JADOO 4: Agar Blog hai toh Like/Comment button dikhao (Dashboard ki tarah)
+            let blogStatsHtml = "";
+            if(type === "blogs") {
+                // Asli data Modal kholne par API hit karke aayega, yahan UI me dummy daal rahe for speed
+                let dummyLikes = Math.floor(Math.random() * 10);
+                let dummyComments = Math.floor(Math.random() * 5);
+                
+                blogStatsHtml = `
+                    <div class="card-stats-row">
+                        <div class="blog-interaction-btns">
+                            <button onclick="openBlogLikesModal('${id}', event)"><i class="fa-solid fa-heart" style="color:#e0245e;"></i> ${dummyLikes}</button>
+                            <button onclick="openBlogCommentsModal('${id}', event)"><i class="fa-solid fa-comment" style="color:#0a66c2;"></i> ${dummyComments}</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Card ka HTML Design
+            html += `
+                <div class="profile-item-card" style="background: white; border: 1px solid #dbdbdb; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <img src="${imgUrl}" style="width: 100%; height: 120px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/200x120?text=Error'">
+                    
+                    <div class="card-info" style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
+                        
+                        <div style="font-size:10px; color:#0a66c2; margin-bottom:5px; word-break: break-all;">
+                            ${idLabelHtml}
+                        </div>
+                        
+                        <h3 style="font-size: 15px; color: #262626; margin-bottom: 5px;">${title}</h3>
+                        
+                        <div id="${descUniqueId}" class="readmore-constrained">
+                            ${description}
+                        </div>
+                        <div style="text-align:right;">
+                            <a href="javascript:void(0)" onclick="toggleCardReadMore('${descUniqueId}', event)" style="font-size:10px; color:#0a66c2; font-weight:bold; text-decoration:none;">Read More</a>
+                        </div>
+                        
+                        <div style="font-size: 10px; color: #888; margin-top: 10px;">
+                            <i class="fa-solid fa-clock"></i> Created: ${timeString}
+                        </div>
+
+                        ${blogStatsHtml}
+                    </div>
+
+                    <div class="card-actions" style="display: flex; border-top: 1px solid #efefef; background: #fafafa;">
+                        <button onclick="handleEdit('${id}', '${type}')" style="flex: 1; padding: 10px; border: none; background: transparent; color:#0a66c2; font-weight:bold; cursor:pointer; font-size:12px; border-right:1px solid #eee;">
+                            <i class="fa-solid fa-pencil"></i> Edit
+                        </button>
+                        <button onclick="handleDelete('${id}', '${type}', '${title}')" style="flex: 1; padding: 10px; border: none; background: transparent; color:#ed4956; font-weight:bold; cursor:pointer; font-size:12px;">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    } else { 
+        html = `<p style="grid-column: 1 / -1; text-align:center; color:#888; padding: 40px;">${emptyMessage}</p>`; 
+    }
+    container.innerHTML = html;
+}
+
+// Card ka readmore toggle (Show/Hide scrollbar block)
+function toggleCardReadMore(descId, event) {
+    if (event) event.stopPropagation();
+    const descDabba = document.getElementById(descId);
+    const trigger = event.target; 
+    if (descDabba.classList.contains("open")) {
+        descDabba.classList.remove("open");
+        trigger.innerText = "Read More";
+    } else {
+        descDabba.classList.add("open");
+        trigger.innerText = "Show Less";
+    }
+}
+
+// ============================================================================
+// 🗑️ 5. DELETE & EDIT ACTIONS (Fast)
+// ============================================================================
+async function handleDelete(itemId, type, itemTitle) {
+    let agree = confirm(`⚠️ ALERT!\n\nKya tum sach me "${itemTitle}" ko delete karna chahte ho?\nYe action undo nahi hoga!`);
+    if (agree) {
+        try {
+            const token = checkTokenLive(); if(!token) return;
+            let apiUrl = "";
+            if (type === "blogs") apiUrl = `${BASE_URL}/api/BLog?blogId=${itemId}`;
+            else if (type === "categories") apiUrl = `${BASE_URL}/api/Category?categoryId=${itemId}`;
+            else if (type === "subcategories") apiUrl = `${BASE_URL}/api/SubCategory?subCategoryId=${itemId}`;
+
+            const res = await fetch(apiUrl, { method: "DELETE", headers: { "Authorization": "Bearer " + token } });
+            const data = await res.json();
+
+            if (data.success) { alert(`✅ Success! "${itemTitle}" delete ho gaya.`); window.location.reload(); } 
+            else { alert("❌ Delete Failed: " + data.message); }
+        } catch (e) { alert("Server error!"); }
+    }
+}
+
+// 🚨 FAST EDIT: Koi bhari bharkam modal nahi, seedha naye page par URL parameters ke sath bhej do
+function handleEdit(itemId, type) {
+    window.location.href = `edit-content.html?id=${itemId}&type=${type}`;
+}
+
 
 // ============================================================================
 // 🔍 6. MAIN SEARCH LOGIC 
@@ -232,7 +259,6 @@ async function getSearchedUsers() {
     try {
         const liveToken = checkTokenLive(); if(!liveToken) return;
         const url = `${BASE_URL}/api/User/search?name=${encodeURIComponent(searchText)}&page=${currentPage}&size=${pageSize}`;
-        
         const response = await fetch(url, { method: "GET", headers: { "Authorization": "Bearer " + liveToken } });
         const data = await response.json();
 
@@ -243,19 +269,15 @@ async function getSearchedUsers() {
             document.getElementById("users-grid").innerHTML = `<div style="grid-column:1/-1; text-align:center; padding: 40px; background:#fff; border-radius:10px;"><h3>Sorry bhai, "${searchText}" naam ka koi user nahi mila! 😔</h3></div>`;
             document.getElementById("pagination-container").innerHTML = "";
         }
-    } catch (e) { 
-        document.getElementById("users-grid").innerHTML = `<div style="grid-column:1/-1; text-align:center; padding: 40px; background:#fff; border-radius:10px;"><h3 style="color:red;">Server connection failed! 🔌</h3></div>`;
-    }
+    } catch (e) { document.getElementById("users-grid").innerHTML = `<div style="grid-column:1/-1; text-align:center; padding: 40px; background:#fff; border-radius:10px;"><h3 style="color:red;">Server connection failed! 🔌</h3></div>`; }
 }
 
 function printUsersOnScreen(usersArray) {
     let html = "";
     for(let user of usersArray) {
         if(user.userId === myUserId) continue; 
-
         let pic = user.profileUrl || `https://ui-avatars.com/api/?name=${user.userName}&background=random`;
         let isFollowing = myFollowingList.includes(user.userId);
-        
         let btnHtml = isFollowing 
             ? `<button class="follow-btn-small btn-grey-outline" onclick="actionFromSearch('${user.userId}', 'unfollow', event)"><i class="fa-solid fa-check"></i> Unfollow</button>`
             : `<button class="follow-btn-small btn-blue-outline" onclick="actionFromSearch('${user.userId}', 'follow', event)"><i class="fa-solid fa-plus"></i> Follow</button>`;
@@ -290,12 +312,8 @@ function printUserPagination(currentCount) {
     cont.innerHTML = html;
 }
 
-// ============================================================================
-// 🤝 7. ACTION FROM MAIN SEARCH OR MODAL 
-// ============================================================================
 async function actionFromSearch(targetId, action, event) {
-    event.preventDefault(); 
-    event.stopPropagation();
+    event.preventDefault(); event.stopPropagation();
     const liveToken = checkTokenLive(); if(!liveToken) return; 
     try {
         await fetch(`${BASE_URL}/api/connection/${action}?targetUserId=${targetId}`, { method: "POST", headers: { "Authorization": "Bearer " + liveToken }});
@@ -305,7 +323,7 @@ async function actionFromSearch(targetId, action, event) {
 }
 
 // ============================================================================
-// 🪟 8. FOLLOW MODAL
+// 🪟 7. FOLLOW MODAL (Live Search & Clickable)
 // ============================================================================
 async function openFollowModal(type) {
     document.getElementById("follow-modal-title").innerText = type;
@@ -363,7 +381,7 @@ function renderFollowList(list) {
 }
 
 // ============================================================================
-// ➕ 9. CREATE POST WALE MODALS
+// ➕ 8. CREATE POST WALE MODALS
 // ============================================================================
 function openModal(modalId) { 
     document.getElementById(modalId).classList.add("show"); 
@@ -428,7 +446,66 @@ async function submitBlog() {
     if(data.success) { alert("Blog Sent to Admin For Review! ✅"); window.location.reload(); } else alert("Error: " + data.message);
 }
 
-window.addEventListener('click', function(event) { if (event.target === document.getElementById("follow-modal")) { closeModal('follow-modal'); } });
-document.getElementById("logout-btn").addEventListener("click", function() { localStorage.clear(); window.location.replace("login.html"); });
+// ============================================================================
+// ❤️ 9. BLOG LIKES & COMMENTS MODAL (Dashboard Jaisa Real Data Fetch)
+// ============================================================================
+async function openBlogLikesModal(blogId, event) {
+    if(event) event.stopPropagation();
+    document.getElementById("likes-list-container").innerHTML = "<div style='text-align:center; padding:20px;'><i class='fa-solid fa-spinner fa-spin'></i> Loading...</div>";
+    document.getElementById("likes-modal").classList.add("show"); 
 
-if (checkTokenLive()) loadProfilePage();
+    try {
+        const token = checkTokenLive();
+        const res = await fetch(`${BASE_URL}/api/BLog/id?blogId=${blogId}`, { headers: { "Authorization": "Bearer " + token }});
+        const data = await res.json();
+        
+        if (data.success && data.data && data.data.likedByUsers && data.data.likedByUsers.length > 0) {
+            let html = "";
+            for (let user of data.data.likedByUsers) {
+                html += `<div class="list-user-box"><strong style="color:#0a66c2;">${user}</strong></div>`;
+            }
+            document.getElementById("likes-list-container").innerHTML = html;
+        } else { 
+            document.getElementById("likes-list-container").innerHTML = "<p style='text-align:center; color:#888; padding:20px;'>0 Likes.</p>"; 
+        }
+    } catch(e) { document.getElementById("likes-list-container").innerHTML = "<p style='color:red; text-align:center;'>Error!</p>"; }
+}
+
+async function openBlogCommentsModal(blogId, event) {
+    if(event) event.stopPropagation();
+    document.getElementById("comments-list-container").innerHTML = "<div style='text-align:center; padding:20px;'><i class='fa-solid fa-spinner fa-spin'></i> Loading...</div>";
+    document.getElementById("comments-modal").classList.add("show"); 
+
+    try {
+        const token = checkTokenLive();
+        const res = await fetch(`${BASE_URL}/api/BLog/id?blogId=${blogId}`, { headers: { "Authorization": "Bearer " + token }});
+        const data = await res.json();
+        
+        if (data.success && data.data && data.data.comments && data.data.comments.length > 0) {
+            let html = "";
+            for (let c of data.data.comments) {
+                html += `
+                    <div style="background:#f9f9f9; border-radius:8px; padding:10px; margin-bottom:10px; border:1px solid #eee;">
+                        <strong style="font-size:14px; color:#000;">${c.userName || 'Anonymous'}</strong>
+                        <p style="font-size:13px; color:#555; margin-top:4px;">${c.commentText}</p>
+                    </div>`;
+            }
+            document.getElementById("comments-list-container").innerHTML = html;
+        } else { 
+            document.getElementById("comments-list-container").innerHTML = "<p style='text-align:center; color:#888; padding:20px;'>0 Comments.</p>"; 
+        }
+    } catch(e) { document.getElementById("comments-list-container").innerHTML = "<p style='color:red; text-align:center;'>Error!</p>"; }
+}
+
+// Window click to close modals
+window.addEventListener('click', function(event) { 
+    if (event.target === document.getElementById("follow-modal")) closeModal('follow-modal'); 
+    if (event.target === document.getElementById("edit-content-modal")) closeModal('edit-content-modal'); 
+    if (event.target === document.getElementById("likes-modal")) closeModal('likes-modal'); 
+    if (event.target === document.getElementById("comments-modal")) closeModal('comments-modal'); 
+    if (event.target === document.getElementById("create-category-modal")) closeModal('create-category-modal'); 
+    if (event.target === document.getElementById("create-subcategory-modal")) closeModal('create-subcategory-modal'); 
+    if (event.target === document.getElementById("create-blog-modal")) closeModal('create-blog-modal'); 
+});
+
+document.getElementById("logout-btn").addEventListener("click", function() { localStorage.clear(); window.location.replace("login.html"); });

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Content</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f3f2ef; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding-top: 50px; padding-bottom: 50px;}
+        .edit-box { background: white; padding: 30px; border-radius: 12px; width: 600px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative;}
+        
+        .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; padding-bottom:10px; border-bottom:1px solid #eee; }
+        .back-btn { padding:6px 12px; background:#fafafa; border:1px solid #ccc; border-radius:5px; cursor:pointer; font-weight:bold; color:#555;}
+        .back-btn:hover { background:#eee;}
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label { font-weight: bold; font-size: 13px; color: #555; display: block; margin-bottom: 5px; }
+        
+        .input-wrapper { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; background: #fafafa; padding-right: 10px;}
+        .input-wrapper input, .input-wrapper textarea, .input-wrapper select { flex: 1; padding: 12px; border: none; background: transparent; outline: none; font-size: 14px;}
+        .input-wrapper input:disabled, .input-wrapper textarea:disabled, .input-wrapper select:disabled { color: #888; }
+        .input-wrapper i { color: #0a66c2; cursor: pointer; padding: 5px; }
+        .input-wrapper i:hover { color: #004b93; }
+
+        .upload-btn-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding-left: 10px;}
+        .upload-file-btn { padding: 5px 12px; background:transparent; color:#0a66c2; border:1px solid #0a66c2; border-radius:15px; font-size:12px; font-weight:bold; cursor:pointer; transition: 0.2s;}
+        .upload-file-btn:hover { background:#f3f9ff; }
+        .file-info { font-size:12px; color:#666; }
+
+        .save-btn { width: 100%; padding: 12px; background: #0a66c2; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size:16px; transition:0.2s; margin-top: 10px;}
+        .save-btn:hover { background: #004b93;}
+    </style>
+</head>
+<body>
+    <div class="edit-box">
+        <div class="header">
+            <h2 style="color:#0a66c2;"><i class="fa-solid fa-pen-to-square"></i> Edit <span id="page-title-type">Content</span></h2>
+            <button class="back-btn" onclick="window.history.back()">⬅️ Back</button>
+        </div>
+
+        <input type="hidden" id="edit-id">
+        <input type="hidden" id="edit-type">
+
+        <div class="input-group">
+            <label>Title</label>
+            <div class="input-wrapper"><input type="text" id="edit-title" disabled> <i class="fa-solid fa-pencil" onclick="unlock('edit-title')"></i></div>
+        </div>
+
+        <div class="input-group">
+            <label>Image URL</label>
+            <div class="input-wrapper"><input type="text" id="edit-img" disabled placeholder="Link or Base64"> <i class="fa-solid fa-pencil" onclick="unlock('edit-img')"></i></div>
+            
+            <div class="upload-btn-row">
+                <span>OR</span>
+                <input type="file" id="file-pic" style="display:none;" accept="image/*" onchange="handleFileUpload(this, 'edit-img', 'info-pic')">
+                <button class="upload-file-btn" onclick="document.getElementById('file-pic').click()"><i class="fa-solid fa-upload"></i> Add from File</button>
+                <span id="info-pic" class="file-info"></span>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Description (Short)</label>
+            <div class="input-wrapper"><textarea id="edit-desc" rows="3" disabled></textarea> <i class="fa-solid fa-pencil" onclick="unlock('edit-desc')"></i></div>
+        </div>
+
+        <div id="blog-extra-fields" style="display: none;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="input-group">
+                    <label>Category</label>
+                    <div class="input-wrapper">
+                        <select id="edit-blog-cat" disabled onchange="loadSubcategories(this.value)"><option value="">Select...</option></select> 
+                        <i class="fa-solid fa-pencil" onclick="unlock('edit-blog-cat')"></i>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>SubCategory</label>
+                    <div class="input-wrapper">
+                        <select id="edit-blog-subcat" disabled><option value="">Select...</option></select> 
+                        <i class="fa-solid fa-pencil" onclick="unlock('edit-blog-subcat')"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Full Blog Content</label>
+                <div class="input-wrapper"><textarea id="edit-content" rows="6" disabled></textarea> <i class="fa-solid fa-pencil" onclick="unlock('edit-content')"></i></div>
+            </div>
+        </div>
+
+        <button class="save-btn" onclick="saveChanges()"><i class="fa-solid fa-save"></i> Save Changes</button>
+    </div>
+
+    <script src="edit-content.js"></script>
+</body>
+</html>

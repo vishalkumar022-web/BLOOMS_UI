@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f3f2ef; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding-top: 50px; padding-bottom: 50px;}
+        .edit-box { background: white; padding: 30px; border-radius: 12px; width: 600px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative;}
+        
+        .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; padding-bottom:10px; border-bottom:1px solid #eee; }
+        .back-btn { padding:6px 12px; background:#fafafa; border:1px solid #ccc; border-radius:5px; cursor:pointer; font-weight:bold; color:#555;}
+        .back-btn:hover { background:#eee;}
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label { font-weight: bold; font-size: 13px; color: #555; display: block; margin-bottom: 5px; }
+        
+        /* Brute Force Input Styling (Lock/Unlock) */
+        .input-wrapper { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; background: #fafafa; padding-right: 10px;}
+        .input-wrapper input, .input-wrapper textarea { flex: 1; padding: 12px; border: none; background: transparent; outline: none; font-size: 15px;}
+        /* input disable hone par grey dekhega */
+        .input-wrapper input:disabled, .input-wrapper textarea:disabled { color: #888; }
+        .input-wrapper i { color: #0a66c2; cursor: pointer; padding: 5px; }
+        .input-wrapper i:hover { color: #004b93; }
+
+        /* 🚨 Upload File Button Style */
+        .upload-btn-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding-left: 10px;}
+        .upload-file-btn { 
+            padding: 5px 12px; background:transparent; color:#0a66c2; border:1px solid #0a66c2; 
+            border-radius:15px; font-size:12px; font-weight:bold; cursor:pointer; transition: 0.2s;
+        }
+        .upload-file-btn:hover { background:#f3f9ff; }
+        .file-info { font-size:12px; color:#666; }
+
+        .save-btn { width: 100%; padding: 12px; background: #0a66c2; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size:16px; transition:0.2s;}
+        .save-btn:hover { background:#004b93;}
+    </style>
+</head>
+<body>
+    <div class="edit-box">
+        <div class="header">
+            <h2 style="color:#0a66c2;"><i class="fa-solid fa-user-gear"></i> Edit Profile</h2>
+            <button class="back-btn" onclick="window.location.href='profile.html'">⬅️ Back</button>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="input-group">
+                <label>Name</label>
+                <div class="input-wrapper"><input type="text" id="ep-name" disabled placeholder="e.g. Rahul Sharma"> <i class="fa-solid fa-pencil" onclick="unlock('ep-name')" title="Click to Edit"></i></div>
+            </div>
+            <div class="input-group">
+                <label>Username</label>
+                <div class="input-wrapper"><input type="text" id="ep-username" disabled placeholder="unique_rahul"> <i class="fa-solid fa-pencil" onclick="unlock('ep-username')"></i></div>
+            </div>
+            <div class="input-group">
+                <label>Phone Number</label>
+                <div class="input-wrapper"><input type="text" id="ep-phone" disabled placeholder="+91 9876543210"> <i class="fa-solid fa-pencil" onclick="unlock('ep-phone')"></i></div>
+            </div>
+            <div class="input-group">
+                <label>Email Address</label>
+                <div class="input-wrapper"><input type="email" id="ep-email" disabled placeholder="rahul@email.com"> <i class="fa-solid fa-pencil" onclick="unlock('ep-email')"></i></div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Profile Picture URL</label>
+            <div class="input-wrapper"><input type="text" id="ep-pic" disabled placeholder="Link starts with http or data:"> <i class="fa-solid fa-pencil" onclick="unlock('ep-pic')"></i></div>
+            
+            <div class="upload-btn-row">
+                <span>OR</span>
+                <input type="file" id="file-pic" style="display:none;" accept="image/*" onchange="handleFileUpload(this, 'ep-pic', 'info-pic')">
+                <button class="upload-file-btn" onclick="document.getElementById('file-pic').click()"><i class="fa-solid fa-upload"></i> Add from File</button>
+                <span id="info-pic" class="file-info"></span>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Background Image URL</label>
+            <div class="input-wrapper"><input type="text" id="ep-bg" disabled placeholder="Link starts with http or data:"> <i class="fa-solid fa-pencil" onclick="unlock('ep-bg')"></i></div>
+            
+            <div class="upload-btn-row">
+                <span>OR</span>
+                <input type="file" id="file-bg" style="display:none;" accept="image/*" onchange="handleFileUpload(this, 'ep-bg', 'info-bg')">
+                <button class="upload-file-btn" onclick="document.getElementById('file-bg').click()"><i class="fa-solid fa-upload"></i> Add from File</button>
+                <span id="info-bg" class="file-info"></span>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>About Me (Bio)</label>
+            <div class="input-wrapper"><textarea id="ep-about" rows="3" disabled placeholder="Tell us about yourself..."></textarea> <i class="fa-solid fa-pencil" onclick="unlock('ep-about')"></i></div>
+        </div>
+
+        <button class="save-btn" onclick="saveProfile()"><i class="fa-solid fa-save"></i> Save Changes</button>
+    </div>
+
+    <script src="edit-profile.js"></script>
+</body>
+</html>

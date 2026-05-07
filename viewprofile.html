@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blooms - View Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-left">
+                <h1 class="logo"><i class="fa-solid fa-leaf"></i> Blooms</h1>
+            </div>
+            
+            <div class="nav-right">
+                <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
+                <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
+                <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
+                <div class="nav-divider"></div>
+                <a href="profile.html" class="nav-item"><i class="fa-solid fa-user-circle"></i><span>Profile</span></a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="profile-container" style="margin-top: 80px; max-width: 935px; margin-left: auto; margin-right: auto; padding: 0 20px;">
+        
+        <div id="profile-view">
+            <div class="profile-header">
+                
+                <div class="profile-pic-section" style="display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1; margin-right: 30px;">
+                    <img id="other-profile-pic" src="https://via.placeholder.com/150" alt="Profile Pic" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
+                    
+                    <button id="dynamic-follow-btn" style="width:100%; max-width:150px; padding:10px 16px; background-color:#0a66c2; color:white; border:none; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer; display:none;">
+                        Loading...
+                    </button>
+                </div>
+                
+                <div class="profile-info-section" style="flex: 2;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <h2 id="other-username" class="username-text">loading...</h2>
+                        <span id="other-role" class="role-badge">USER</span>
+                    </div>
+                    <h4 id="other-fullname" class="fullname-text">Loading...</h4>
+                    <div class="about-me-box scrollable-desc" id="other-about-me">Loading bio...</div>
+
+                    <div class="profile-stats">
+                        <div class="stat-box">
+                            <span id="other-followers" class="stat-number">0</span> Followers
+                        </div>
+                        <div class="stat-box">
+                            <span id="other-following" class="stat-number">0</span> Following
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="profile-tabs">
+                <div class="tab-item active" id="tab-blogs" onclick="switchTab('blogs')"><i class="fa-solid fa-newspaper"></i> BLOGS</div>
+                <div class="tab-item" id="tab-categories" onclick="switchTab('categories')"><i class="fa-solid fa-layer-group"></i> CATEGORIES</div>
+                <div class="tab-item" id="tab-subcategories" onclick="switchTab('subcategories')"><i class="fa-solid fa-tags"></i> SUBCATEGORIES</div>
+            </div>
+
+            <div class="tab-content-container">
+                <div id="content-blogs" class="content-grid active"></div>
+                <div id="content-categories" class="content-grid"></div>
+                <div id="content-subcategories" class="content-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="viewprofile.js"></script>
+</body>
+</html>

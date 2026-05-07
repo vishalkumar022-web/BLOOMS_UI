@@ -13,12 +13,19 @@
         <div class="nav-content">
             <div class="nav-left">
                 <h1 class="logo"><i class="fa-solid fa-leaf"></i> Blooms</h1>
+                <div class="search-box">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search Users...">
+                </div>
             </div>
             
             <div class="nav-right">
                 <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
                 <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
                 <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
+                <a href="ai-chat.html" class="nav-item"><i class="fa-solid fa-robot"></i><span>AI Chat</span></a>
+                <a href="chat.html" class="nav-item"><i class="fa-solid fa-comments"></i><span>Chat</span></a>
+                
                 <div class="nav-divider"></div>
                 <a href="profile.html" class="nav-item active"><i class="fa-solid fa-user-circle"></i><span>Profile</span></a>
                 <button id="logout-btn" class="nav-item btn-style logout"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></button>
@@ -26,84 +33,81 @@
         </div>
     </nav>
 
-    <div class="profile-container">
+    <div class="profile-container" style="margin-top: 80px; max-width: 935px; margin-left: auto; margin-right: auto; padding: 0 20px;">
         
-        <div class="profile-header">
-            <div class="profile-pic-section">
-                <img id="my-profile-pic" src="https://via.placeholder.com/150" alt="Profile Pic">
-            </div>
-            
-            <div class="profile-info-section">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <h2 id="my-username" class="username-text">username_loading</h2>
-                    <span id="my-role" class="role-badge">USER</span>
+        <div id="profile-view">
+            <div class="profile-header">
+                
+                <div class="profile-pic-section" style="display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1; margin-right: 30px;">
+                    <img id="my-profile-pic" src="https://via.placeholder.com/150" alt="Profile Pic" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
+                    
+                    <button class="edit-profile-btn" onclick="window.location.href='edit-profile.html'">
+                        <i class="fa-solid fa-pen"></i> Edit Profile
+                    </button>
                 </div>
                 
-                <h4 id="my-fullname" class="fullname-text">Full Name Loading</h4>
-                
-                <div class="about-me-box scrollable-desc" id="my-about-me">
-                    Loading bio...
-                </div>
-
-                <div class="profile-stats">
-                    <div class="stat-box" onclick="openFollowModal('followers')">
-                        <span id="count-followers" class="stat-number">0</span> Followers
+                <div class="profile-info-section" style="flex: 2;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <h2 id="my-username" class="username-text">loading...</h2>
+                        <span id="my-role" class="role-badge">USER</span>
                     </div>
-                    <div class="stat-box" onclick="openFollowModal('following')">
-                        <span id="count-following" class="stat-number">0</span> Following
+                    <h4 id="my-fullname" class="fullname-text">Loading...</h4>
+                    <div class="about-me-box scrollable-desc" id="my-about-me">Loading bio...</div>
+
+                    <div class="profile-stats">
+                        <div class="stat-box" onclick="openFollowModal('followers')">
+                            <span id="count-followers" class="stat-number">0</span> Followers
+                        </div>
+                        <div class="stat-box" onclick="openFollowModal('following')">
+                            <span id="count-following" class="stat-number">0</span> Following
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <hr class="divider">
+
+            <div class="action-buttons-container" style="justify-content: center;">
+                <div class="action-item" onclick="openModal('create-blog-modal')">
+                    <div class="circle-btn"><i class="fa-solid fa-plus"></i></div>
+                    <span>Post Blog</span>
+                </div>
+                <div class="action-item" onclick="openModal('create-category-modal')">
+                    <div class="circle-btn"><i class="fa-solid fa-plus"></i></div>
+                    <span>Post Category</span>
+                </div>
+                <div class="action-item" onclick="openModal('create-subcategory-modal')">
+                    <div class="circle-btn"><i class="fa-solid fa-plus"></i></div>
+                    <span>Post SubCategory</span>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="profile-tabs">
+                <div class="tab-item active" id="tab-blogs" onclick="switchTab('blogs')"><i class="fa-solid fa-newspaper"></i> MY BLOGS</div>
+                <div class="tab-item" id="tab-categories" onclick="switchTab('categories')"><i class="fa-solid fa-layer-group"></i> MY CATEGORIES</div>
+                <div class="tab-item" id="tab-subcategories" onclick="switchTab('subcategories')"><i class="fa-solid fa-tags"></i> MY SUBCATEGORIES</div>
+            </div>
+
+            <div class="tab-content-container">
+                <div id="content-blogs" class="content-grid active"></div>
+                <div id="content-categories" class="content-grid"></div>
+                <div id="content-subcategories" class="content-grid"></div>
+            </div>
         </div>
-
-        <hr class="divider">
-
-        <div class="action-buttons-container">
-            <div class="action-item" onclick="openCreateModal('blog')">
-                <div class="circle-btn"><i class="fa-solid fa-plus"></i></div>
-                <span>Post Blog</span>
-            </div>
-            <div class="action-item" onclick="openCreateModal('category')">
-                <div class="circle-btn"><i class="fa-solid fa-plus"></i></div>
-                <span>Post Category</span>
-            </div>
-            <div class="action-item" onclick="openCreateModal('subcategory')">
-                <div class="circle-btn"><i class="fa-solid fa-plus"></i></div>
-                <span>Post SubCategory</span>
-            </div>
-        </div>
-
-        <hr class="divider">
-
-        <div class="profile-tabs">
-            <div class="tab-item active" id="tab-blogs" onclick="switchTab('blogs')">
-                <i class="fa-solid fa-newspaper"></i> MY BLOGS
-            </div>
-            <div class="tab-item" id="tab-categories" onclick="switchTab('categories')">
-                <i class="fa-solid fa-layer-group"></i> MY CATEGORIES
-            </div>
-            <div class="tab-item" id="tab-subcategories" onclick="switchTab('subcategories')">
-                <i class="fa-solid fa-tags"></i> MY SUBCATEGORIES
-            </div>
-        </div>
-
-        <div class="tab-content-container">
-            <div id="content-blogs" class="content-grid active"></div>
-            <div id="content-categories" class="content-grid"></div>
-            <div id="content-subcategories" class="content-grid"></div>
-        </div>
-
     </div>
 
     <div class="modal-overlay" id="follow-modal">
-        <div class="modal-content" style="max-width: 400px;">
-            <span class="close-btn" onclick="closeModal('follow-modal')">&times;</span>
-            <h3 id="follow-modal-title" style="margin-bottom: 15px; text-transform: capitalize;">List</h3>
-            <hr style="border:none; border-top:1px solid #eee; margin-bottom: 15px;">
-            <div id="follow-loader" class="sub-loading" style="display:none; text-align:center;">
+        <div class="modal-content" style="max-width: 400px; padding: 0; overflow: hidden;">
+            <div style="padding: 15px; border-bottom: 1px solid #efefef; text-align: center; position: relative;">
+                <h3 id="follow-modal-title" style="text-transform: capitalize; font-size: 16px;">List</h3>
+                <span class="close-btn" onclick="closeModal('follow-modal')" style="position: absolute; right: 15px; top: 12px; font-size: 24px;">&times;</span>
+            </div>
+            <div id="follow-loader" class="sub-loading" style="display:none; text-align:center; padding: 20px;">
                 <i class="fa-solid fa-spinner fa-spin"></i> Loading...
             </div>
-            <div id="follow-list-container" class="sub-list"></div>
+            <div id="follow-list-container" class="sub-list" style="max-height: 400px; overflow-y: auto;"></div>
         </div>
     </div>
 

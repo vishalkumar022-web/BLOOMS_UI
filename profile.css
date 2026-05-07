@@ -1,157 +1,109 @@
+/* Purana sara profile.css hata ke ye complete code daalo bhai */
+
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
 body { background-color: #fafafa; color: #333; }
 
-/* Navbar (Same as before) */
+/* ================== 1. NAVBAR (Exact Same as Dashboard) ================== */
 .navbar { position: fixed; top: 0; width: 100%; background-color: #ffffff; height: 60px; display: flex; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); z-index: 100; }
 .nav-content { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 1400px; padding: 0 20px; }
-.logo { color: #0a66c2; font-size: 24px; }
-.nav-right { display: flex; align-items: center; gap: 40px; transition: all 0.3s ease; }
+.logo { color: #0a66c2; font-size: 24px; font-weight: bold; }
+.nav-left { display: flex; align-items: center; gap: 30px; }
+
+/* 🚨 Tune bola tha focus hone par width bade aur color change ho */
+/* SEARCH BOX WALA JADOO (Exact same as Dashboard) */
+.search-box { 
+    background-color: #eef3f8; padding: 8px 15px; display: flex; 
+    align-items: center; width: 280px; border-radius: 20px; 
+    border: 2px solid transparent; /* Shuru me koi border nahi */
+    transition: all 0.3s ease; /* Smooth effect ke liye */
+}
+.search-box i { color: #666; font-size: 14px; margin-right: 10px; }
+.search-box input { width: 100%; border: none; background: transparent; font-size: 14px; outline: none; }
+
+/* 🚨 FIX: Focus hone par Jadoo chalega */
+.search-box:focus-within { 
+    width: 400px; /* Width badh gayi */
+    border: 2px solid #0a66c2; /* Color blue ho gaya */
+    background-color: #fff; /* Background safed ho gaya */
+}
+
+/* Nav links (Right side) */
+.nav-right { display: flex; align-items: center; gap: 40px; }
 .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #666; font-size: 13px; font-weight: 500; transition: 0.3s; cursor: pointer; }
 .nav-item i { font-size: 22px; margin-bottom: 3px; }
 .nav-item:hover, .nav-item.active { color: #000; border-bottom: 2px solid #000; }
 .btn-style { background: transparent; border: none; }
+.logout:hover { color: #ef4444 !important; }
 .nav-divider { height: 40px; width: 1px; background-color: #e0e0e0; margin: 0 5px; }
 
-/* ================== PROFILE MAIN CONTAINER ================== */
-.profile-container {
-    max-width: 935px; /* Insta jaisa fixed center width */
-    margin: 90px auto 40px auto;
-    padding: 0 20px;
-}
+/* ================== 2. PROFILE CONTAINER ================== */
+.profile-header { display: flex; align-items: flex-start; margin-bottom: 30px; }
 
-/* 1. HEADER (Flexbox: Photo Left, Info Right) */
-.profile-header {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 30px;
+/* 🚨 FIX: NAYA BUTTON STYLE (Photo ke niche) */
+.edit-profile-btn {
+    width: 100%; /* Photo jitni width */
+    max-width: 150px;
+    padding: 10px 16px;
+    background-color: #0a66c2; /* Blue Background */
+    color: #ffffff; /* White Font */
+    border: none;
+    border-radius: 8px;
+    font-weight: bold; /* Bold text */
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
 }
-
-.profile-pic-section {
-    flex: 1; /* Left side ka hissa */
-    display: flex;
-    justify-content: center;
-    margin-right: 30px;
-}
-.profile-pic-section img {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%; /* Photo ko Gol (Circle) banata hai */
-    object-fit: cover;
-    border: 2px solid #ddd;
-    padding: 3px; /* Insta jaisa halka gap */
-}
-
-.profile-info-section {
-    flex: 2; /* Right side ka hissa bada hoga */
-    display: flex;
-    flex-direction: column;
-}
+.edit-profile-btn:hover { background-color: #004b93; }
+.edit-profile-btn i { margin-right: 5px; }
 
 .username-text { font-size: 28px; font-weight: 300; color: #262626; margin-bottom: 5px; }
 .role-badge { background: #eef3f8; color: #0a66c2; font-size: 12px; font-weight: bold; padding: 3px 10px; border-radius: 15px; }
 .fullname-text { font-size: 16px; font-weight: 600; color: #262626; margin-top: 10px; margin-bottom: 5px; }
-
-/* 🚨 Scrollable About Me (Teri requirement) */
-.about-me-box {
-    font-size: 15px;
-    color: #444;
-    line-height: 1.5;
-    margin-bottom: 20px;
-    max-width: 500px; /* Lamba na khinche */
-}
+.about-me-box { font-size: 15px; color: #444; line-height: 1.5; margin-bottom: 20px; max-width: 500px; }
 .scrollable-desc { max-height: 80px; overflow-y: auto; padding-right: 8px; }
 .scrollable-desc::-webkit-scrollbar { width: 5px; }
 .scrollable-desc::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 10px; }
-
-/* Stats (Followers/Following) */
 .profile-stats { display: flex; gap: 40px; margin-top: 10px; }
 .stat-box { font-size: 16px; color: #262626; cursor: pointer; transition: 0.2s; }
-.stat-box:hover { color: #0a66c2; }
+.stat-box:hover { color: #0a66c2; text-decoration: underline; }
 .stat-number { font-weight: bold; }
-
 .divider { border: none; border-top: 1px solid #dbdbdb; margin: 20px 0; }
 
-/* 2. CIRCULAR ACTION BUTTONS */
-.action-buttons-container {
-    display: flex;
-    justify-content: flex-start;
-    gap: 50px;
-    padding: 10px 20px;
-}
-.action-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-.action-item:hover { transform: scale(1.05); } /* Hover par bada hoga */
-.circle-btn {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    border: 1px solid #dbdbdb;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    color: #262626;
-    margin-bottom: 10px;
-    background-color: #fafafa;
-}
+/* Post Buttons Center (profile.html me inline flex set kiya hai humne) */
+.action-buttons-container { display: flex; gap: 50px; padding: 10px 20px; }
+.action-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.2s; }
+.action-item:hover { transform: scale(1.05); }
+.circle-btn { width: 70px; height: 70px; border-radius: 50%; border: 1px solid #dbdbdb; display: flex; justify-content: center; align-items: center; font-size: 24px; color: #262626; margin-bottom: 10px; background-color: #fafafa; }
 .action-item span { font-size: 13px; font-weight: 600; color: #262626; }
 
-/* 3. TABS */
-.profile-tabs {
-    display: flex;
-    justify-content: center;
-    gap: 60px;
-    border-top: 1px solid #dbdbdb;
-}
-.tab-item {
-    padding: 15px 0;
-    font-size: 12px;
-    font-weight: bold;
-    color: #8e8e8e;
-    cursor: pointer;
-    letter-spacing: 1px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-top: 1px solid transparent; /* Shuru me koi line nahi */
-    transition: 0.3s;
-}
-.tab-item.active {
-    color: #262626;
-    border-top: 1px solid #262626; /* Active hone par upar kaali line (Insta style) */
-}
+/* Tabs */
+.profile-tabs { display: flex; justify-content: center; gap: 60px; border-top: 1px solid #dbdbdb; }
+.tab-item { padding: 15px 0; font-size: 12px; font-weight: bold; color: #8e8e8e; cursor: pointer; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; border-top: 1px solid transparent; transition: 0.3s; }
+.tab-item.active { color: #262626; border-top: 1px solid #262626; }
 
-/* 4. CONTENT GRID */
+/* Content Grid (1 row में 3 item) */
 .tab-content-container { padding: 20px 0; }
-.content-grid {
-    display: none; /* Shuru me sab chhupa do */
-    grid-template-columns: repeat(3, 1fr); /* Ek line me 3 item */
-    gap: 20px;
-}
-.content-grid.active {
-    display: grid; /* Jo active hai wahi dikhega */
-}
-
-/* Chote Cards for Content */
-.mini-card {
-    background: white; border: 1px solid #dbdbdb; border-radius: 8px;
-    padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
+.content-grid { display: none; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.content-grid.active { display: grid; }
+.mini-card { background: white; border: 1px solid #dbdbdb; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 .mini-card i { font-size: 30px; color: #0a66c2; margin-bottom: 10px; }
 .mini-card h3 { font-size: 16px; color: #262626; }
 
-/* MODALS */
+/* Modals & Inputs Design */
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 1000; justify-content: center; align-items: center; }
 .modal-overlay.show { display: flex; }
-.modal-content { background: white; border-radius: 12px; padding: 20px; width: 100%; position: relative; animation: popIn 0.3s ease-out; }
+.modal-content { background: white; border-radius: 12px; padding: 25px; width: 100%; position: relative; animation: popIn 0.3s ease-out; }
 @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #aaa; }
-.sub-list { max-height: 250px; overflow-y: auto; }
-.list-user-box { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; }
-.list-user-box img { width: 40px; height: 40px; border-radius: 50%; margin-right: 15px; }
-.list-user-box strong { font-size: 14px; color: #262626; }
+.close-btn { position: absolute; font-size: 28px; cursor: pointer; color: #aaa; transition: 0.2s; }
+.close-btn:hover { color: #ef4444; }
+
+.modal-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; outline: none; background: #fafafa; }
+.modal-input:focus { border-color: #0a66c2; background: #fff; }
+.submit-btn { width: 100%; padding: 12px; background: #0a66c2; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
+.submit-btn:hover { background: #004b93; }
+
+/* Followers/Following List Design */
+.list-user-box { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: #333; transition: background 0.2s; }
+.list-user-box:hover { background-color: #f9f9f9; }
+.list-user-box img { width: 44px; height: 44px; border-radius: 50%; margin-right: 15px; object-fit: cover; }
+.list-user-box strong { font-size: 14px; color: #262626; font-weight: 600; }

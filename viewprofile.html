@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blooms - View Profile</title>
+    <title>Blooms - User Profile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="profile.css">
 </head>
@@ -13,29 +13,39 @@
         <div class="nav-content">
             <div class="nav-left">
                 <h1 class="logo"><i class="fa-solid fa-leaf"></i> Blooms</h1>
+                <div class="search-box">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search Users...">
+                </div>
             </div>
             
             <div class="nav-right">
                 <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
                 <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
                 <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
+                <a href="ai-chat.html" class="nav-item"><i class="fa-solid fa-robot"></i><span>AI Chat</span></a>
+                <a href="chat.html" class="nav-item"><i class="fa-solid fa-comments"></i><span>Chat</span></a>
                 <div class="nav-divider"></div>
                 <a href="profile.html" class="nav-item"><i class="fa-solid fa-user-circle"></i><span>Profile</span></a>
+                <button id="logout-btn" class="nav-item btn-style logout"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></button>
             </div>
         </div>
     </nav>
 
     <div class="profile-container" style="margin-top: 80px; max-width: 935px; margin-left: auto; margin-right: auto; padding: 0 20px;">
         
+        <div style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 0 0 1px rgba(0,0,0,0.05);">
+            <button onclick="window.history.back()" style="padding: 8px 15px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                ⬅️ Back
+            </button>
+        </div>
+
         <div id="profile-view">
             <div class="profile-header">
                 
                 <div class="profile-pic-section" style="display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1; margin-right: 30px;">
                     <img id="other-profile-pic" src="https://via.placeholder.com/150" alt="Profile Pic" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
-                    
-                    <button id="dynamic-follow-btn" style="width:100%; max-width:150px; padding:10px 16px; background-color:#0a66c2; color:white; border:none; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer; display:none;">
-                        Loading...
-                    </button>
+                    <button id="dynamic-follow-btn" class="edit-profile-btn" style="display: none;"></button>
                 </div>
                 
                 <div class="profile-info-section" style="flex: 2;">
@@ -47,10 +57,10 @@
                     <div class="about-me-box scrollable-desc" id="other-about-me">Loading bio...</div>
 
                     <div class="profile-stats">
-                        <div class="stat-box">
+                        <div class="stat-box" onclick="openFollowModal('followers')" style="cursor: pointer;">
                             <span id="other-followers" class="stat-number">0</span> Followers
                         </div>
-                        <div class="stat-box">
+                        <div class="stat-box" onclick="openFollowModal('following')" style="cursor: pointer;">
                             <span id="other-following" class="stat-number">0</span> Following
                         </div>
                     </div>
@@ -70,6 +80,22 @@
                 <div id="content-categories" class="content-grid"></div>
                 <div id="content-subcategories" class="content-grid"></div>
             </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="follow-modal">
+        <div class="modal-content" style="max-width: 420px; padding: 0; overflow: hidden;">
+            <div style="padding: 15px; border-bottom: 1px solid #efefef; text-align: center; position: relative;">
+                <h3 id="follow-modal-title" style="text-transform: capitalize; font-size: 16px;">List</h3>
+                <span class="close-btn" onclick="closeModal('follow-modal')">&times;</span>
+            </div>
+            <div style="padding: 10px 15px; background: #fafafa; border-bottom: 1px solid #efefef;">
+                <input type="text" id="modal-search-input" placeholder="Search user..." style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; outline: none; font-size: 14px;">
+            </div>
+            <div id="follow-loader" class="sub-loading" style="display:none; text-align:center; padding: 20px;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Loading...
+            </div>
+            <div id="follow-list-container" class="sub-list" style="max-height: 400px; overflow-y: auto;"></div>
         </div>
     </div>
 

@@ -6,14 +6,13 @@ const BASE_URL = "https://blog-management-system-blooms-2.onrender.com";
 let myUserId = "";
 let myFollowingList = [];
 
-// Search variables
 let currentPage = 0;       
 const pageSize = 7;       
 let isSearching = false;   
 let searchText = ""; 
-
 let currentModalData = []; 
 
+// 🛡️ Security Guard: Bina login ke bhagao
 function checkTokenLive() {
     const t = localStorage.getItem("token");
     if (!t) { window.location.replace("login.html"); return false; }
@@ -65,23 +64,44 @@ async function loadProfilePage() {
 
             formatAboutMe(user.aboutMe, "my-about-me");
         }
-    } catch (e) { console.log("Me load failed", e); }
+    } catch (e) { 
+        console.log("Me load failed", e); 
+        // 🚨 NAYA: Agar error aaye toh "loading..." na atke
+        document.getElementById("my-username").innerText = "Error";
+        document.getElementById("my-fullname").innerText = "Failed to load data. Please refresh.";
+    }
 }
 
+// 📖 Profile page wala about me (Read more on 80 chars)
 function formatAboutMe(text, elementId) {
     const container = document.getElementById(elementId);
-    if (!text) { container.innerHTML = "I'm using Blooms! 🌿"; container.classList.remove("scrollable-desc"); return; }
+    if (!text) { container.innerHTML = "I'm using Blooms! 🌿"; container.classList.remove("scrollable-desc", "open-bio"); return; }
+    
     if (text.length > 80) {
         let shortText = text.substring(0, 80) + "...";
-        container.classList.remove("scrollable-desc"); 
+        container.classList.add("scrollable-desc"); // Base class for styling
+        container.classList.remove("open-bio"); // Shuru me band rakho
+        
         container.innerHTML = `<span id="${elementId}-text">${shortText}</span> <a href="javascript:void(0)" id="${elementId}-btn" style="color:#0a66c2; font-weight:bold; text-decoration:none; margin-left:5px;">Read More</a>`;
+        
         document.getElementById(`${elementId}-btn`).onclick = function() {
             let btn = document.getElementById(`${elementId}-btn`);
             let txtSpan = document.getElementById(`${elementId}-text`);
-            if (btn.innerText === "Read More") { txtSpan.innerText = text; container.classList.add("scrollable-desc"); btn.innerText = "Show Less";
-            } else { txtSpan.innerText = shortText; container.classList.remove("scrollable-desc"); btn.innerText = "Read More"; container.scrollTop = 0; }
+            if (btn.innerText === "Read More") { 
+                txtSpan.innerText = text; 
+                container.classList.add("open-bio"); // 🚨 Class add ki, CSS isko scrollbar dega
+                btn.innerText = "Show Less";
+            } else { 
+                txtSpan.innerText = shortText; 
+                container.classList.remove("open-bio"); // 🚨 Class remove ki, scrollbar gayab
+                btn.innerText = "Read More"; 
+                container.scrollTop = 0; 
+            }
         };
-    } else { container.innerText = text; container.classList.remove("scrollable-desc"); }
+    } else { 
+        container.innerText = text; 
+        container.classList.remove("scrollable-desc", "open-bio"); 
+    }
 }
 
 function switchTab(tabName) {
@@ -92,7 +112,7 @@ function switchTab(tabName) {
 }
 
 // ============================================================================
-// 🎨 4. RENDER TAB CONTENT (Pipe Decoder)
+// 🎨 4. RENDER TAB CONTENT (Pipe Decoder + Bold ID + Date Time)
 // ============================================================================
 function renderTabContent(containerId, listData, type, emptyMessage) {
     const container = document.getElementById(containerId);
@@ -100,7 +120,9 @@ function renderTabContent(containerId, listData, type, emptyMessage) {
     
     if (listData && listData.length > 0) {
         for (let rawData of listData) {
-            // Data ko Pipe (|) se kaat rahe hain
+            if(!rawData) continue; // Safety check
+            
+            // Backend se aane wale pipe (|) wale data ko kaatna
             let parts = rawData.split("|");
             
             let title = parts[0] || "Untitled";
@@ -110,13 +132,13 @@ function renderTabContent(containerId, listData, type, emptyMessage) {
             let status = (parts[4] && parts[4] !== "null") ? parts[4] : "UNKNOWN";
             let rawTime = parts[5]; 
 
-            // 🚨 JADOO 1: Specific ID Label (Bold me)
+            // 🏷️ Specific ID Label (Bold me)
             let idLabelHtml = "";
             if(type === "blogs") idLabelHtml = `<strong>Blog ID: </strong> <span style="color:#333;">${id.substring(0,8)}</span>`;
             else if(type === "categories") idLabelHtml = `<strong>Category ID: </strong> <span style="color:#333;">${id.substring(0,8)}</span>`;
             else if(type === "subcategories") idLabelHtml = `<strong>Subcat ID: </strong> <span style="color:#333;">${id.substring(0,8)}</span>`;
 
-            // 🚨 JADOO 2: Date aur Time Set karna (Extracting from timestamp)
+            // 🕒 Date aur Time Set karna
             let timeString = "Recently";
             if (rawTime && rawTime !== "null") {
                 let dtParts = rawTime.split('T');
@@ -125,30 +147,20 @@ function renderTabContent(containerId, listData, type, emptyMessage) {
                 timeString = `${date} at ${time}`;
             }
 
-            // 🚨 JADOO 3: Read More Logic Cards ke liye (Pehle chupana, click pe dikhana)
-            let descUniqueId = `desc-${type}-${id.substring(0,6)}`;
+            // 🚨 THE MAIN FIX: Read More Logic Cards ke liye 
+            // Ab ye height zero nahi karega, balki do alag-alag div banayega
+            let shortDesc = description;
+            let readMoreBtnHtml = "";
             
-            // 🚨 JADOO 4: Agar Blog hai toh Like/Comment button dikhao (Dashboard ki tarah)
-            let blogStatsHtml = "";
-            if(type === "blogs") {
-                // Asli data Modal kholne par API hit karke aayega, yahan UI me dummy daal rahe for speed
-                let dummyLikes = Math.floor(Math.random() * 10);
-                let dummyComments = Math.floor(Math.random() * 5);
-                
-                blogStatsHtml = `
-                    <div class="card-stats-row">
-                        <div class="blog-interaction-btns">
-                            <button onclick="openBlogLikesModal('${id}', event)"><i class="fa-solid fa-heart" style="color:#e0245e;"></i> ${dummyLikes}</button>
-                            <button onclick="openBlogCommentsModal('${id}', event)"><i class="fa-solid fa-comment" style="color:#0a66c2;"></i> ${dummyComments}</button>
-                        </div>
-                    </div>
-                `;
+            if(description.length > 60) {
+                shortDesc = description.substring(0, 60) + "...";
+                readMoreBtnHtml = `<a href="javascript:void(0);" onclick="toggleCardReadMore('${id}', event)" style="color:#0a66c2; font-weight:bold; text-decoration:none; font-size:11px; float:right; margin-top:4px;">Read More</a>`;
             }
 
             // Card ka HTML Design
             html += `
                 <div class="profile-item-card" style="background: white; border: 1px solid #dbdbdb; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                    <img src="${imgUrl}" style="width: 100%; height: 120px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/200x120?text=Error'">
+                    <img src="${imgUrl}" style="width: 100%; height: 120px; object-fit: cover; border-bottom: 1px solid #efefef;" onerror="this.src='https://via.placeholder.com/200x120?text=Error'">
                     
                     <div class="card-info" style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
                         
@@ -158,25 +170,25 @@ function renderTabContent(containerId, listData, type, emptyMessage) {
                         
                         <h3 style="font-size: 15px; color: #262626; margin-bottom: 5px;">${title}</h3>
                         
-                        <div id="${descUniqueId}" class="readmore-constrained">
-                            ${description}
-                        </div>
-                        <div style="text-align:right;">
-                            <a href="javascript:void(0)" onclick="toggleCardReadMore('${descUniqueId}', event)" style="font-size:10px; color:#0a66c2; font-weight:bold; text-decoration:none;">Read More</a>
+                        <div id="short-desc-${id}" style="font-size:12px; color:#555; line-height:1.4;">
+                            ${shortDesc} ${readMoreBtnHtml}
                         </div>
                         
-                        <div style="font-size: 10px; color: #888; margin-top: 10px;">
+                        <div id="full-desc-${id}" style="display:none; font-size:12px; color:#555; line-height:1.4; max-height:80px; padding-right:5px; overflow-y:auto;">
+                            ${description} <br>
+                            <a href="javascript:void(0);" onclick="toggleCardReadMore('${id}', event)" style="color:#0a66c2; font-weight:bold; text-decoration:none; float:right; margin-top:4px;">Show Less</a>
+                        </div>
+                        
+                        <div style="font-size: 10px; color: #888; margin-top: 10px; padding-top: 8px; border-top: 1px solid #efefef;">
                             <i class="fa-solid fa-clock"></i> Created: ${timeString}
                         </div>
-
-                        ${blogStatsHtml}
                     </div>
 
                     <div class="card-actions" style="display: flex; border-top: 1px solid #efefef; background: #fafafa;">
-                        <button onclick="handleEdit('${id}', '${type}')" style="flex: 1; padding: 10px; border: none; background: transparent; color:#0a66c2; font-weight:bold; cursor:pointer; font-size:12px; border-right:1px solid #eee;">
+                        <button onclick="handleEdit('${id}', '${type}')" style="flex: 1; padding: 10px; border: none; background: transparent; color:#0a66c2; font-weight:bold; cursor:pointer; font-size:12px; border-right:1px solid #eee; transition: 0.2s;">
                             <i class="fa-solid fa-pencil"></i> Edit
                         </button>
-                        <button onclick="handleDelete('${id}', '${type}', '${title}')" style="flex: 1; padding: 10px; border: none; background: transparent; color:#ed4956; font-weight:bold; cursor:pointer; font-size:12px;">
+                        <button onclick="handleDelete('${id}', '${type}', '${title}')" style="flex: 1; padding: 10px; border: none; background: transparent; color:#ed4956; font-weight:bold; cursor:pointer; font-size:12px; transition: 0.2s;">
                             <i class="fa-solid fa-trash"></i> Delete
                         </button>
                     </div>
@@ -189,17 +201,18 @@ function renderTabContent(containerId, listData, type, emptyMessage) {
     container.innerHTML = html;
 }
 
-// Card ka readmore toggle (Show/Hide scrollbar block)
-function toggleCardReadMore(descId, event) {
-    if (event) event.stopPropagation();
-    const descDabba = document.getElementById(descId);
-    const trigger = event.target; 
-    if (descDabba.classList.contains("open")) {
-        descDabba.classList.remove("open");
-        trigger.innerText = "Read More";
+// 🚨 Card ka readmore toggle (Show/Hide scrollbar block)
+function toggleCardReadMore(id, event) {
+    event.preventDefault();
+    let shortDiv = document.getElementById(`short-desc-${id}`);
+    let fullDiv = document.getElementById(`full-desc-${id}`);
+    
+    if (shortDiv.style.display === "none") {
+        shortDiv.style.display = "block";
+        fullDiv.style.display = "none";
     } else {
-        descDabba.classList.add("open");
-        trigger.innerText = "Show Less";
+        shortDiv.style.display = "none";
+        fullDiv.style.display = "block";
     }
 }
 
@@ -207,7 +220,7 @@ function toggleCardReadMore(descId, event) {
 // 🗑️ 5. DELETE & EDIT ACTIONS (Fast)
 // ============================================================================
 async function handleDelete(itemId, type, itemTitle) {
-    let agree = confirm(`⚠️ ALERT!\n\nKya tum sach me "${itemTitle}" ko delete karna chahte ho?\nYe action undo nahi hoga!`);
+    let agree = confirm(`⚠️ ALERT!\n\nKya tum sach me "${itemTitle}" ko delete karna chahte ho?\nYe action wapas nahi liya ja sakta!`);
     if (agree) {
         try {
             const token = checkTokenLive(); if(!token) return;
@@ -229,7 +242,6 @@ async function handleDelete(itemId, type, itemTitle) {
 function handleEdit(itemId, type) {
     window.location.href = `edit-content.html?id=${itemId}&type=${type}`;
 }
-
 
 // ============================================================================
 // 🔍 6. MAIN SEARCH LOGIC 
@@ -323,7 +335,7 @@ async function actionFromSearch(targetId, action, event) {
 }
 
 // ============================================================================
-// 🪟 7. FOLLOW MODAL (Live Search & Clickable)
+// 🪟 7. FOLLOW MODAL & OTHERS
 // ============================================================================
 async function openFollowModal(type) {
     document.getElementById("follow-modal-title").innerText = type;
@@ -446,63 +458,9 @@ async function submitBlog() {
     if(data.success) { alert("Blog Sent to Admin For Review! ✅"); window.location.reload(); } else alert("Error: " + data.message);
 }
 
-// ============================================================================
-// ❤️ 9. BLOG LIKES & COMMENTS MODAL (Dashboard Jaisa Real Data Fetch)
-// ============================================================================
-async function openBlogLikesModal(blogId, event) {
-    if(event) event.stopPropagation();
-    document.getElementById("likes-list-container").innerHTML = "<div style='text-align:center; padding:20px;'><i class='fa-solid fa-spinner fa-spin'></i> Loading...</div>";
-    document.getElementById("likes-modal").classList.add("show"); 
-
-    try {
-        const token = checkTokenLive();
-        const res = await fetch(`${BASE_URL}/api/BLog/id?blogId=${blogId}`, { headers: { "Authorization": "Bearer " + token }});
-        const data = await res.json();
-        
-        if (data.success && data.data && data.data.likedByUsers && data.data.likedByUsers.length > 0) {
-            let html = "";
-            for (let user of data.data.likedByUsers) {
-                html += `<div class="list-user-box"><strong style="color:#0a66c2;">${user}</strong></div>`;
-            }
-            document.getElementById("likes-list-container").innerHTML = html;
-        } else { 
-            document.getElementById("likes-list-container").innerHTML = "<p style='text-align:center; color:#888; padding:20px;'>0 Likes.</p>"; 
-        }
-    } catch(e) { document.getElementById("likes-list-container").innerHTML = "<p style='color:red; text-align:center;'>Error!</p>"; }
-}
-
-async function openBlogCommentsModal(blogId, event) {
-    if(event) event.stopPropagation();
-    document.getElementById("comments-list-container").innerHTML = "<div style='text-align:center; padding:20px;'><i class='fa-solid fa-spinner fa-spin'></i> Loading...</div>";
-    document.getElementById("comments-modal").classList.add("show"); 
-
-    try {
-        const token = checkTokenLive();
-        const res = await fetch(`${BASE_URL}/api/BLog/id?blogId=${blogId}`, { headers: { "Authorization": "Bearer " + token }});
-        const data = await res.json();
-        
-        if (data.success && data.data && data.data.comments && data.data.comments.length > 0) {
-            let html = "";
-            for (let c of data.data.comments) {
-                html += `
-                    <div style="background:#f9f9f9; border-radius:8px; padding:10px; margin-bottom:10px; border:1px solid #eee;">
-                        <strong style="font-size:14px; color:#000;">${c.userName || 'Anonymous'}</strong>
-                        <p style="font-size:13px; color:#555; margin-top:4px;">${c.commentText}</p>
-                    </div>`;
-            }
-            document.getElementById("comments-list-container").innerHTML = html;
-        } else { 
-            document.getElementById("comments-list-container").innerHTML = "<p style='text-align:center; color:#888; padding:20px;'>0 Comments.</p>"; 
-        }
-    } catch(e) { document.getElementById("comments-list-container").innerHTML = "<p style='color:red; text-align:center;'>Error!</p>"; }
-}
-
 // Window click to close modals
 window.addEventListener('click', function(event) { 
     if (event.target === document.getElementById("follow-modal")) closeModal('follow-modal'); 
-    if (event.target === document.getElementById("edit-content-modal")) closeModal('edit-content-modal'); 
-    if (event.target === document.getElementById("likes-modal")) closeModal('likes-modal'); 
-    if (event.target === document.getElementById("comments-modal")) closeModal('comments-modal'); 
     if (event.target === document.getElementById("create-category-modal")) closeModal('create-category-modal'); 
     if (event.target === document.getElementById("create-subcategory-modal")) closeModal('create-subcategory-modal'); 
     if (event.target === document.getElementById("create-blog-modal")) closeModal('create-blog-modal'); 

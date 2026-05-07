@@ -4,9 +4,13 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
 body { background-color: #fafafa; color: #333; }
 
-/* NAVBAR */
+
+/* ================== 1. NAVBAR (Dashboard jaisa centered) ================== */
 .navbar { position: fixed; top: 0; width: 100%; background-color: #ffffff; height: 60px; display: flex; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); z-index: 100; }
-.nav-content { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 1400px; padding: 0 20px; }
+
+/* 🚨 FIX: isko max-width aur margin auto diya taaki screen ke beech me rahe */
+.nav-content { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
 .logo { color: #0a66c2; font-size: 24px; font-weight: bold; }
 .nav-left { display: flex; align-items: center; gap: 30px; }
 
@@ -24,18 +28,25 @@ body { background-color: #fafafa; color: #333; }
 .nav-divider { height: 40px; width: 1px; background-color: #e0e0e0; margin: 0 5px; }
 
 /* PROFILE HEADER */
+/* ================== 2. PROFILE CONTAINER ================== */
 .profile-header { display: flex; align-items: flex-start; margin-bottom: 30px; }
 .edit-profile-btn { width: 100%; max-width: 150px; padding: 10px 16px; background-color: #0a66c2; color: #ffffff; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
 .edit-profile-btn:hover { background-color: #004b93; }
+.edit-profile-btn i { margin-right: 5px; }
 
 .username-text { font-size: 28px; font-weight: 300; color: #262626; margin-bottom: 5px; }
 .role-badge { background: #eef3f8; color: #0a66c2; font-size: 12px; font-weight: bold; padding: 3px 10px; border-radius: 15px; }
 .fullname-text { font-size: 16px; font-weight: 600; color: #262626; margin-top: 10px; margin-bottom: 5px; }
+
+/* 🚨 FIX: About Me Box and Scrollbar */
 .about-me-box { font-size: 15px; color: #444; line-height: 1.5; margin-bottom: 20px; max-width: 500px; }
+/* Jab lamba text ho aur open ho toh fix height do aur scroll lagao */
+.scrollable-desc.open-bio { max-height: 100px; overflow-y: auto; padding-right: 8px; }
+/* Scrollbar ki designing */
+.scrollable-desc.open-bio::-webkit-scrollbar { width: 6px; }
+.scrollable-desc.open-bio::-webkit-scrollbar-thumb { background-color: #0a66c2; border-radius: 10px; }
+
 .profile-stats { display: flex; gap: 40px; margin-top: 10px; }
-.stat-box { font-size: 16px; color: #262626; cursor: pointer; transition: 0.2s; }
-.stat-box:hover { color: #0a66c2; text-decoration: underline; }
-.stat-number { font-weight: bold; }
 .divider { border: none; border-top: 1px solid #dbdbdb; margin: 20px 0; }
 
 .action-buttons-container { display: flex; gap: 50px; padding: 10px 20px; }
@@ -94,6 +105,7 @@ body { background-color: #fafafa; color: #333; }
 .submit-btn:hover { background: #004b93; }
 
 /* SEARCH CARDS (LinkedIn Style) */
+/* SEARCH CARDS (LinkedIn Style) */
 .list-user-box { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: #333; transition: background 0.2s; }
 .list-user-box:hover { background-color: #f9f9f9; }
 .list-user-box img { width: 44px; height: 44px; border-radius: 50%; margin-right: 15px; object-fit: cover; }
@@ -114,3 +126,5 @@ body { background-color: #fafafa; color: #333; }
 .btn-blue-outline:hover { background: #eef3f8; border-color: #004b93; color: #004b93;}
 .btn-grey-outline { background: transparent; color: #666; border: 2px solid #ccc; }
 .btn-grey-outline:hover { background: #fafafa; border-color: #999; color: #333;}
+
+/* 🚨 FIX: Yahan galti se ek aur '}' tha jis wajah se VS Code naraz tha. Usko hata diya gaya hai. */

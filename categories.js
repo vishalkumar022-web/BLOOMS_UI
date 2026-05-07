@@ -336,6 +336,17 @@ window.addEventListener('click', function(event) {
     if (event.target === document.getElementById("subcategory-modal")) { closeSubcategoryModal(); }
 });
 
+
+// 👤 PROFILE BUTTON WALA MAGIC
+// 1. Pehle hum HTML se us "profile-btn" wali ID ko pakdenge
+document.getElementById("profile-btn").addEventListener("click", function() {
+    // 2. Phir hum browser ko bolenge ki "Bhai, naya page kholo: profile.html"
+    window.location.href = "profile.html";
+});
+
+
+
+
 // ============================================================================
 // 🎬 9. APP START
 // ============================================================================

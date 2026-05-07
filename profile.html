@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blooms - My Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-left">
+                <h1 class="logo"><i class="fa-solid fa-leaf"></i> Blooms</h1>
+            </div>
+            
+            <div class="nav-right">
+                <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
+                <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
+                <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
+                <div class="nav-divider"></div>
+                <a href="profile.html" class="nav-item active"><i class="fa-solid fa-user-circle"></i><span>Profile</span></a>
+                <button id="logout-btn" class="nav-item btn-style logout"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        
+        <div class="profile-header">
+            <div class="profile-pic-section">
+                <img id="my-profile-pic" src="https://via.placeholder.com/150" alt="Profile Pic">
+            </div>
+            
+            <div class="profile-info-section">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <h2 id="my-username" class="username-text">username_loading</h2>
+                    <span id="my-role" class="role-badge">USER</span>
+                </div>
+                
+                <h4 id="my-fullname" class="fullname-text">Full Name Loading</h4>
+                
+                <div class="about-me-box scrollable-desc" id="my-about-me">
+                    Loading bio...
+                </div>
+
+                <div class="profile-stats">
+                    <div class="stat-box" onclick="openFollowModal('followers')">
+                        <span id="count-followers" class="stat-number">0</span> Followers
+                    </div>
+                    <div class="stat-box" onclick="openFollowModal('following')">
+                        <span id="count-following" class="stat-number">0</span> Following
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="action-buttons-container">
+            <div class="action-item" onclick="openCreateModal('blog')">
+                <div class="circle-btn"><i class="fa-solid fa-plus"></i></div>
+                <span>Post Blog</span>
+            </div>
+            <div class="action-item" onclick="openCreateModal('category')">
+                <div class="circle-btn"><i class="fa-solid fa-plus"></i></div>
+                <span>Post Category</span>
+            </div>
+            <div class="action-item" onclick="openCreateModal('subcategory')">
+                <div class="circle-btn"><i class="fa-solid fa-plus"></i></div>
+                <span>Post SubCategory</span>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="profile-tabs">
+            <div class="tab-item active" id="tab-blogs" onclick="switchTab('blogs')">
+                <i class="fa-solid fa-newspaper"></i> MY BLOGS
+            </div>
+            <div class="tab-item" id="tab-categories" onclick="switchTab('categories')">
+                <i class="fa-solid fa-layer-group"></i> MY CATEGORIES
+            </div>
+            <div class="tab-item" id="tab-subcategories" onclick="switchTab('subcategories')">
+                <i class="fa-solid fa-tags"></i> MY SUBCATEGORIES
+            </div>
+        </div>
+
+        <div class="tab-content-container">
+            <div id="content-blogs" class="content-grid active"></div>
+            <div id="content-categories" class="content-grid"></div>
+            <div id="content-subcategories" class="content-grid"></div>
+        </div>
+
+    </div>
+
+    <div class="modal-overlay" id="follow-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close-btn" onclick="closeModal('follow-modal')">&times;</span>
+            <h3 id="follow-modal-title" style="margin-bottom: 15px; text-transform: capitalize;">List</h3>
+            <hr style="border:none; border-top:1px solid #eee; margin-bottom: 15px;">
+            <div id="follow-loader" class="sub-loading" style="display:none; text-align:center;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Loading...
+            </div>
+            <div id="follow-list-container" class="sub-list"></div>
+        </div>
+    </div>
+
+    <script src="profile.js"></script>
+</body>
+</html>

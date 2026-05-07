@@ -1,74 +1,103 @@
 // ============================================================================
-// 🌐 1. SETUP & SECURITY (Backend ka address aur Token check)
+// 🌐 1. GLOBAL VARIABLES & SECURITY
 // ============================================================================
 const BASE_URL = "https://blog-management-system-blooms-2.onrender.com";
 
-// Global Variables (Pore page me kahin bhi inko use kar sakte hain)
-let myUserId = "";         // Meri khud ki ID yahan save hogi
-let myFollowingList = [];  // Main kis-kis ko follow karta hu, uski list
+let myUserId = "";
+let myFollowingList = [];
 
-// Search ke Variables (Pagination ke liye)
+// 🚨 Search ke variables (7 items per page as requested)
 let currentPage = 0;       
-const pageSize = 10;       // Ek page par 10 users aayenge
+const pageSize = 7;       
 let isSearching = false;   
 let searchText = ""; 
 
-// Jasoos: Check karta hai ki user login hai ya nahi
+// Modal live search ke liye list
+let currentModalData = []; 
+
 function checkTokenLive() {
     const t = localStorage.getItem("token");
-    if (!t) { 
-        window.location.replace("login.html"); // Token nahi hai toh login pe bhagao
-        return false; 
-    }
+    if (!t) { window.location.replace("login.html"); return false; }
     return t; 
 }
 
-
 // ============================================================================
-// 👤 2. LOAD PROFILE (Page khulte hi meri saari details lana)
+// 👤 2. LOAD PROFILE & ABOUT ME MAGIC
 // ============================================================================
 async function loadProfilePage() {
     try {
         const liveToken = checkTokenLive(); if(!liveToken) return;
 
-        // Backend se "/me" API hit karke apna data mangwaya
         const res = await fetch(BASE_URL + "/api/User/me", { method: "GET", headers: { "Authorization": "Bearer " + liveToken }});
         const data = await res.json();
 
         if (data.success) {
             const user = data.data;
-            myUserId = user.userId; // Meri ID save kar li
+            myUserId = user.userId;
             
-            // HTML ke dabbon me backend ka data bhara
             document.getElementById("my-username").innerText = user.userName;
             document.getElementById("my-role").innerText = user.role.toUpperCase();
             document.getElementById("my-fullname").innerText = user.name || "No Name Provided";
-            document.getElementById("my-about-me").innerText = user.aboutMe ? user.aboutMe : "I'm using Blooms! 🌿";
-            
-            // Photo set karna (Agar nahi hai toh dummy lagao)
             document.getElementById("my-profile-pic").src = user.profileUrl || `https://ui-avatars.com/api/?name=${user.name || 'User'}&background=0a66c2&color=fff&size=150`;
 
-            // Follower aur Following ki ginti (Count) set karna
             document.getElementById("count-followers").innerText = user.followerCount || 0;
             document.getElementById("count-following").innerText = user.followingCount || 0;
 
-            // Niche wale tabs (Blogs, Categories, Subcat) me data bharna
             renderTabContent("content-blogs", user.myCreatedBlogs, "fa-newspaper", "No Blogs Posted Yet");
             renderTabContent("content-categories", user.myCreatedCategories, "fa-layer-group", "No Categories Created");
             renderTabContent("content-subcategories", user.myCreatedSubCategories, "fa-tags", "No Subcategories Created");
 
-            // Chupke se Following list bhi mangwa li taaki pata chale kisko unfollow/follow dikhana hai
             const fRes = await fetch(`${BASE_URL}/api/connection/following?userId=${myUserId}`, { method: "GET", headers: { "Authorization": "Bearer " + liveToken } });
             const fData = await fRes.json();
-            if(fData.success) {
-                // Sirf IDs nikal kar ek list me daal di
-                myFollowingList = fData.data.map(p => p.userId); 
-            }
+            if(fData.success) myFollowingList = fData.data.map(p => p.userId);
+
+            // 🚨 JADOO: Read More / Scrollbar logic call karna
+            formatAboutMe(user.aboutMe, "my-about-me");
         }
-    } catch (e) { alert("Error loading profile data!"); }
+    } catch (e) { console.log("Profile load failed", e); }
 }
 
-// Ye function tabs ke andar chhote-chhote dabbe banata hai
+// 🤔 Ye function About Me lamba hone par Read More lagata hai aur scrollbar lata hai!
+function formatAboutMe(text, elementId) {
+    const container = document.getElementById(elementId);
+    if (!text) {
+        container.innerHTML = "I'm using Blooms! 🌿";
+        container.classList.remove("scrollable-desc"); 
+        return;
+    }
+    
+    // Agar bio 80 words se lamba hai toh
+    if (text.length > 80) {
+        let shortText = text.substring(0, 80) + "...";
+        container.classList.remove("scrollable-desc"); // Pehle scroll hatao
+        
+        container.innerHTML = `
+            <span id="${elementId}-text">${shortText}</span>
+            <a href="javascript:void(0)" id="${elementId}-btn" style="color:#0a66c2; font-weight:bold; text-decoration:none; margin-left:5px;">Read More</a>
+        `;
+        
+        // Read More dabane par kya ho?
+        document.getElementById(`${elementId}-btn`).onclick = function() {
+            let btn = document.getElementById(`${elementId}-btn`);
+            let txtSpan = document.getElementById(`${elementId}-text`);
+            
+            if (btn.innerText === "Read More") {
+                txtSpan.innerText = text; // Poora padhao
+                container.classList.add("scrollable-desc"); // 🚨 Scrollbar lagao!
+                btn.innerText = "Show Less";
+            } else {
+                txtSpan.innerText = shortText; // Wapas chhota karo
+                container.classList.remove("scrollable-desc"); // 🚨 Scrollbar hatao!
+                btn.innerText = "Read More";
+                container.scrollTop = 0; 
+            }
+        };
+    } else {
+        container.innerText = text;
+        container.classList.remove("scrollable-desc");
+    }
+}
+
 function renderTabContent(containerId, listData, iconClass, emptyMessage) {
     const container = document.getElementById(containerId);
     let html = "";
@@ -76,13 +105,10 @@ function renderTabContent(containerId, listData, iconClass, emptyMessage) {
         for (let itemTitle of listData) {
             html += `<div class="mini-card"><i class="fa-solid ${iconClass}"></i><h3>${itemTitle}</h3></div>`;
         }
-    } else { 
-        html = `<p style="grid-column: 1 / -1; text-align:center; color:#888; padding: 40px;">${emptyMessage}</p>`; 
-    }
+    } else { html = `<p style="grid-column: 1 / -1; text-align:center; color:#888; padding: 40px;">${emptyMessage}</p>`; }
     container.innerHTML = html;
 }
 
-// Instagram jaise Tab change karne wala function
 function switchTab(tabName) {
     document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.content-grid').forEach(content => content.classList.remove('active'));
@@ -90,9 +116,8 @@ function switchTab(tabName) {
     document.getElementById(`content-${tabName}`).classList.add('active');
 }
 
-
 // ============================================================================
-// 🔍 3. SEARCH USERS LOGIC (Navbar me user search karna)
+// 🔍 3. MAIN SEARCH LOGIC (Blank Screen Fix + Pagination)
 // ============================================================================
 document.getElementById("search-input").addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
@@ -100,7 +125,7 @@ document.getElementById("search-input").addEventListener("keypress", function(ev
         let userInput = this.value.trim();
         if (userInput !== "") {
             isSearching = true; searchText = userInput; currentPage = 0;
-            // Apna profile chhupao aur Search wala dabba dikhao
+            // 🚨 Naya HTML structure use kar rahe hain
             document.getElementById("profile-view").style.display = "none";
             document.getElementById("search-view").style.display = "block";
             document.getElementById("search-keyword").innerText = searchText;
@@ -112,7 +137,6 @@ document.getElementById("search-input").addEventListener("keypress", function(ev
 function resetSearch() {
     document.getElementById("search-input").value = ""; 
     isSearching = false; searchText = ""; currentPage = 0;
-    // Search dabba chhupao aur wapas Apna Profile dikhao
     document.getElementById("search-view").style.display = "none";
     document.getElementById("profile-view").style.display = "block";
 }
@@ -129,43 +153,69 @@ async function getSearchedUsers() {
             printUsersOnScreen(data.data);
             printUserPagination(data.data.length);
         } else {
-            document.getElementById("users-grid").innerHTML = "<h3 style='grid-column:1/-1; text-align:center;'>No users found! 😔</h3>";
+            // 🚨 FIX: Jab search empty ho toh user ko message dikhao!
+            document.getElementById("users-grid").innerHTML = `<div style="grid-column:1/-1; text-align:center; padding: 40px; background:#fff; border-radius:10px;"><h3>Sorry bhai, "${searchText}" naam ka koi user nahi mila! 😔</h3></div>`;
             document.getElementById("pagination-container").innerHTML = "";
         }
-    } catch (e) { alert("Search failed!"); }
+    } catch (e) { 
+        document.getElementById("users-grid").innerHTML = `<div style="grid-column:1/-1; text-align:center; padding: 40px; background:#fff; border-radius:10px;"><h3 style="color:red;">Server connection failed! 🔌</h3></div>`;
+    }
 }
 
+// ============================================================================
+// 🚨 NAYA: SEARCH RESULTS LinkedIn Style format me print karna (Clickable Profiles)
+// 🤔 Kyu banaya?: Search Result professional list ki tarah dekhe aur har userclickable ho.
+// Main page profile pe About me ReadMore work krta rhega.
+// ============================================================================
 function printUsersOnScreen(usersArray) {
     let html = "";
+    // Loop (Loop lagaya pore users ke result pe)
     for(let user of usersArray) {
-        if(user.userId === myUserId) continue; // Khud ko search result me mat dikhao
+        if(user.userId === myUserId) continue; // Khud ko result me mat dikhao
 
+        // User photo, agr nai hai toh dummy photo
         let pic = user.profileUrl || `https://ui-avatars.com/api/?name=${user.userName}&background=random`;
         let isFollowing = myFollowingList.includes(user.userId);
         
-        // Agar pehle se follow karte hain, toh unfollow button dikhao, nahi toh Follow button
+        // 🚨 NAYA BUTTON DESIGN (defined in profile.css)
+        // Screenshot me jaise outline wale professional button hain
         let btnHtml = isFollowing 
-            ? `<button class="follow-btn-small btn-grey" onclick="unfollowUser('${user.userId}')">Unfollow</button>`
-            : `<button class="follow-btn-small btn-blue" onclick="followUser('${user.userId}')">+ Follow</button>`;
+            ? `<button class="follow-btn-small btn-grey-outline" onclick="actionFromSearch('${user.userId}', 'unfollow', event)"><i class="fa-solid fa-check"></i> Unfollow</button>`
+            : `<button class="follow-btn-small btn-blue-outline" onclick="actionFromSearch('${user.userId}', 'follow', event)"><i class="fa-solid fa-plus"></i> Follow</button>`;
 
-        // Search list me bhi dusre user ke naam par click karke viewprofile khol sakte hain
+        // ====================================================================
+        // 🚨 USER KA POINT: Search result user info k 'About Me' ko truncate karna (Kaatna)
+        // Agr about me 120 character se bada hai toh kat kar '...' lagao
+        // (Iska asar profile main page wale readmore k scrollbar pe nahi parega)
+        // ====================================================================
+        let bioText = user.aboutMe ? user.aboutMe : "I'm using Blooms! 🌿";
+        if (bioText.length > 120) {
+            bioText = bioText.substring(0, 120) + "..."; // 120 character ke baad kat diya
+        }
+
+        // Exact Professional format (Same as LinkedIn screenshot look)
+        // NAYA: Poore card ko Anchor Link (<a>) ke andar daal diya Navigation k liye targetUser id ke sath
         html += `
-            <div class="user-search-card">
-                <div style="display:flex; align-items:center;">
-                    <img src="${pic}" class="user-search-pic">
-                    <div class="user-search-info">
-                        <h3><a href="viewprofile.html?userId=${user.userId}" style="text-decoration:none; color:#000;">${user.userName}</a></h3>
-                        <p>${user.name || 'User'}</p>
-                    </div>
+            <a href="viewprofile.html?userId=${user.userId}" class="user-search-card" style="text-decoration:none; color:inherit;">
+                <img src="${pic}" class="user-search-pic" alt="dp">
+                
+                <div class="user-search-info">
+                    <strong>${user.userName}</strong>
+                    <p class="user-fullname">${user.name || 'User'}</p>
+                    <p class="user-short-bio">${bioText}</p> 
                 </div>
-                <div>${btnHtml}</div>
-            </div>
+                
+                <div style="flex-shrink: 0; z-index: 10;">
+                    ${btnHtml}
+                </div>
+            </a>
         `;
     }
+    // Saara data HTML dabbe me bhar do
     document.getElementById("users-grid").innerHTML = html;
 }
 
-// User search ke niche wala Previous/Next button logic
+
 function printUserPagination(currentCount) {
     const cont = document.getElementById("pagination-container");
     let html = `<div style="display:flex; justify-content:space-between; margin-top:20px; width:100%;">`;
@@ -175,6 +225,7 @@ function printUserPagination(currentCount) {
     
     html += `<span style="font-weight:bold; align-self:center;">Page ${currentPage+1}</span>`;
     
+    // Page Size 7 fixed hai global variables me
     if(currentCount < pageSize) html += `<button disabled style="padding:10px 20px; background:#ccc; border:none; border-radius:5px;">Next ➡️</button>`;
     else html += `<button onclick="currentPage++; getSearchedUsers();" style="padding:10px 20px; background:#0a66c2; color:white; border:none; border-radius:5px; cursor:pointer;">Next ➡️</button>`;
     
@@ -182,57 +233,40 @@ function printUserPagination(currentCount) {
     cont.innerHTML = html;
 }
 
+// ============================================================================
+// 🤝 4. ACTION FROM MAIN SEARCH OR MODAL (Follow/Unfollow API)
+// ============================================================================
+async function actionFromSearch(targetId, action, event) {
+    event.preventDefault(); // Button dabaane par link open hone se roko
+    event.stopPropagation();
 
-// ============================================================================
-// 🤝 4. REAL FOLLOW / UNFOLLOW API (Alert hta ke Asli action laga diya)
-// ============================================================================
-async function followUser(targetUserId) {
     const liveToken = checkTokenLive(); if(!liveToken) return; 
     try {
-        const response = await fetch(`${BASE_URL}/api/connection/follow?targetUserId=${targetUserId}`, {
-            method: "POST", headers: { "Authorization": "Bearer " + liveToken }
-        });
-        const data = await response.json();
-        if (data.success) {
-            myFollowingList.push(targetUserId); // Apni local list me update karo
-            // Agar search khula hai toh usko refresh karo, nahi toh profile refresh karo
-            if(isSearching) getSearchedUsers(); else loadProfilePage(); 
-        } 
-    } catch (error) { alert("Follow failed!"); }
+        await fetch(`${BASE_URL}/api/connection/${action}?targetUserId=${targetId}`, { method: "POST", headers: { "Authorization": "Bearer " + liveToken }});
+        
+        // List local memory me update karo
+        if (action === 'follow') { myFollowingList.push(targetId); } 
+        else { myFollowingList = myFollowingList.filter(id => id !== targetId); }
+        
+        // Jo screen open hai (Modal ya Search), usko turant refresh karo
+        if (isSearching) getSearchedUsers();
+        else renderFollowList(currentModalData); 
+
+    } catch(e) { alert("Action failed!"); }
 }
 
-async function unfollowUser(targetUserId) {
-    const liveToken = checkTokenLive(); if(!liveToken) return; 
-    try {
-        const response = await fetch(`${BASE_URL}/api/connection/unfollow?targetUserId=${targetUserId}`, {
-            method: "POST", headers: { "Authorization": "Bearer " + liveToken }
-        });
-        const data = await response.json();
-        if (data.success) {
-            myFollowingList = myFollowingList.filter(id => id !== targetUserId); // Local list se hatao
-            if(isSearching) getSearchedUsers(); else loadProfilePage();
-        }
-    } catch (error) { alert("Unfollow failed!"); }
-}
-
-
 // ============================================================================
-// 🪟 5. FOLLOWERS / FOLLOWING MODAL (Jo tune naya manga tha)
+// 🪟 5. FOLLOW MODAL (Live Search + Buttons)
 // ============================================================================
-// 🤔 Kyu banaya?: Jab tu Followers ya Following text par click karega, tab ye Popup khulega
 async function openFollowModal(type) {
-    // 1. Modal ka Naam change karo (Followers / Following)
     document.getElementById("follow-modal-title").innerText = type;
+    document.getElementById("modal-search-input").value = ""; // search khali
     document.getElementById("follow-list-container").innerHTML = "";
-    
-    // 2. Modal ko screen par dikhao
     document.getElementById("follow-modal").classList.add("show");
     document.getElementById("follow-loader").style.display = "block";
 
     try {
         const liveToken = checkTokenLive(); if(!liveToken) return;
-
-        // 3. Backend se list mango
         const url = `${BASE_URL}/api/connection/${type}?userId=${myUserId}`;
         const response = await fetch(url, { method: "GET", headers: { "Authorization": "Bearer " + liveToken } });
         const data = await response.json();
@@ -240,155 +274,124 @@ async function openFollowModal(type) {
         document.getElementById("follow-loader").style.display = "none";
 
         if (data.success && data.data.length > 0) {
-            let html = "";
-            for (let person of data.data) {
-                let pic = person.profileUrl || `https://ui-avatars.com/api/?name=${person.userName}&background=random`;
-                
-                // 🚨 NAYA LOGIC WALA ANCHOR TAG <a>
-                // href me viewprofile.html diya hai jisme uss bande ki ID bhej rahe hain
-                // CSS inline likh di hai taaki ekdum Insta jaisa hover effect aur line dikhe
-                html += `
-                    <a href="viewprofile.html?userId=${person.userId}" style="text-decoration:none; display:flex; align-items:center; padding:12px 15px; border-bottom:1px solid #f0f0f0; color:#333;">
-                        <img src="${pic}" style="width:44px; height:44px; border-radius:50%; margin-right:15px; object-fit:cover;">
-                        <div style="display:flex; flex-direction:column;">
-                            <strong style="font-size:14px; font-weight:600;">${person.userName}</strong>
-                            <span style="font-size:12px; color:#888;">${person.name || 'User'}</span>
-                        </div>
-                    </a>
-                `;
-            }
-            document.getElementById("follow-list-container").innerHTML = html;
+            currentModalData = data.data; // Live search ke liye database save kiya
+            renderFollowList(currentModalData);
         } else {
-            // Agar koi follower/following nahi hai
+            currentModalData = [];
             document.getElementById("follow-list-container").innerHTML = `<p style="text-align:center; color:#888; padding:30px;">No ${type} found.</p>`;
         }
-    } catch (error) {
-        document.getElementById("follow-loader").style.display = "none";
-        document.getElementById("follow-list-container").innerHTML = "<p style='color:red; text-align:center; padding:20px;'>Error loading list!</p>";
-    }
+    } catch (error) { document.getElementById("follow-loader").style.display = "none"; }
 }
 
+// 🚨 LIVE SEARCH in Modal: User type karega aur list wahi ke wahi chhoti ho jayegi
+document.getElementById("modal-search-input").addEventListener("input", function(e) {
+    let query = e.target.value.toLowerCase();
+    let filteredList = currentModalData.filter(person => 
+        person.userName.toLowerCase().includes(query) || 
+        (person.name && person.name.toLowerCase().includes(query))
+    );
+    renderFollowList(filteredList);
+});
+
+// Modal ke andar list chhapna
+function renderFollowList(list) {
+    let html = "";
+    for (let person of list) {
+        let pic = person.profileUrl || `https://ui-avatars.com/api/?name=${person.userName}&background=random`;
+        let isFollowing = myFollowingList.includes(person.userId);
+        
+        // 🚨 NAYA: Button wahi Insta style (actionFromSearch function use karke)
+        let btnHtml = isFollowing 
+            ? `<button onclick="actionFromSearch('${person.userId}', 'unfollow', event)" style="padding:6px 15px; border-radius:8px; background:#fafafa; border:1px solid #ccc; font-weight:bold; color:#555; cursor:pointer; font-size:12px;">Unfollow</button>`
+            : `<button onclick="actionFromSearch('${person.userId}', 'follow', event)" style="padding:6px 15px; border-radius:8px; background:#0a66c2; color:white; border:none; font-weight:bold; cursor:pointer; font-size:12px;">Follow</button>`;
+
+        html += `
+            <div class="list-user-box" style="display:flex; justify-content:space-between; align-items:center; padding:10px 15px; border-bottom:1px solid #f0f0f0;">
+                <a href="viewprofile.html?userId=${person.userId}" style="text-decoration:none; display:flex; align-items:center; color:#333; flex:1;">
+                    <img src="${pic}" style="width:44px; height:44px; border-radius:50%; margin-right:15px; object-fit:cover;">
+                    <div style="display:flex; flex-direction:column;">
+                        <strong style="font-size:14px; font-weight:600;">${person.userName}</strong>
+                        <span style="font-size:12px; color:#888;">${person.name || 'User'}</span>
+                    </div>
+                </a>
+                <div style="margin-left: 10px; z-index:10;">
+                    ${btnHtml}
+                </div>
+            </div>
+        `;
+    }
+    document.getElementById("follow-list-container").innerHTML = html || "<p style='text-align:center; padding:20px; color:#888;'>No matches found.</p>";
+}
 
 // ============================================================================
-// ➕ 6. POST KARNE WALE MODALS (Blog, Category, Subcategory)
+// ➕ 6. POST KARNE WALE MODALS (Category, Subcategory, Blog)
 // ============================================================================
 function openModal(modalId) { 
     document.getElementById(modalId).classList.add("show"); 
-    // Agar Blog ya Subcategory modal khula hai, toh pehle Categories ki dropdown bharni padegi
     if(modalId === 'create-subcategory-modal' || modalId === 'create-blog-modal') {
         loadCategoriesForDropdown();
     }
 }
-function closeModal(modalId) { 
-    document.getElementById(modalId).classList.remove("show"); 
-}
+function closeModal(modalId) { document.getElementById(modalId).classList.remove("show"); }
 
-// 🪄 Dropdown me Categories ko database se laakar bharna
 async function loadCategoriesForDropdown() {
     try {
         const token = checkTokenLive(); if(!token) return;
         const res = await fetch(`${BASE_URL}/api/Category/all?page=0&size=100`, { headers: { "Authorization": "Bearer " + token }});
         const data = await res.json();
-        
         if (data.success) {
             let optionsHtml = `<option value="">Select Category</option>`;
             data.data.forEach(cat => { optionsHtml += `<option value="${cat.id}">${cat.title}</option>`; });
             document.getElementById("subcat-parent-id").innerHTML = optionsHtml;
             document.getElementById("blog-cat-id").innerHTML = optionsHtml;
         }
-    } catch(e) { console.log("Failed to load categories"); }
+    } catch(e) {}
 }
 
-// 🪄 Category chunne par uski Subcategories ko dropdown me bharna
 async function loadSubcategoriesForDropdown(categoryId) {
     const subcatDropdown = document.getElementById("blog-subcat-id");
     subcatDropdown.innerHTML = `<option value="">Loading...</option>`;
     if(!categoryId) { subcatDropdown.innerHTML = `<option value="">Select Subcategory</option>`; return; }
-
     try {
         const token = checkTokenLive(); if(!token) return;
         const res = await fetch(`${BASE_URL}/api/Category/subcategories?categoryId=${categoryId}`, { headers: { "Authorization": "Bearer " + token }});
         const data = await res.json();
-        
         if (data.success && data.data.length > 0) {
             let optionsHtml = `<option value="">Select Subcategory</option>`;
             data.data.forEach(sub => { optionsHtml += `<option value="${sub.subCategoryId}">${sub.subCategoryTittle}</option>`; });
             subcatDropdown.innerHTML = optionsHtml;
-        } else {
-            subcatDropdown.innerHTML = `<option value="">No subcategories found</option>`;
-        }
+        } else { subcatDropdown.innerHTML = `<option value="">No subcategories found</option>`; }
     } catch(e) { subcatDropdown.innerHTML = `<option value="">Error</option>`; }
 }
 
-// ---------------- Asli Post APIs ----------------
 async function submitCategory() {
     const token = checkTokenLive(); if(!token) return;
-    const body = {
-        title: document.getElementById("cat-title").value,
-        desc: document.getElementById("cat-desc").value,
-        categoryUrl: document.getElementById("cat-img").value,
-        userId: myUserId 
-    };
+    const body = { title: document.getElementById("cat-title").value, desc: document.getElementById("cat-desc").value, categoryUrl: document.getElementById("cat-img").value, userId: myUserId };
     if(!body.title || !body.desc) return alert("Title and Description are required!");
-
     const res = await fetch(`${BASE_URL}/api/Category`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token }, body: JSON.stringify(body) });
     const data = await res.json();
-    if(data.success) { alert("Category Sent to Admin For Review! ✅"); closeModal('create-category-modal'); loadProfilePage(); }
-    else alert("Error: " + data.message);
+    if(data.success) { alert("Category Sent to Admin For Review! ✅"); window.location.reload(); } else alert("Error: " + data.message);
 }
 
 async function submitSubCategory() {
     const token = checkTokenLive(); if(!token) return;
-    const body = {
-        categoryId: document.getElementById("subcat-parent-id").value,
-        subCategoryTittle: document.getElementById("subcat-title").value,
-        subCategoryDesc: document.getElementById("subcat-desc").value,
-        subCategoryUrl: document.getElementById("subcat-img").value,
-        userId: myUserId
-    };
+    const body = { categoryId: document.getElementById("subcat-parent-id").value, subCategoryTittle: document.getElementById("subcat-title").value, subCategoryDesc: document.getElementById("subcat-desc").value, subCategoryUrl: document.getElementById("subcat-img").value, userId: myUserId };
     if(!body.categoryId || !body.subCategoryTittle) return alert("Category and Title required!");
-
     const res = await fetch(`${BASE_URL}/api/SubCategory`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token }, body: JSON.stringify(body) });
     const data = await res.json();
-    if(data.success) { alert("SubCategory Sent to Admin For Review! ✅"); closeModal('create-subcategory-modal'); loadProfilePage(); }
-    else alert("Error: " + data.message);
+    if(data.success) { alert("SubCategory Sent to Admin For Review! ✅"); window.location.reload(); } else alert("Error: " + data.message);
 }
 
 async function submitBlog() {
     const token = checkTokenLive(); if(!token) return;
-    const body = {
-        blogTitle: document.getElementById("blog-title").value,
-        blogDescription: document.getElementById("blog-desc").value,
-        blogContent: document.getElementById("blog-content").value,
-        blogImageUrl: document.getElementById("blog-img").value,
-        blogCategoryId: document.getElementById("blog-cat-id").value,
-        blogSubcategoryId: document.getElementById("blog-subcat-id").value,
-        userId: myUserId
-    };
+    const body = { blogTitle: document.getElementById("blog-title").value, blogDescription: document.getElementById("blog-desc").value, blogContent: document.getElementById("blog-content").value, blogImageUrl: document.getElementById("blog-img").value, blogCategoryId: document.getElementById("blog-cat-id").value, blogSubcategoryId: document.getElementById("blog-subcat-id").value, userId: myUserId };
     if(!body.blogTitle || !body.blogCategoryId || !body.blogContent) return alert("Title, Category, and Content required!");
-
     const res = await fetch(`${BASE_URL}/api/BLog`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token }, body: JSON.stringify(body) });
     const data = await res.json();
-    if(data.success) { alert("Blog Sent to Admin For Review! ✅"); closeModal('create-blog-modal'); loadProfilePage(); }
-    else alert("Error: " + data.message);
+    if(data.success) { alert("Blog Sent to Admin For Review! ✅"); window.location.reload(); } else alert("Error: " + data.message);
 }
 
+window.addEventListener('click', function(event) { if (event.target === document.getElementById("follow-modal")) { closeModal('follow-modal'); } });
+document.getElementById("logout-btn").addEventListener("click", function() { localStorage.clear(); window.location.replace("login.html"); });
 
-// ============================================================================
-// ⚙️ 7. UTILS & LISTENERS
-// ============================================================================
-// Modal ke bahar click karne par modal band ho jaye
-window.addEventListener('click', function(event) {
-    if (event.target === document.getElementById("follow-modal")) { closeModal('follow-modal'); }
-});
-
-// Logout Button Logic
-document.getElementById("logout-btn").addEventListener("click", function() { 
-    localStorage.clear(); 
-    window.location.replace("login.html"); 
-});
-
-// Profile page reload hote hi sabse pehle kya chalana hai?
-if (checkTokenLive()) {
-    loadProfilePage();
-}
+if (checkTokenLive()) loadProfilePage();

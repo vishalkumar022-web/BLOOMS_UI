@@ -56,7 +56,7 @@ async function loadMyOwnId() {
 async function loadTargetUserProfile() {
     const liveToken = checkTokenLive(); if(!liveToken) return;
     try {
-        // 🚨 NAYA API HIT (Jo Step 1 me Java me banwaya tha)
+        // 🚨 API HIT (Dusre user ka data laane ke liye)
         const response = await fetch(`${BASE_URL}/api/User/otherUser?userId=${targetUserId}`, {
             method: "GET", headers: { "Authorization": "Bearer " + liveToken }
         });
@@ -69,7 +69,13 @@ async function loadTargetUserProfile() {
             document.getElementById("other-username").innerText = user.userName;
             document.getElementById("other-role").innerText = user.role ? user.role.toUpperCase() : "USER";
             document.getElementById("other-fullname").innerText = user.name || "No Name Provided";
-            document.getElementById("other-about-me").innerText = user.aboutMe ? user.aboutMe : "I'm using Blooms! 🌿";
+            
+            // ================================================================
+            // 🚨 NAYA LOGIC YAHAN HAI (ABOUT ME MAGIC)
+            // Pehle yahan normal text the, ab hum 'formatAboutMe' function ko call kar rahe hain
+            // ================================================================
+            formatAboutMe(user.aboutMe, "other-about-me");
+
             document.getElementById("other-profile-pic").src = user.profileUrl || `https://ui-avatars.com/api/?name=${user.userName}&background=random&size=150`;
 
             document.getElementById("other-followers").innerText = user.followerCount || 0;
@@ -170,11 +176,59 @@ function renderTabContent(containerId, listData, iconClass, emptyMessage) {
 }
 
 // ============================================================================
-// 🎬 8. MASTER RUN (Sequence me functions chalana)
+// 📖 8. NAYA: ABOUT ME FORMATTER (Read More / Scrollbar Magic)
+// ============================================================================
+// 🤔 Kyu banaya?: Taaki dusre user ka bio lamba ho toh page na fite. 
+// "Read More" dabane par hi pyara sa blue scrollbar aayega!
+function formatAboutMe(text, elementId) {
+    const container = document.getElementById(elementId);
+    
+    // Agar bio khali hai
+    if (!text) {
+        container.innerHTML = "I'm using Blooms! 🌿";
+        container.classList.remove("scrollable-desc"); // Scrollbar hata do
+        return;
+    }
+    
+    // Agar bio 80 character se bada hai
+    if (text.length > 80) {
+        let shortText = text.substring(0, 80) + "...";
+        container.classList.remove("scrollable-desc"); // Shuru me scrollbar nahi chahiye
+        
+        container.innerHTML = `
+            <span id="${elementId}-text">${shortText}</span>
+            <a href="javascript:void(0)" id="${elementId}-btn" style="color:#0a66c2; font-weight:bold; text-decoration:none; margin-left:5px;">Read More</a>
+        `;
+        
+        // Button dabane par kya hoga:
+        document.getElementById(`${elementId}-btn`).onclick = function() {
+            let btn = document.getElementById(`${elementId}-btn`);
+            let txtSpan = document.getElementById(`${elementId}-text`);
+            
+            if (btn.innerText === "Read More") {
+                txtSpan.innerText = text; // Poora text dikhao
+                container.classList.add("scrollable-desc"); // 🚨 Ab scrollbar laga do!
+                btn.innerText = "Show Less";
+            } else {
+                txtSpan.innerText = shortText; // Chhota text dikhao
+                container.classList.remove("scrollable-desc"); // 🚨 Wapas scrollbar hata do!
+                btn.innerText = "Read More";
+                container.scrollTop = 0; // Wapas upar khiska do
+            }
+        };
+    } else {
+        // Agar bio pehle se hi chota hai
+        container.innerText = text;
+        container.classList.remove("scrollable-desc");
+    }
+}
+
+// ============================================================================
+// 🎬 9. MASTER RUN (Sequence me functions chalana)
 // ============================================================================
 async function startApp() {
     await loadMyOwnId(); // Pehle apni ID laao
-    await loadTargetUserProfile(); // Fir us bande ki profile laao
+    await loadTargetUserProfile(); // Fir us bande ki profile laao (Jisme About me format hoga)
     await checkFollowStatus(); // Uske baad button ko set karo
 }
 

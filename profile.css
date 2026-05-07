@@ -107,3 +107,103 @@ body { background-color: #fafafa; color: #333; }
 .list-user-box:hover { background-color: #f9f9f9; }
 .list-user-box img { width: 44px; height: 44px; border-radius: 50%; margin-right: 15px; object-fit: cover; }
 .list-user-box strong { font-size: 14px; color: #262626; font-weight: 600; }
+
+
+/* Tumhara pichla sara profile.css ka code upar rahega, uske NICHE ye add karo: */
+
+/* ================== PROFESSIONAL USER SEARCH CARD (LinkedIn Style) ================== */
+/* 🤔 Kyu banaya?: Taaki search result professional list ki tarah dekhe.
+Photo gole, right me Name aur Bio, aur extreme right me Button.
+*/
+
+/* 1. users-grid: HTML wale dabbe ko list view banana (flex column) */
+#users-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Har dabba ke beech 15px ka gap */
+    padding-bottom: 30px;
+}
+
+/* 2. user-search-card: Ek professional list item ka dabba */
+.user-search-card {
+    background: white; 
+    border: 1px solid #dbdbdb; 
+    border-radius: 10px; 
+    padding: 15px 20px;
+    display: flex; 
+    align-items: center; /* Photo aur text vertically ek line me honge */
+    justify-content: space-between; /* Button ekdum right me dhakel diya */
+    text-decoration: none; /* Poore card pe click ho, par underline nai chahiye */
+    color: inherit; 
+    transition: 0.2s; /* Halka sa hover effect smoothness ke liye */
+}
+.user-search-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08); /* Hover pe halka shadow */
+    border-color: #ddd;
+}
+
+/* 3. Profile Photo (Fixed size professional gol photo) */
+.user-search-pic { 
+    width: 60px; 
+    height: 60px; 
+    border-radius: 50%; /* Photo ko Gole banata hai */
+    object-fit: cover; 
+    margin-right: 20px; 
+    flex-shrink: 0; /* Dabba chhota hone par photo na dabey */
+    border: 1px solid #eee;
+}
+
+/* 4. Text Content (Username, Name, Bio) */
+.user-search-info {
+    flex: 1; /* Beech ka saara bacha hua space le lega */
+    display: flex;
+    flex-direction: column;
+    gap: 3px; /* Text elements ke beech gap */
+    margin-right: 20px;
+}
+.user-search-info strong { font-size: 16px; color: #262626; margin-bottom: 2px; transition: 0.2s;}
+.user-search-card:hover strong { color: #0a66c2; } /* Hover par Username Blue hoga */
+.user-fullname { font-size: 14px; font-weight: 600; color: #555; margin-bottom: 4px; }
+
+/* 5. Short Bio (User requirement: Truncated with ...) */
+.user-short-bio { 
+    font-size: 13px; 
+    color: #888; 
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 🚨 Max 2 lines show kro uske baad kat do */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis; /* ... if text overflows lines (Extra safety) */
+}
+
+/* 6. Buttons Styling (Outline wala design screenshot jaisa) */
+.follow-btn-small { 
+    padding: 8px 20px; 
+    border-radius: 20px; /* Rounded buttons professional look ke liye */
+    font-weight: bold; 
+    font-size: 13px; 
+    cursor: pointer; 
+    transition: 0.2s;
+    border: none;
+    outline: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Outline wala Blue Button (+ Follow) */
+.btn-blue-outline { 
+    background: white; 
+    color: #0a66c2; 
+    border: 2px solid #0a66c2; /* Blue outline */
+}
+.btn-blue-outline:hover { background: #eef3f8; border-color: #004b93; color: #004b93;}
+
+/* Outline wala Grey Button (Unfollow) */
+.btn-grey-outline { 
+    background: transparent; 
+    color: #666; 
+    border: 2px solid #ccc; /* Grey outline */
+}
+.btn-grey-outline:hover { background: #fafafa; border-color: #999; color: #333;}

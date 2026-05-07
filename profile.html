@@ -25,7 +25,6 @@
                 <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
                 <a href="ai-chat.html" class="nav-item"><i class="fa-solid fa-robot"></i><span>AI Chat</span></a>
                 <a href="chat.html" class="nav-item"><i class="fa-solid fa-comments"></i><span>Chat</span></a>
-                
                 <div class="nav-divider"></div>
                 <a href="profile.html" class="nav-item active"><i class="fa-solid fa-user-circle"></i><span>Profile</span></a>
                 <button id="logout-btn" class="nav-item btn-style logout"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></button>
@@ -35,12 +34,22 @@
 
     <div class="profile-container" style="margin-top: 80px; max-width: 935px; margin-left: auto; margin-right: auto; padding: 0 20px;">
         
+        <div id="search-view" style="display: none; width: 100%;">
+            <div style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 0 0 1px rgba(0,0,0,0.05);">
+                <button onclick="resetSearch()" style="padding: 8px 15px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                    ⬅️ Back to Profile
+                </button>
+                <h3 style="margin-top: 15px; color: #333;">Search Results for: "<span id="search-keyword" style="color:#0a66c2;"></span>"</h3>
+            </div>
+            <div id="users-grid" style="display: flex; flex-direction: column;"></div>
+            <div id="pagination-container"></div>
+        </div>
+
         <div id="profile-view">
             <div class="profile-header">
                 
                 <div class="profile-pic-section" style="display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1; margin-right: 30px;">
                     <img id="my-profile-pic" src="https://via.placeholder.com/150" alt="Profile Pic" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
-                    
                     <button class="edit-profile-btn" onclick="window.location.href='edit-profile.html'">
                         <i class="fa-solid fa-pen"></i> Edit Profile
                     </button>
@@ -52,6 +61,7 @@
                         <span id="my-role" class="role-badge">USER</span>
                     </div>
                     <h4 id="my-fullname" class="fullname-text">Loading...</h4>
+                    
                     <div class="about-me-box scrollable-desc" id="my-about-me">Loading bio...</div>
 
                     <div class="profile-stats">
@@ -98,11 +108,57 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="create-category-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-btn" onclick="closeModal('create-category-modal')">&times;</span>
+            <h3 style="margin-bottom: 15px; color:#0a66c2;">Create New Category</h3>
+            <input type="text" id="cat-title" class="modal-input" placeholder="Category Title">
+            <input type="text" id="cat-img" class="modal-input" placeholder="Image URL (Base64 or Link)">
+            <textarea id="cat-desc" class="modal-input" rows="4" placeholder="Category Description..."></textarea>
+            <button class="submit-btn" onclick="submitCategory()">Post Category</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="create-subcategory-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-btn" onclick="closeModal('create-subcategory-modal')">&times;</span>
+            <h3 style="margin-bottom: 15px; color:#0a66c2;">Create New Subcategory</h3>
+            <select id="subcat-parent-id" class="modal-input"><option value="">Loading Categories...</option></select>
+            <input type="text" id="subcat-title" class="modal-input" placeholder="Subcategory Title">
+            <input type="text" id="subcat-img" class="modal-input" placeholder="Image URL">
+            <textarea id="subcat-desc" class="modal-input" rows="4" placeholder="Subcategory Description..."></textarea>
+            <button class="submit-btn" onclick="submitSubCategory()">Post Subcategory</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="create-blog-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-btn" onclick="closeModal('create-blog-modal')">&times;</span>
+            <h3 style="margin-bottom: 15px; color:#0a66c2;">Write a Blog</h3>
+            <input type="text" id="blog-title" class="modal-input" placeholder="Blog Title">
+            <input type="text" id="blog-img" class="modal-input" placeholder="Image URL">
+            <div style="display: flex; gap: 10px;">
+                <select id="blog-cat-id" class="modal-input" onchange="loadSubcategoriesForDropdown(this.value)" style="flex:1;">
+                    <option value="">Select Category</option>
+                </select>
+                <select id="blog-subcat-id" class="modal-input" style="flex:1;">
+                    <option value="">Select Subcategory</option>
+                </select>
+            </div>
+            <textarea id="blog-desc" class="modal-input" rows="2" placeholder="Short Description..."></textarea>
+            <textarea id="blog-content" class="modal-input" rows="6" placeholder="Full Blog Content..."></textarea>
+            <button class="submit-btn" onclick="submitBlog()">Post Blog</button>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="follow-modal">
-        <div class="modal-content" style="max-width: 400px; padding: 0; overflow: hidden;">
+        <div class="modal-content" style="max-width: 420px; padding: 0; overflow: hidden;">
             <div style="padding: 15px; border-bottom: 1px solid #efefef; text-align: center; position: relative;">
                 <h3 id="follow-modal-title" style="text-transform: capitalize; font-size: 16px;">List</h3>
                 <span class="close-btn" onclick="closeModal('follow-modal')" style="position: absolute; right: 15px; top: 12px; font-size: 24px;">&times;</span>
+            </div>
+            <div style="padding: 10px 15px; background: #fafafa; border-bottom: 1px solid #efefef;">
+                <input type="text" id="modal-search-input" placeholder="Search user..." style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; outline: none; font-size: 14px;">
             </div>
             <div id="follow-loader" class="sub-loading" style="display:none; text-align:center; padding: 20px;">
                 <i class="fa-solid fa-spinner fa-spin"></i> Loading...

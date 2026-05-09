@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
     <style>
         body { background: #f3f2ef; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding-top: 50px; padding-bottom: 50px;}
         .edit-box { background: white; padding: 30px; border-radius: 12px; width: 600px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative;}
@@ -16,15 +19,12 @@
         .input-group { margin-bottom: 20px; }
         .input-group label { font-weight: bold; font-size: 13px; color: #555; display: block; margin-bottom: 5px; }
         
-        /* Brute Force Input Styling (Lock/Unlock) */
         .input-wrapper { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; background: #fafafa; padding-right: 10px;}
         .input-wrapper input, .input-wrapper textarea { flex: 1; padding: 12px; border: none; background: transparent; outline: none; font-size: 15px;}
-        /* input disable hone par grey dekhega */
         .input-wrapper input:disabled, .input-wrapper textarea:disabled { color: #888; }
         .input-wrapper i { color: #0a66c2; cursor: pointer; padding: 5px; }
         .input-wrapper i:hover { color: #004b93; }
 
-        /* 🚨 Upload File Button Style */
         .upload-btn-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding-left: 10px;}
         .upload-file-btn { 
             padding: 5px 12px; background:transparent; color:#0a66c2; border:1px solid #0a66c2; 
@@ -35,6 +35,29 @@
 
         .save-btn { width: 100%; padding: 12px; background: #0a66c2; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size:16px; transition:0.2s;}
         .save-btn:hover { background:#004b93;}
+
+        /* =======================================================
+           🚨 NAYA: POP-UP MODAL KI STYLING (For Cropper)
+           ======================================================= */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); z-index: 1000; justify-content: center; align-items: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-content {
+            background: white; border-radius: 12px; padding: 25px; width: 100%; max-width: 500px;
+            position: relative; animation: popIn 0.3s ease-out;
+        }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa; transition: 0.2s; }
+        .close-btn:hover { color: #ef4444; }
+
+        /* Cropper Dabba */
+        .img-container {
+            width: 100%; max-height: 400px; margin-bottom: 15px; background: #eee;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        .img-container img { max-width: 100%; display: block; }
     </style>
 </head>
 <body>
@@ -69,7 +92,7 @@
             
             <div class="upload-btn-row">
                 <span>OR</span>
-                <input type="file" id="file-pic" style="display:none;" accept="image/*" onchange="handleFileUpload(this, 'ep-pic', 'info-pic')">
+                <input type="file" id="file-pic" style="display:none;" accept="image/*" onchange="openCropper(this, 'ep-pic', 'info-pic', 1)">
                 <button class="upload-file-btn" onclick="document.getElementById('file-pic').click()"><i class="fa-solid fa-upload"></i> Add from File</button>
                 <span id="info-pic" class="file-info"></span>
             </div>
@@ -81,7 +104,7 @@
             
             <div class="upload-btn-row">
                 <span>OR</span>
-                <input type="file" id="file-bg" style="display:none;" accept="image/*" onchange="handleFileUpload(this, 'ep-bg', 'info-bg')">
+                <input type="file" id="file-bg" style="display:none;" accept="image/*" onchange="openCropper(this, 'ep-bg', 'info-bg', 16/9)">
                 <button class="upload-file-btn" onclick="document.getElementById('file-bg').click()"><i class="fa-solid fa-upload"></i> Add from File</button>
                 <span id="info-bg" class="file-info"></span>
             </div>
@@ -95,6 +118,20 @@
         <button class="save-btn" onclick="saveProfile()"><i class="fa-solid fa-save"></i> Save Changes</button>
     </div>
 
+    <div class="modal-overlay" id="cropper-modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeCropperModal()">&times;</span>
+            <h3 style="margin-bottom: 15px; color:#0a66c2;"><i class="fa-solid fa-crop-simple"></i> Adjust Photo</h3>
+            
+            <div class="img-container">
+                <img id="image-to-crop" src="">
+            </div>
+
+            <button class="save-btn" onclick="applyCrop()"><i class="fa-solid fa-check"></i> Apply Photo</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script src="edit-profile.js"></script>
 </body>
 </html>

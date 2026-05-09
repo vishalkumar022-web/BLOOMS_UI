@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blooms - Blog Management System Login">
+    <meta property="og:title" content="Blooms Login">
+    <meta property="og:description" content="Login to your Blooms account">
     <title>Blooms - Login</title>
 
     <!-- Font Awesome CDN Link -->
@@ -23,15 +26,15 @@
 
         <form id="login-form">
             <div class="form-group">
-                <label>Enter your Phone Number</label>
+                <label for="login-phone">Enter your Phone Number</label>
                 <input type="tel" id="login-phone" placeholder="1234567890" required>
             </div>
             
             <div class="form-group">
-                <label>Password</label>
+                <label for="login-password">Password</label>
                 <input type="password" id="login-password" placeholder="........" required>
                 <!-- NAYA: Login ke liye bhi Eye Icon -->
-                <i class="fa-solid fa-eye eye-icon" id="toggle-login-password"></i>
+                <i class="fa-solid fa-eye eye-icon" id="toggle-login-password" role="button" aria-label="Toggle password visibility" tabindex="0"></i>
             </div>
 
             <button type="submit" class="login-button">Login Now</button>

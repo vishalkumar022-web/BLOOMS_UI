@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blooms - Blog Management System User Profile">
+    <meta property="og:title" content="Blooms Profile">
+    <meta property="og:description" content="View your profile on Blooms Blog Management System">
     <title>Blooms - My Profile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="profile.css">
@@ -15,7 +18,7 @@
                 <h1 class="logo"><i class="fa-solid fa-leaf"></i> Blooms</h1>
                 <div class="search-box">
                     <i class="fa-solid fa-search"></i>
-                    <input type="text" id="search-input" placeholder="Search Users...">
+                    <input type="text" id="search-input" placeholder="Search Users..." aria-label="Search Users">
                 </div>
             </div>
             
@@ -27,7 +30,7 @@
                 <a href="chat.html" class="nav-item"><i class="fa-solid fa-comments"></i><span>Chat</span></a>
                 <div class="nav-divider"></div>
                 <a href="profile.html" class="nav-item active"><i class="fa-solid fa-user-circle"></i><span>Profile</span></a>
-                <button id="logout-btn" class="nav-item btn-style logout"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></button>
+                <button id="logout-btn" class="nav-item btn-style logout" aria-label="Logout"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></button>
             </div>
         </div>
     </nav>
@@ -49,7 +52,7 @@
             <div class="profile-header">
                 <div class="profile-pic-section" style="display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1; margin-right: 30px;">
                     <img id="my-profile-pic" src="https://via.placeholder.com/150" alt="Profile Pic" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
-                    <button class="edit-profile-btn" onclick="window.location.href='edit-profile.html'">
+                    <button class="edit-profile-btn" onclick="window.location.href='edit-profile.html'" aria-label="Edit Profile">
                         <i class="fa-solid fa-pen"></i> Edit Profile
                     </button>
                 </div>
@@ -76,16 +79,16 @@
             <hr class="divider">
 
             <div class="action-buttons-container" style="justify-content: center;">
-                <div class="action-item" onclick="openModal('create-blog-modal')">
-                    <div class="circle-btn"><i class="fa-solid fa-plus"></i></div>
+                <div class="action-item" onclick="openModal('create-blog-modal')" role="button" tabindex="0" aria-label="Post Blog">
+                    <div class="circle-btn" aria-hidden="true"><i class="fa-solid fa-plus"></i></div>
                     <span>Post Blog</span>
                 </div>
-                <div class="action-item" onclick="openModal('create-category-modal')">
-                    <div class="circle-btn"><i class="fa-solid fa-plus"></i></div>
+                <div class="action-item" onclick="openModal('create-category-modal')" role="button" tabindex="0" aria-label="Post Category">
+                    <div class="circle-btn" aria-hidden="true"><i class="fa-solid fa-plus"></i></div>
                     <span>Post Category</span>
                 </div>
-                <div class="action-item" onclick="openModal('create-subcategory-modal')">
-                    <div class="circle-btn"><i class="fa-solid fa-plus"></i></div>
+                <div class="action-item" onclick="openModal('create-subcategory-modal')" role="button" tabindex="0" aria-label="Post SubCategory">
+                    <div class="circle-btn" aria-hidden="true"><i class="fa-solid fa-plus"></i></div>
                     <span>Post SubCategory</span>
                 </div>
             </div>
@@ -156,7 +159,7 @@
                 <span class="close-btn" onclick="closeModal('follow-modal')" style="position: absolute; right: 15px; top: 12px; font-size: 24px;">&times;</span>
             </div>
             <div style="padding: 10px 15px; background: #fafafa; border-bottom: 1px solid #efefef;">
-                <input type="text" id="modal-search-input" placeholder="Search user..." style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; outline: none; font-size: 14px;">
+                <input type="text" id="modal-search-input" placeholder="Search user..." aria-label="Search user" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; outline: none; font-size: 14px;">
             </div>
             <div id="follow-loader" class="sub-loading" style="display:none; text-align:center; padding: 20px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>
             <div id="follow-list-container" class="sub-list" style="max-height: 400px; overflow-y: auto;"></div>

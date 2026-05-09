@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blooms - Blog Management System Feed">
+    <meta property="og:title" content="Blooms Feed">
+    <meta property="og:description" content="Your blog feed on Blooms Blog Management System">
     <title>Blooms - Feed</title>
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,7 +20,7 @@
                 <h1 class="logo"><i class="fa-solid fa-leaf"></i> Blooms</h1>
                 <div class="search-box">
                     <i class="fa-solid fa-search"></i>
-                    <input type="text" id="search-input" placeholder="Search blogs...">
+                    <input type="text" id="search-input" placeholder="Search blogs..." aria-label="Search blogs">
                 </div>
             </div>
             
@@ -30,8 +33,8 @@
                 
                 <div class="nav-divider"></div>
 
-                <button id="profile-btn" class="nav-item btn-style"><i class="fa-solid fa-user-circle"></i><span>Profile</span></button>
-                <button id="logout-btn" class="nav-item btn-style logout"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></button>
+                <button id="profile-btn" class="nav-item btn-style" aria-label="View Profile"><i class="fa-solid fa-user-circle"></i><span>Profile</span></button>
+                <button id="logout-btn" class="nav-item btn-style logout" aria-label="Logout"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></button>
             </div>
         </div>
     </nav>
@@ -125,7 +128,7 @@
             <!-- Naya Comment type karne ka dabba -->
             <div style="display:flex; gap:10px;">
                 <input type="hidden" id="modal-blog-id"> <!-- Chhupi hui blog ID taaki JS ko pata rahe kahan comment post karna hai -->
-                <input type="text" id="modal-comment-input" placeholder="Write a comment..." style="flex:1; padding:10px; border-radius:20px; border:1px solid #ccc; outline:none;">
+                <input type="text" id="modal-comment-input" placeholder="Write a comment..." aria-label="Write a comment" style="flex:1; padding:10px; border-radius:20px; border:1px solid #ccc; outline:none;">
                 <button onclick="submitModalComment()" style="background:#0a66c2; color:white; border:none; padding:8px 20px; border-radius:20px; cursor:pointer;">Post</button>
             </div>
         </div>

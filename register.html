@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blooms - Blog Management System Registration">
+    <meta property="og:title" content="Blooms Register">
+    <meta property="og:description" content="Create a new account on Blooms">
     <title>Blooms - Register</title>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -25,55 +28,55 @@
         <form id="register-form">
 
             <div class="form-group">
-                <label>User ID</label>
+                <label for="reg-userid">User ID</label>
                 <input type="text" id="reg-userid" placeholder="Enter your user ID" required>
             </div>
 
             <div class="form-group">
-                <label>Username</label>
+                <label for="reg-username">Username</label>
                 <input type="text" id="reg-username" placeholder="Create a username" required>
             </div>
 
             <div class="form-group">
-                <label>Email Address</label>
+                <label for="reg-email">Email Address</label>
                 <input type="email" id="reg-email" placeholder="Enter your email" required>
             </div>
 
             <div class="form-group">
-                <label>Full Name</label>
+                <label for="reg-name">Full Name</label>
                 <input type="text" id="reg-name" placeholder="Enter your full name" required>
             </div>
 
             <div class="form-group">
-                <label>Profile Image URL</label>
+                <label for="reg-profile-url">Profile Image URL</label>
                 <input type="url" id="reg-profile-url" placeholder="Paste your DP link here" required>
             </div>
 
             <!-- 🟢 NAYA DABBA 1: Background Image URL -->
             <div class="form-group">
-                <label>Background Image URL</label>
+                <label for="reg-bg-url">Background Image URL</label>
                 <input type="url" id="reg-bg-url" placeholder="Paste your banner image link here" required>
             </div>
 
             <!-- 🟢 NAYA DABBA 2: About Me (Lamba text likhne ke liye textarea) -->
             <div class="form-group">
-                <label>About Me</label>
+                <label for="reg-about">About Me</label>
                 <textarea id="reg-about" rows="3" placeholder="Tell us about your skills, hobbies etc." required></textarea>
             </div>
 
             <div class="form-group">
-                <label>Password</label>
+                <label for="reg-password">Password</label>
                 <input type="password" id="reg-password" placeholder="Create a password" required>
-                <i class="fa-solid fa-eye eye-icon" id="toggle-reg-password"></i>
+                <i class="fa-solid fa-eye eye-icon" id="toggle-reg-password" role="button" aria-label="Toggle password visibility" tabindex="0"></i>
             </div>
 
             <div class="form-group">
-                <label>Phone Number</label>
+                <label for="reg-phone">Phone Number</label>
                 <input type="tel" id="reg-phone" placeholder="Enter your phone number" required>
             </div>
 
             <div class="form-group">
-                <label>Role</label>
+                <label for="reg-role">Role</label>
                 <select id="reg-role" required>
                     <option value="" disabled selected>Select your role</option>
                     <option value="user">User</option>

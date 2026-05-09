@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blooms - Chat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="chat.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="dashboard.html" class="logo"><i class="fa-solid fa-leaf"></i> Blooms</a>
+            <div class="nav-right">
+                <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
+                <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
+                <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
+                <a href="chat.html" class="nav-item active"><i class="fa-solid fa-comments"></i><span>Chat</span></a>
+                <a href="profile.html" class="nav-item"><i class="fa-solid fa-user-circle"></i><span>Profile</span></a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="chat-container" id="main-chat-container">
+        
+        <div class="chat-sidebar">
+            <div class="sidebar-header">
+                <img src="https://via.placeholder.com/150" id="my-chat-profile-pic" class="my-chat-pic" alt="Me">
+                <div class="sidebar-header-icons">
+                    <i class="fa-solid fa-pen-to-square" title="New Chat"></i>
+                </div>
+            </div>
+
+            <div class="search-chat-container">
+                <div class="search-chat-box">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="search-user-input" placeholder="Search or start new chat">
+                </div>
+            </div>
+
+            <div class="user-list" id="users-list-container">
+                <div style="text-align: center; padding: 20px; color: #888;">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Loading users...
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-area">
+            <div class="chat-bg-pattern"></div>
+            
+            <div class="empty-chat-state" id="empty-chat-state">
+                <i class="fa-brands fa-whatsapp"></i>
+                <h2>Blooms Chat Web</h2>
+                <p style="color: #667781; margin-top: 10px;">Select a user to start messaging securely.</p>
+            </div>
+
+            <div id="active-chat-window" style="display: none; height: 100%; flex-direction: column;">
+                
+                <div class="chat-header">
+                    <div class="chat-user-info">
+                        <i class="fa-solid fa-arrow-left back-btn-mobile" onclick="closeChatMobile()"></i>
+                        <img src="" id="target-user-pic" alt="User">
+                        <div>
+                            <h3 id="target-user-name">Select User</h3>
+                            <p id="target-user-status">Online</p>
+                        </div>
+                    </div>
+
+                    
+                    <div class="chat-header-actions" style="display: flex; align-items: center; gap: 10px;">
+                        <input type="text" id="in-chat-search" placeholder="Search in chat...">
+                        <i class="fa-solid fa-search" title="Search in chat" onclick="toggleInChatSearch()"></i>
+                    </div>
+
+
+                </div>
+
+                <div class="messages-container" id="messages-container">
+                    </div>
+
+                <div class="chat-input-area">
+                    <i class="fa-regular fa-face-smile" title="Emojis (Coming soon)"></i>
+                    <i class="fa-solid fa-paperclip" title="Attach file (Coming soon)"></i>
+                    <input type="text" class="chat-input-box" id="message-input" placeholder="Type a message">
+                    <i class="fa-solid fa-paper-plane" id="send-msg-btn" onclick="sendMessage()" style="color: #0a66c2;"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    
+    <script src="chat.js"></script>
+</body>
+</html>

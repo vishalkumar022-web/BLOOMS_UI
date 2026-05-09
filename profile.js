@@ -134,9 +134,9 @@ function renderTabContent(containerId, listData, type, emptyMessage) {
 
             // 🏷️ Specific ID Label (Bold me)
             let idLabelHtml = "";
-            if(type === "blogs") idLabelHtml = `<strong>Blog ID: </strong> <span style="color:#333;">${id.substring(0,8)}</span>`;
-            else if(type === "categories") idLabelHtml = `<strong>Category ID: </strong> <span style="color:#333;">${id.substring(0,8)}</span>`;
-            else if(type === "subcategories") idLabelHtml = `<strong>Subcat ID: </strong> <span style="color:#333;">${id.substring(0,8)}</span>`;
+            if(type === "blogs") idLabelHtml = `<strong>Blog ID: </strong> <span style="color:#333;">${id.substring(0,8)}   • <strong>${status}</strong></span>`;
+            else if(type === "categories") idLabelHtml = `<strong>Category ID: </strong> <span style="color:#333;">${id.substring(0,8)}   • ${status}</span>`;
+            else if(type === "subcategories") idLabelHtml = `<strong>Subcat ID: </strong> <span style="color:#333;">${id.substring(0,8)}   • ${status}</span>`;
 
             // 🕒 Date aur Time Set karna
             let timeString = "Recently";

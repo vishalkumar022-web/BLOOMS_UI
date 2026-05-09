@@ -213,7 +213,7 @@ function printBlogsOnScreen(blogArray) {
                         <img src="https://ui-avatars.com/api/?name=${blog.authorId}&background=random" class="author-pic">
                         <div class="author-info">
                             <h4><a href="viewprofile.html?userId=${blog.authorId}" style="text-decoration:none; color:#000; transition:color 0.2s;" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='#000'">Author ID: ${blog.authorId.substring(0,8)}</a></h4>
-                            <p>${timeString} • Published</p> 
+                            <p>${timeString} • ${blog.status}</p> 
                         </div>
                     </div>
                     <div>${followBtnHtml}</div> 

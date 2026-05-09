@@ -11,13 +11,19 @@
 
     <nav class="navbar">
         <div class="nav-content">
-            <a href="dashboard.html" class="logo"><i class="fa-solid fa-leaf"></i> Blooms</a>
+            <div class="nav-left">
+                <a href="dashboard.html" class="logo"><i class="fa-solid fa-leaf"></i> Blooms</a>
+            </div>
+            
             <div class="nav-right">
                 <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
                 <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
                 <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
+                <a href="ai-chat.html" class="nav-item"><i class="fa-solid fa-robot"></i><span>AI Chat</span></a>
                 <a href="chat.html" class="nav-item active"><i class="fa-solid fa-comments"></i><span>Chat</span></a>
+                <div class="nav-divider"></div>
                 <a href="profile.html" class="nav-item"><i class="fa-solid fa-user-circle"></i><span>Profile</span></a>
+                <button id="logout-btn" class="nav-item btn-style logout"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></button>
             </div>
         </div>
     </nav>
@@ -25,13 +31,23 @@
     <div class="chat-container" id="main-chat-container">
         
         <div class="chat-sidebar">
+
+
             <div class="sidebar-header">
-                <img src="https://via.placeholder.com/150" id="my-chat-profile-pic" class="my-chat-pic" alt="Me">
+                <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="window.location.href='profile.html'" title="Go to My Profile">
+                    <img src="https://via.placeholder.com/150" id="my-chat-profile-pic" class="my-chat-pic" alt="Me">
+                    <div style="display: flex; flex-direction: column;">
+                        <span id="my-chat-username" style="font-size: 14px; font-weight: 600; color: #111b21;">Me</span>
+                        <span style="font-size: 11px; color: #0a66c2; font-weight: 600;">(Go to my profile)</span>
+                    </div>
+                </div>
+                
                 <div class="sidebar-header-icons">
-                    <i class="fa-solid fa-pen-to-square" title="New Chat"></i>
+                    <i class="fa-solid fa-pen-to-square" title="Edit Profile" onclick="window.location.href='profile.html'"></i>
                 </div>
             </div>
 
+            
             <div class="search-chat-container">
                 <div class="search-chat-box">
                     <i class="fa-solid fa-search"></i>
@@ -58,39 +74,46 @@
             <div id="active-chat-window" style="display: none; height: 100%; flex-direction: column;">
                 
                 <div class="chat-header">
-                    <div class="chat-user-info">
-                        <i class="fa-solid fa-arrow-left back-btn-mobile" onclick="closeChatMobile()"></i>
+                    <div class="chat-user-info" id="chat-header-info" title="View Profile">
+                        <i class="fa-solid fa-arrow-left back-btn-mobile" onclick="closeChatMobile(event)"></i>
                         <img src="" id="target-user-pic" alt="User">
                         <div>
                             <h3 id="target-user-name">Select User</h3>
                             <p id="target-user-status">Online</p>
                         </div>
                     </div>
-
-                    
-                    <div class="chat-header-actions" style="display: flex; align-items: center; gap: 10px;">
+                    <div class="chat-header-actions">
                         <input type="text" id="in-chat-search" placeholder="Search in chat...">
                         <i class="fa-solid fa-search" title="Search in chat" onclick="toggleInChatSearch()"></i>
                     </div>
-
-
                 </div>
 
-                <div class="messages-container" id="messages-container">
-                    </div>
+                <div class="messages-container" id="messages-container"></div>
+
+                <div id="emoji-picker" class="emoji-picker-box">
+                    <span class="emoji-btn" onclick="addEmoji('😀')">😀</span><span class="emoji-btn" onclick="addEmoji('😂')">😂</span><span class="emoji-btn" onclick="addEmoji('🤣')">🤣</span>
+                    <span class="emoji-btn" onclick="addEmoji('😊')">😊</span><span class="emoji-btn" onclick="addEmoji('🥰')">🥰</span><span class="emoji-btn" onclick="addEmoji('😍')">😍</span>
+                    <span class="emoji-btn" onclick="addEmoji('😒')">😒</span><span class="emoji-btn" onclick="addEmoji('😭')">😭</span><span class="emoji-btn" onclick="addEmoji('😡')">😡</span>
+                    <span class="emoji-btn" onclick="addEmoji('👍')">👍</span><span class="emoji-btn" onclick="addEmoji('🙏')">🙏</span><span class="emoji-btn" onclick="addEmoji('🔥')">🔥</span>
+                    <span class="emoji-btn" onclick="addEmoji('💯')">💯</span><span class="emoji-btn" onclick="addEmoji('✅')">✅</span><span class="emoji-btn" onclick="addEmoji('🎉')">🎉</span>
+                    <span class="emoji-btn" onclick="addEmoji('❤️')">❤️</span><span class="emoji-btn" onclick="addEmoji('💔')">💔</span><span class="emoji-btn" onclick="addEmoji('😎')">😎</span>
+                    <span class="emoji-btn" onclick="addEmoji('🤔')">🤔</span><span class="emoji-btn" onclick="addEmoji('🤫')">🤫</span><span class="emoji-btn" onclick="addEmoji('🤯')">🤯</span>
+                </div>
 
                 <div class="chat-input-area">
-                    <i class="fa-regular fa-face-smile" title="Emojis (Coming soon)"></i>
-                    <i class="fa-solid fa-paperclip" title="Attach file (Coming soon)"></i>
+                    <i class="fa-regular fa-face-smile" onclick="toggleEmojiPicker()" title="Add Emojis"></i>
+                    
+                    <i class="fa-solid fa-plus" onclick="document.getElementById('chat-image-input').click()" title="Attach Photo" style="margin-left: 5px;"></i>
+                    <input type="file" id="chat-image-input" accept="image/*" style="display:none;" onchange="sendImageMessage(this)">
+                    
                     <input type="text" class="chat-input-box" id="message-input" placeholder="Type a message">
-                    <i class="fa-solid fa-paper-plane" id="send-msg-btn" onclick="sendMessage()" style="color: #0a66c2;"></i>
+                    <i class="fa-solid fa-paper-plane" id="send-msg-btn" onclick="sendTextMessage()" style="color: #0a66c2;"></i>
                 </div>
             </div>
         </div>
-
     </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     
     <script src="chat.js"></script>

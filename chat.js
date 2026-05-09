@@ -7,6 +7,11 @@ function checkTokenLive() {
     return t; 
 }
 
+// Logout Logic
+document.getElementById("logout-btn").addEventListener("click", function() { 
+    localStorage.clear(); window.location.replace("login.html"); 
+});
+
 // Global Variables
 let myUserId = localStorage.getItem("userId") || "";
 let targetUserId = ""; 
@@ -19,15 +24,31 @@ let stompClient = null;
 async function initChat() {
     if(!checkTokenLive()) return;
     
-    const myPic = localStorage.getItem("profileUrl");
-    if(myPic && myPic !== "null") document.getElementById("my-chat-profile-pic").src = myPic;
-    else document.getElementById("my-chat-profile-pic").src = `https://ui-avatars.com/api/?name=${localStorage.getItem("userName") || 'Me'}&background=0a66c2&color=fff`;
+    // 🚨 THE FIX: Seedha backend se apni real photo aur naam mangwa rahe hain!
+    try {
+        const token = checkTokenLive();
+        const meRes = await fetch(BASE_URL + "/api/User/me", { headers: { "Authorization": "Bearer " + token }});
+        const meData = await meRes.json();
+        
+        if(meData.success) {
+            const u = meData.data;
+            document.getElementById("my-chat-username").innerText = u.name || u.userName || "Me";
+            
+            if(u.profileUrl && u.profileUrl !== "null" && u.profileUrl !== "") {
+                document.getElementById("my-chat-profile-pic").src = u.profileUrl;
+            } else {
+                document.getElementById("my-chat-profile-pic").src = `https://ui-avatars.com/api/?name=${u.userName || 'Me'}&background=0a66c2&color=fff`;
+            }
+        }
+    } catch(e) { 
+        console.log("Failed to load my own pic", e); 
+        // Fallback agar backend time le
+        document.getElementById("my-chat-profile-pic").src = `https://ui-avatars.com/api/?name=${localStorage.getItem("userName") || 'Me'}&background=0a66c2&color=fff`;
+    }
 
     await loadAllUsers();
     connectWebSocket(); 
 }
-
-// Default Users (Recent/All)
 async function loadAllUsers() {
     try {
         const token = checkTokenLive();
@@ -45,36 +66,26 @@ async function loadAllUsers() {
     }
 }
 
-// 🚨 NAYA: Left Search Bar (API INTEGRATION) 🚨
+// 🚨 API Search for users
 let searchTimeout;
 document.getElementById("search-user-input").addEventListener("input", function(e) {
     clearTimeout(searchTimeout);
     let query = e.target.value.trim();
-    
-    // Agar search khali hai toh wapas purani list dikhao
     if(query === "") { renderUsersList(allUsersList); return; }
 
-    // 500ms ka wait (Debounce) taaki har letter type hone par turant API hit na ho
     searchTimeout = setTimeout(async () => {
         try {
             const token = checkTokenLive();
             document.getElementById("users-list-container").innerHTML = "<p style='text-align:center; padding:20px;'><i class='fa-solid fa-spinner fa-spin'></i> Searching...</p>";
-            
-            // Backend API hit kar rahe hain user search ke liye
-            const res = await fetch(`${BASE_URL}/api/User/search?name=${encodeURIComponent(query)}&page=0&size=50`, {
-                headers: { "Authorization": "Bearer " + token }
-            });
+            const res = await fetch(`${BASE_URL}/api/User/search?name=${encodeURIComponent(query)}&page=0&size=50`, { headers: { "Authorization": "Bearer " + token } });
             const data = await res.json();
-
             if (data.success && data.data.length > 0) {
                 let filtered = data.data.filter(u => u.userId !== myUserId);
                 renderUsersList(filtered);
             } else {
                 document.getElementById("users-list-container").innerHTML = `<p style='text-align:center; padding:20px; color:#888;'>No user found with "${query}"</p>`;
             }
-        } catch (error) {
-            document.getElementById("users-list-container").innerHTML = "<p style='text-align:center; color:red;'>Search failed.</p>";
-        }
+        } catch (error) { document.getElementById("users-list-container").innerHTML = "<p style='text-align:center; color:red;'>Search failed.</p>"; }
     }, 500);
 });
 
@@ -97,7 +108,7 @@ function renderUsersList(users) {
 }
 
 // ============================================================================
-// 2. CHAT WINDOW & RIGHT SEARCH BAR
+// CHAT WINDOW & PROFILE REDIRECT
 // ============================================================================
 function openChatWindow(userId, name, pic) {
     targetUserId = userId;
@@ -107,29 +118,37 @@ function openChatWindow(userId, name, pic) {
     document.getElementById("target-user-pic").src = pic;
     document.getElementById("main-chat-container").classList.add("chat-active");
 
+    // 🚨 FIX: Redirect to viewprofile.html when clicking on Header Info
+    document.getElementById("chat-header-info").onclick = function(e) {
+        // Agar mobile back button dabaya hai toh redirect mat karo
+        if(e.target.classList.contains("back-btn-mobile")) return;
+        window.location.href = `viewprofile.html?userId=${userId}`;
+    };
+
     document.querySelectorAll(".user-item").forEach(el => el.classList.remove("active"));
     const activeItem = document.getElementById(`user-li-${userId}`);
     if(activeItem) activeItem.classList.add("active");
 
-    // Right search bar band aur khali kar do
     document.getElementById("in-chat-search").value = "";
     document.getElementById("in-chat-search").style.display = "none";
+    document.getElementById("emoji-picker").style.display = "none";
 
     loadPreviousMessages(userId);
 }
 
-function closeChatMobile() { document.getElementById("main-chat-container").classList.remove("chat-active"); targetUserId = ""; }
+function closeChatMobile(event) { 
+    event.stopPropagation(); // Profile pe redirect hone se rokne k liye
+    document.getElementById("main-chat-container").classList.remove("chat-active"); 
+    targetUserId = ""; 
+}
 
-// 🚨 NAYA: Right In-Chat Search Logic
+// In-Chat Search
 function toggleInChatSearch() {
     let searchBox = document.getElementById("in-chat-search");
     if (searchBox.style.display === "none" || searchBox.style.display === "") {
-        searchBox.style.display = "block";
-        searchBox.focus();
+        searchBox.style.display = "block"; searchBox.focus();
     } else {
-        searchBox.style.display = "none";
-        searchBox.value = "";
-        // Reset filter
+        searchBox.style.display = "none"; searchBox.value = "";
         document.querySelectorAll(".msg-box").forEach(msg => msg.style.display = "block");
         document.querySelectorAll(".date-separator").forEach(ds => ds.style.display = "block");
     }
@@ -141,28 +160,57 @@ document.getElementById("in-chat-search").addEventListener("input", function(e) 
         if(msg.innerText.toLowerCase().includes(query)) msg.style.display = "block";
         else msg.style.display = "none";
     });
-    // Hide date separators during search to avoid clutter
     document.querySelectorAll(".date-separator").forEach(ds => ds.style.display = query === "" ? "block" : "none");
 });
 
 // ============================================================================
-// 3. DATE FORMATTER HELPER (WhatsApp Style)
+// EMOJI & PHOTO UPLOAD
 // ============================================================================
+function toggleEmojiPicker() {
+    let picker = document.getElementById("emoji-picker");
+    picker.style.display = (picker.style.display === "none" || picker.style.display === "") ? "flex" : "none";
+}
+
+function addEmoji(emoji) {
+    let input = document.getElementById("message-input");
+    input.value += emoji;
+    input.focus();
+}
+
+function sendImageMessage(inputElement) {
+    const file = inputElement.files[0];
+    if (!file) return;
+    if (file.size > 1024 * 1024) { alert("Bhai, photo 1MB se chhoti honi chahiye!"); inputElement.value = ""; return; }
+
+    const reader = new FileReader();
+    reader.onloadend = function() {
+        const base64Img = reader.result;
+        // 🚨 NAYA: Class add ki jisse photo choti ho jayegi
+        const imgHtml = `<img src="${base64Img}" class="chat-shared-img" alt="Shared Image">`;
+        sendActualMessageToBackend(imgHtml);
+        inputElement.value = ""; 
+        document.getElementById("emoji-picker").style.display = "none";
+    }
+    reader.readAsDataURL(file);
+}
+
+// Date Formatter
 function formatChatDate(dateString) {
-    const msgDate = new Date(dateString);
+    let safeDateString = dateString;
+    if(!safeDateString.endsWith("Z")) safeDateString += "Z";
+    
+    const msgDate = new Date(safeDateString);
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (msgDate.toDateString() === today.toDateString()) return "Today";
     if (msgDate.toDateString() === yesterday.toDateString()) return "Yesterday";
-    
-    // Warna "12 May 2026"
     return msgDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 // ============================================================================
-// 4. SEND & RECEIVE MESSAGES 
+// SEND & RECEIVE MESSAGES 
 // ============================================================================
 async function loadPreviousMessages(targetId) {
     const chatContainer = document.getElementById("messages-container");
@@ -177,11 +225,13 @@ async function loadPreviousMessages(targetId) {
             let lastDateLabel = "";
 
             data.data.forEach(msg => {
-                let msgDateObj = new Date(msg.timestamp);
+                let safeTimestamp = msg.timestamp;
+                if(!safeTimestamp.endsWith("Z")) safeTimestamp += "Z";
+                
+                let msgDateObj = new Date(safeTimestamp);
                 let currentDateLabel = formatChatDate(msg.timestamp);
                 let timeStr = msgDateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 
-                // 🚨 DATE SEPARATOR LOGIC
                 if (currentDateLabel !== lastDateLabel) {
                     let dateDiv = document.createElement("div");
                     dateDiv.className = "date-separator";
@@ -192,8 +242,6 @@ async function loadPreviousMessages(targetId) {
 
                 let isSentByMe = (msg.senderId === myUserId);
                 let type = isSentByMe ? 'sent' : 'received';
-                
-                // 🚨 TICKS LOGIC (History wale messages double blue tick)
                 let tickStatus = isSentByMe ? "double-blue" : "none";
                 
                 appendMessageToUI(msg.content, type, timeStr, tickStatus);
@@ -203,34 +251,36 @@ async function loadPreviousMessages(targetId) {
 }
 
 document.getElementById("message-input").addEventListener("keypress", function(e) {
-    if (e.key === "Enter") sendMessage();
+    if (e.key === "Enter") sendTextMessage();
 });
 
-async function sendMessage() {
+function sendTextMessage() {
     const input = document.getElementById("message-input");
     const text = input.value.trim();
     if (text === "" || !targetUserId) return;
+    
+    input.value = "";
+    document.getElementById("emoji-picker").style.display = "none";
+    sendActualMessageToBackend(text);
+}
 
-    // Current time
+async function sendActualMessageToBackend(content) {
     const now = new Date();
     let timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     
-    // UI me turant chapna with SINGLE GREY TICK (Kyunki abhi just bheja hai)
-    appendMessageToUI(text, "sent", timeStr, "single-grey");
-    input.value = "";
+    appendMessageToUI(content, "sent", timeStr, "single-grey");
 
     try {
         const token = checkTokenLive();
         await fetch(`${BASE_URL}/api/chat/send`, {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-            body: JSON.stringify({ targetUserId: targetUserId, content: text })
+            body: JSON.stringify({ targetUserId: targetUserId, content: content })
         });
     } catch (e) { console.error("Failed to send message", e); }
 }
 
-// Naya parameter "tickStatus" add kiya hai
-function appendMessageToUI(text, type, time, tickStatus = "none") {
+function appendMessageToUI(content, type, time, tickStatus = "none") {
     const container = document.getElementById("messages-container");
     const msgDiv = document.createElement("div");
     msgDiv.className = `msg-box msg-${type}`; 
@@ -242,7 +292,7 @@ function appendMessageToUI(text, type, time, tickStatus = "none") {
     }
 
     msgDiv.innerHTML = `
-        ${text}
+        ${content}
         <div style="float: right; margin-top: 5px; margin-left: 15px; display:flex; align-items:center;">
             <span class="msg-time" style="float:none; margin:0;">${time}</span>
             ${tickHtml}
@@ -253,7 +303,7 @@ function appendMessageToUI(text, type, time, tickStatus = "none") {
 }
 
 // ============================================================================
-// 5. WEBSOCKET CONNECTION
+// WEBSOCKET CONNECTION
 // ============================================================================
 function connectWebSocket() {
     let socket = new SockJS(`${BASE_URL}/ws`); 
@@ -268,8 +318,10 @@ function connectWebSocket() {
             const receivedMsg = JSON.parse(message.body);
             
             if (receivedMsg.senderId === targetUserId) {
-                // Jab doosre bande se naya message aaye
-                const msgDate = new Date(receivedMsg.timestamp);
+                let safeTimestamp = receivedMsg.timestamp;
+                if(!safeTimestamp.endsWith("Z")) safeTimestamp += "Z";
+                
+                const msgDate = new Date(safeTimestamp);
                 let timeStr = msgDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 appendMessageToUI(receivedMsg.content, "received", timeStr, "none");
             } else {

@@ -210,7 +210,7 @@ function printBlogsOnScreen(blogArray) {
             <div class="blog-card">
                 <div class="card-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
                     <div style="display:flex; align-items:center;">
-                        <img src="https://ui-avatars.com/api/?name=${blog.authorId}&background=random" class="author-pic">
+                        <img src="https://ui-avatars.com/api/?name=${blog.authorId}&background=random" class="author-pic" loading="lazy" decoding="async">
                         <div class="author-info">
                             <h4><a href="viewprofile.html?userId=${blog.authorId}" style="text-decoration:none; color:#000; transition:color 0.2s;" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='#000'">Author ID: ${blog.authorId.substring(0,8)}</a></h4>
                             <p>${timeString} • ${blog.status}</p> 
@@ -222,7 +222,7 @@ function printBlogsOnScreen(blogArray) {
                     <span>ID: ${blog.blogId.substring(0,8)}...</span>
                     <span>${category} • ${subCategory}</span>
                 </div>
-                <img src="${blog.blogImageUrl || 'https://via.placeholder.com/800x400?text=No+Image+Available'}" class="blog-image">
+                <img src="${blog.blogImageUrl || 'https://via.placeholder.com/800x400?text=No+Image+Available'}" class="blog-image" loading="lazy" decoding="async">
                 <div class="card-body">
                     <h2 class="blog-title">${blog.title}</h2>
                     <p style="font-size: 15px; color: #666; margin-bottom: 10px; font-weight:500;">${blog.description}</p>

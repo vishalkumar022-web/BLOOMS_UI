@@ -160,7 +160,7 @@ function renderTabContent(containerId, listData, type, emptyMessage) {
             // Card ka HTML Design
             html += `
                 <div class="profile-item-card" style="background: white; border: 1px solid #dbdbdb; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                    <img src="${imgUrl}" style="width: 100%; height: 120px; object-fit: cover; border-bottom: 1px solid #efefef;" onerror="this.src='https://via.placeholder.com/200x120?text=Error'">
+                    <img src="${imgUrl}" style="width: 100%; height: 120px; object-fit: cover; border-bottom: 1px solid #efefef;" onerror="this.src='https://via.placeholder.com/200x120?text=Error'" loading="lazy" decoding="async">
                     
                     <div class="card-info" style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
                         
@@ -299,7 +299,7 @@ function printUsersOnScreen(usersArray) {
 
         html += `
             <a href="viewprofile.html?userId=${user.userId}" class="user-search-card" style="text-decoration:none; color:inherit;">
-                <img src="${pic}" class="user-search-pic" alt="dp">
+                <img src="${pic}" class="user-search-pic" alt="dp" loading="lazy" decoding="async">
                 <div class="user-search-info">
                     <strong>${user.userName}</strong>
                     <p class="user-fullname">${user.name || 'User'}</p>
@@ -361,10 +361,14 @@ async function openFollowModal(type) {
     } catch (error) { document.getElementById("follow-loader").style.display = "none"; }
 }
 
+let debounceTimer;
 document.getElementById("modal-search-input").addEventListener("input", function(e) {
-    let query = e.target.value.toLowerCase();
-    let filteredList = currentModalData.filter(person => person.userName.toLowerCase().includes(query) || (person.name && person.name.toLowerCase().includes(query)));
-    renderFollowList(filteredList);
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        let query = e.target.value.toLowerCase();
+        let filteredList = currentModalData.filter(person => person.userName.toLowerCase().includes(query) || (person.name && person.name.toLowerCase().includes(query)));
+        renderFollowList(filteredList);
+    }, 300);
 });
 
 function renderFollowList(list) {
@@ -379,7 +383,7 @@ function renderFollowList(list) {
         html += `
             <div class="list-user-box" style="display:flex; justify-content:space-between; align-items:center; padding:10px 15px; border-bottom:1px solid #f0f0f0;">
                 <a href="viewprofile.html?userId=${person.userId}" style="text-decoration:none; display:flex; align-items:center; color:#333; flex:1;">
-                    <img src="${pic}" style="width:44px; height:44px; border-radius:50%; margin-right:15px; object-fit:cover;">
+                    <img src="${pic}" style="width:44px; height:44px; border-radius:50%; margin-right:15px; object-fit:cover;" loading="lazy" decoding="async">
                     <div style="display:flex; flex-direction:column;">
                         <strong style="font-size:14px; font-weight:600;">${person.userName}</strong>
                         <span style="font-size:12px; color:#888;">${person.name || 'User'}</span>

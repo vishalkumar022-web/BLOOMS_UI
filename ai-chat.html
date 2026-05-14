@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blooms - RAG AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="ai-chat.css">
+</head>
+<body>
+
+    <!-- Standard Navbar -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-left">
+                <a href="dashboard.html" class="logo"><i class="fa-solid fa-leaf"></i> Blooms</a>
+            </div>
+            
+            <div class="nav-right">
+                <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
+                <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
+                <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
+                <a href="ai-chat.html" class="nav-item active"><i class="fa-solid fa-robot"></i><span>AI Chat</span></a>
+                <a href="chat.html" class="nav-item"><i class="fa-solid fa-comments"></i><span>Chat</span></a>
+                <div class="nav-divider"></div>
+                <a href="profile.html" class="nav-item"><i class="fa-solid fa-user-circle"></i><span>Profile</span></a>
+                <button id="logout-btn" class="nav-item btn-style logout"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Chat Interface -->
+    <div class="ai-main-container">
+        <div class="ai-chat-box">
+            
+            <div class="ai-chat-header">
+                <div class="ai-robot-icon">
+                    <i class="fa-solid fa-microchip"></i>
+                </div>
+                <div class="ai-chat-header-info">
+                    <h2>Blooms AI Assistant</h2>
+                    <p>Powered by RAG - I know everything about your application data</p>
+                </div>
+            </div>
+
+            <div class="ai-messages-area" id="chat-messages">
+                <!-- Welcome Message -->
+                <div class="message-row bot">
+                    <div class="message-bubble bot">
+                        Hello! I am Blooms AI. Since I am integrated directly with your live database using RAG, I can help you find any specific blog, user, or category information. How can I help you today?
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-input-area">
+                <div class="ai-input-wrapper">
+                    <input type="text" id="ai-user-input" placeholder="Ask about blogs, categories, or updates..." autocomplete="off">
+                </div>
+                <button class="ai-send-btn" id="ai-send-btn" onclick="sendAiMessage()">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="ai-chat.js"></script>
+</body>
+</html>

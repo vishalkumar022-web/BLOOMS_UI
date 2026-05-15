@@ -162,8 +162,8 @@ body { background-color: #d1d7db; overflow: hidden; }
        BUG 2 FIX: Chat Page Message Input Bar
        ======================================================= */
     .chat-input-area {
-        position: fixed;
-        bottom: 0;
+        position: relative !important;
+        bottom: auto !important;
         left: 0;
         width: 100%;
         box-sizing: border-box;
@@ -174,11 +174,18 @@ body { background-color: #d1d7db; overflow: hidden; }
         display: flex;
         align-items: center;
         gap: 10px;
+        flex-shrink: 0 !important;
     }
 
     #active-chat-window {
-        padding-bottom: 65px; /* Prevent messages overlapping */
-        height: 100vh; /* Adjust height */
+        padding-bottom: 0 !important;
+        height: 100dvh !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .chat-header {
+        flex-shrink: 0 !important;
     }
 
     .chat-input-box {
@@ -196,6 +203,9 @@ body { background-color: #d1d7db; overflow: hidden; }
     .messages-container {
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
+        min-height: 0 !important;
     }
     
     .user-list {

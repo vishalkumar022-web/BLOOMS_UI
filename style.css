@@ -319,3 +319,98 @@ input[readonly] {
         font-size: 20px;
     }
 }
+
+/* ===== FILE UPLOAD OPTION ===== */
+.file-upload-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+.or-divider {
+    font-size: 12px;
+    color: #aaaaaa;
+}
+.upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.upload-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+.file-name-display {
+    font-size: 12px;
+    color: #cccccc;
+    font-style: italic;
+}
+
+/* ===== NOTIFICATION BADGES ===== */
+.nav-notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: #e53935;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  animation: badgePulse 2s infinite;
+  z-index: 10;
+}
+
+.hamburger-notification-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #e53935;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  z-index: 10;
+}
+
+.contact-unread-badge {
+  background: #25d366;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+/* ===== END NOTIFICATION BADGES ===== */

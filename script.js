@@ -266,3 +266,44 @@ if (forgotForm) {
         }
     });
 }
+
+// ===== TASK 2: REGISTRATION FORM FILE UPLOAD TO BASE64 =====
+(function() {
+    function setupImageUpload(fileInputId, nameDisplayId, urlInputId, previewImgId) {
+        const fileInput = document.getElementById(fileInputId);
+        const nameDisplay = document.getElementById(nameDisplayId);
+        const urlInput = document.getElementById(urlInputId);
+        const previewImg = previewImgId ? document.getElementById(previewImgId) : null;
+
+        if (fileInput && nameDisplay && urlInput) {
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    nameDisplay.textContent = file.name;
+                    
+                    if (file.size > 1024 * 1024) { 
+                        alert("Please select an image smaller than 1MB.");
+                        fileInput.value = "";
+                        nameDisplay.textContent = "No file chosen";
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onloadend = function() {
+                        const base64String = reader.result;
+                        urlInput.value = base64String;
+                        if (previewImg) {
+                            previewImg.src = base64String;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    nameDisplay.textContent = "No file chosen";
+                }
+            });
+        }
+    }
+
+    setupImageUpload('reg-profile-file', 'reg-profile-name', 'reg-profile-url', 'preview-img');
+    setupImageUpload('reg-bg-file', 'reg-bg-name', 'reg-bg-url', null);
+})();

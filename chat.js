@@ -331,6 +331,12 @@ function connectWebSocket() {
                     userLi.querySelector('.user-item-last-msg').style.color = "#25d366"; 
                     userLi.querySelector('.user-item-last-msg').style.fontWeight = "bold";
                 }
+                // ===== TASK 3: INSTANT UNREAD UPDATE =====
+                if (localStorage.getItem("blooms_unread_counts") !== null) {
+                    let currentCount = parseInt(localStorage.getItem("blooms_unread_counts"), 10);
+                    localStorage.setItem("blooms_unread_counts", currentCount + 1);
+                    if (window.updateChatNotificationBadge) window.updateChatNotificationBadge();
+                }
             }
         });
     }, function(error) {
@@ -354,3 +360,132 @@ if (mobileMenuBtn && navMenu) {
         navMenu.classList.toggle("active");
     });
 }
+
+// ===== TASK 1: HAMBURGER MENU COMPACT DROPDOWN LOGIC =====
+(function() {
+    const hamburgerBtn = document.querySelector('.hamburger-menu, .hamburger-btn, button[class*="hamburger"], #mobile-menu-btn');
+    const navDropdown = document.querySelector('.nav-right, #nav-menu');
+    
+    if (hamburgerBtn && navDropdown) {
+        // Clone and replace button to remove old event listeners if any
+        const newHamburgerBtn = hamburgerBtn.cloneNode(true);
+        hamburgerBtn.parentNode.replaceChild(newHamburgerBtn, hamburgerBtn);
+        
+        let overlayDiv = null;
+
+        function closeMenu() {
+            navDropdown.classList.remove('active');
+            if (overlayDiv) {
+                overlayDiv.remove();
+                overlayDiv = null;
+            }
+        }
+
+        newHamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isActive = navDropdown.classList.toggle('active');
+            
+            if (isActive) {
+                if (!overlayDiv) {
+                    overlayDiv = document.createElement('div');
+                    overlayDiv.className = 'mobile-menu-overlay';
+                    document.body.appendChild(overlayDiv);
+                    
+                    overlayDiv.addEventListener('click', closeMenu);
+                }
+            } else {
+                closeMenu();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeMenu();
+        });
+
+        const navLinks = navDropdown.querySelectorAll('.nav-item, a, button');
+        navLinks.forEach(link => {
+            link.addEventListener('click', closeMenu);
+        });
+    }
+})();
+
+// ===== TASK 3: CHAT NOTIFICATION POLLING (WHATSAPP STYLE) =====
+(function() {
+    let unreadPollInterval = null;
+
+    async function fetchUnreadCounts() {
+        const liveToken = localStorage.getItem("token");
+        const myUserId = localStorage.getItem("userId");
+        if (!liveToken || !myUserId) return;
+
+        try {
+            const BASE_URL = "https://blog-management-system-blooms-2.onrender.com";
+            const response = await fetch(`${BASE_URL}/api/chat/unread-counts?userId=${myUserId}`, {
+                headers: { "Authorization": "Bearer " + liveToken }
+            });
+            const data = await response.json();
+            
+            if (data && data.success && data.data) {
+                let totalUnread = 0;
+                const unreadCountsMap = data.data;
+                
+                for (let key in unreadCountsMap) {
+                    totalUnread += unreadCountsMap[key];
+                }
+                
+                localStorage.setItem("blooms_unread_counts", totalUnread);
+                updateChatNotificationBadge();
+            }
+        } catch (error) {
+            console.log("Error fetching unread counts:", error);
+        }
+    }
+
+    function updateChatNotificationBadge() {
+        const totalUnread = parseInt(localStorage.getItem("blooms_unread_counts") || "0", 10);
+        
+        // Update Desktop/Mobile Nav Icon
+        const chatNavItems = document.querySelectorAll('.nav-item[href="chat.html"], .nav-item[onclick*="chat.html"]');
+        
+        chatNavItems.forEach(item => {
+            let badge = item.querySelector('.nav-notification-badge');
+            if (totalUnread > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'nav-notification-badge';
+                    item.style.position = 'relative'; // Ensure positioning
+                    item.appendChild(badge);
+                }
+                badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
+            } else {
+                if (badge) badge.remove();
+            }
+        });
+
+        // Update Hamburger Menu Icon
+        const hamburgerBtn = document.querySelector('.hamburger-menu, .hamburger-btn, #mobile-menu-btn');
+        if (hamburgerBtn) {
+            let dot = hamburgerBtn.querySelector('.hamburger-notification-dot');
+            if (totalUnread > 0) {
+                if (!dot) {
+                    dot = document.createElement('span');
+                    dot.className = 'hamburger-notification-dot';
+                    hamburgerBtn.style.position = 'relative';
+                    hamburgerBtn.appendChild(dot);
+                }
+            } else {
+                if (dot) dot.remove();
+            }
+        }
+    }
+
+    // Initialize polling
+    if (localStorage.getItem("token")) {
+        updateChatNotificationBadge(); // Initial UI update from localStorage
+        fetchUnreadCounts(); // Immediate fetch
+        unreadPollInterval = setInterval(fetchUnreadCounts, 5000); // Poll every 5s
+    }
+
+    // Make updateChatNotificationBadge globally available if needed
+    window.updateChatNotificationBadge = updateChatNotificationBadge;
+})();

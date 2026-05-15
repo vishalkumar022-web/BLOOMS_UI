@@ -132,3 +132,51 @@ if (mobileMenuBtn && navMenu) {
         navMenu.classList.toggle("active");
     });
 }
+
+// ===== TASK 1: HAMBURGER MENU COMPACT DROPDOWN LOGIC =====
+(function() {
+    const hamburgerBtn = document.querySelector('.hamburger-menu, .hamburger-btn, button[class*="hamburger"], #mobile-menu-btn');
+    const navDropdown = document.querySelector('.nav-right, #nav-menu');
+    
+    if (hamburgerBtn && navDropdown) {
+        // Clone and replace button to remove old event listeners if any
+        const newHamburgerBtn = hamburgerBtn.cloneNode(true);
+        hamburgerBtn.parentNode.replaceChild(newHamburgerBtn, hamburgerBtn);
+        
+        let overlayDiv = null;
+
+        function closeMenu() {
+            navDropdown.classList.remove('active');
+            if (overlayDiv) {
+                overlayDiv.remove();
+                overlayDiv = null;
+            }
+        }
+
+        newHamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isActive = navDropdown.classList.toggle('active');
+            
+            if (isActive) {
+                if (!overlayDiv) {
+                    overlayDiv = document.createElement('div');
+                    overlayDiv.className = 'mobile-menu-overlay';
+                    document.body.appendChild(overlayDiv);
+                    
+                    overlayDiv.addEventListener('click', closeMenu);
+                }
+            } else {
+                closeMenu();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeMenu();
+        });
+
+        const navLinks = navDropdown.querySelectorAll('.nav-item, a, button');
+        navLinks.forEach(link => {
+            link.addEventListener('click', closeMenu);
+        });
+    }
+})();

@@ -66,14 +66,30 @@ CHANGES MADE:
             </div>
 
             <div class="form-group">
-                <label for="reg-profile-url">Profile Image URL</label>
-                <input type="url" id="reg-profile-url" placeholder="Paste your DP link here" required>
+                <label>Profile Image</label>
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <input type="file" id="reg-profile-file" accept="image/*" style="display: none;">
+                    <label for="reg-profile-file" class="upload-btn">
+                        <i class="fa-solid fa-upload"></i> Upload Image
+                    </label>
+                    <span id="reg-profile-name" class="file-name-display">No file chosen</span>
+                </div>
+                <div class="or-divider"><span>OR</span></div>
+                <input type="url" id="reg-profile-url" placeholder="Paste your DP link here">
             </div>
 
             <!-- 🟢 NAYA DABBA 1: Background Image URL -->
             <div class="form-group">
-                <label for="reg-bg-url">Background Image URL</label>
-                <input type="url" id="reg-bg-url" placeholder="Paste your banner image link here" required>
+                <label>Background Image</label>
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <input type="file" id="reg-bg-file" accept="image/*" style="display: none;">
+                    <label for="reg-bg-file" class="upload-btn">
+                        <i class="fa-solid fa-upload"></i> Upload Image
+                    </label>
+                    <span id="reg-bg-name" class="file-name-display">No file chosen</span>
+                </div>
+                <div class="or-divider"><span>OR</span></div>
+                <input type="url" id="reg-bg-url" placeholder="Paste your banner image link here">
             </div>
 
             <!-- 🟢 NAYA DABBA 2: About Me (Lamba text likhne ke liye textarea) -->

@@ -1,14 +1,29 @@
+<!--
+CHANGES MADE:
+- Added SEO meta tags (keywords, canonical, og:image).
+- Added performance optimization (rel="preload").
+- Added Hamburger menu icon for mobile responsiveness.
+- Changed <div class="main-container"> to <main class="main-container">.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Blooms - Blog Management System Subcategories">
+    <meta name="keywords" content="Blooms, blog subcategories, topics, tags">
+    <link rel="canonical" href="https://blooms.in/subcategories.html">
     <meta property="og:title" content="Blooms Subcategories">
     <meta property="og:description" content="Explore subcategories on Blooms Blog Management System">
+    <meta property="og:image" content="https://blooms.in/assets/og-subcategories.jpg">
     <title>Blooms - Subcategories</title>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://ui-avatars.com" crossorigin>
+    
+    <!-- Performance: Preload critical CSS -->
+    <link rel="preload" href="subcategories.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="subcategories.css">
 </head>
@@ -25,7 +40,11 @@
                 </div>
             </div>
             
-            <div class="nav-right">
+            <button class="hamburger-menu" id="mobile-menu-btn" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            
+            <div class="nav-right" id="nav-menu">
                 <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
                 <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
                 <!-- NAYA: 'active' class ab Subcategories par laga di hai -->
@@ -42,7 +61,7 @@
     </nav>
 
     <!-- ================== MAIN CONTENT ================== -->
-    <div class="main-container">
+    <main class="main-container">
         <div class="categories-section">
             <div id="loading" class="loading-spinner">
                 <i class="fa-solid fa-spinner fa-spin"></i> Loading subcategories...
@@ -53,7 +72,7 @@
             
             <div id="pagination-container"></div>
         </div>
-    </div>
+    </main>
 
     <!-- ================== 🪟 NAYA: CATEGORY WALA POP-UP (MODAL) ================== -->
     <div class="modal-overlay" id="parent-category-modal">

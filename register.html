@@ -1,21 +1,37 @@
+<!--
+CHANGES MADE:
+- Added SEO meta tags (keywords, robots, canonical, og:image).
+- Added performance optimization (rel="preload" for CSS).
+- Changed <div class="glass-container"> to <main class="glass-container"> for semantic HTML.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Blooms - Blog Management System Registration">
+    <meta name="keywords" content="Blooms, register, sign up, blog account">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://blooms.in/register.html">
     <meta property="og:title" content="Blooms Register">
     <meta property="og:description" content="Create a new account on Blooms">
+    <meta property="og:image" content="https://blooms.in/assets/og-register.jpg">
     <title>Blooms - Register</title>
+    
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://ui-avatars.com" crossorigin>
+
+    <!-- Performance: Preload critical CSS -->
+    <link rel="preload" href="style.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="glass-container">
+    <main class="glass-container">
         <!-- Top Link -->
         <div class="top-link">
             <span>Already registered?</span> <a href="login.html">Login Here</a>
@@ -88,7 +104,7 @@
             
             <button type="submit" class="submit-btn">Create Account</button>
         </form>
-    </div>
+    </main>
 
     <!-- JS file connect ho rahi hai -->
     <script src="script.js"></script>

@@ -1,9 +1,29 @@
+<!--
+CHANGES MADE:
+- Added SEO meta tags (keywords, canonical, og:image).
+- Added performance optimization (rel="preload").
+- Added Hamburger menu icon for mobile responsiveness.
+- Changed <div class="profile-container"> to <main class="profile-container">.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blooms - View User Profile">
+    <meta name="keywords" content="Blooms, user profile, author">
+    <link rel="canonical" href="https://blooms.in/viewprofile.html">
+    <meta property="og:title" content="Blooms User Profile">
+    <meta property="og:description" content="View author profiles on Blooms Blog Management System">
+    <meta property="og:image" content="https://blooms.in/assets/og-profile.jpg">
     <title>Blooms - User Profile</title>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://ui-avatars.com" crossorigin>
+    
+    <!-- Performance: Preload critical CSS -->
+    <link rel="preload" href="profile.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="profile.css">
 </head>
@@ -19,7 +39,11 @@
                 </div>
             </div>
             
-            <div class="nav-right">
+            <button class="hamburger-menu" id="mobile-menu-btn" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            
+            <div class="nav-right" id="nav-menu">
                 <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
                 <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
                 <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
@@ -32,7 +56,7 @@
         </div>
     </nav>
 
-    <div class="profile-container" style="margin-top: 80px; max-width: 935px; margin-left: auto; margin-right: auto; padding: 0 20px;">
+    <main class="profile-container" style="margin-top: 80px; max-width: 935px; margin-left: auto; margin-right: auto; padding: 0 20px;">
         
         <div style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 0 0 1px rgba(0,0,0,0.05);">
             <button onclick="window.history.back()" style="padding: 8px 15px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
@@ -81,7 +105,7 @@
                 <div id="content-subcategories" class="content-grid"></div>
             </div>
         </div>
-    </div>
+    </main>
 
     <div class="modal-overlay" id="follow-modal">
         <div class="modal-content" style="max-width: 420px; padding: 0; overflow: hidden;">

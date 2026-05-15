@@ -96,7 +96,7 @@ function renderUsersList(users) {
         let name = user.name || user.userName;
         html += `
             <div class="user-item" id="user-li-${user.userId}" onclick="openChatWindow('${user.userId}', '${name}', '${pic}')">
-                <img src="${pic}" alt="DP">
+                <img src="${pic}" alt="DP" loading="lazy" decoding="async">
                 <div class="user-item-details">
                     <h4 class="user-item-name">${name}</h4>
                     <p class="user-item-last-msg">Tap to chat</p>
@@ -340,3 +340,17 @@ function connectWebSocket() {
 }
 
 initChat();
+
+// ============================================================================
+// 📱 RESPONSIVE OPTIMIZATIONS
+// ============================================================================
+
+// Hamburger Menu Toggle for Mobile
+const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+const navMenu = document.getElementById("nav-menu");
+
+if (mobileMenuBtn && navMenu) {
+    mobileMenuBtn.addEventListener("click", function() {
+        navMenu.classList.toggle("active");
+    });
+}

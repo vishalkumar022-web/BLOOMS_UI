@@ -1,15 +1,30 @@
+<!--
+CHANGES MADE:
+- Added SEO meta tags (keywords, canonical, og:image).
+- Added performance optimization (rel="preload").
+- Added Hamburger menu icon for mobile responsiveness.
+- Changed <div class="main-container"> to <main class="main-container">.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Blooms - Blog Management System Feed">
+    <meta name="keywords" content="Blooms, blog feed, latest blogs, articles">
+    <link rel="canonical" href="https://blooms.in/dashboard.html">
     <meta property="og:title" content="Blooms Feed">
     <meta property="og:description" content="Your blog feed on Blooms Blog Management System">
+    <meta property="og:image" content="https://blooms.in/assets/og-dashboard.jpg">
     <title>Blooms - Feed</title>
     <!-- Font Awesome for Icons -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://ui-avatars.com" crossorigin>
+    
+    <!-- Performance: Preload critical CSS -->
+    <link rel="preload" href="dashboard.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="dashboard.css">
 </head>
@@ -26,7 +41,11 @@
                 </div>
             </div>
             
-            <div class="nav-right">
+            <button class="hamburger-menu" id="mobile-menu-btn" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            
+            <div class="nav-right" id="nav-menu">
                 <a href="dashboard.html" class="nav-item active"><i class="fa-solid fa-home"></i><span>Home</span></a>
                 <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
                 <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
@@ -42,7 +61,7 @@
     </nav>
 
     <!-- 🟢 MAIN LAYOUT ... (Tera purana sidebar wagarah same rahega) ... -->
-    <div class="main-container">
+    <main class="main-container">
       
         <!-- 🟡 LEFT SIDEBAR: BADA PROFILE CARD -->
         <div class="left-sidebar">
@@ -100,7 +119,7 @@
                 
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- ======================================================= -->
     <!-- 🪟 NAYA: LIKES WALA POP-UP (MODAL) -->

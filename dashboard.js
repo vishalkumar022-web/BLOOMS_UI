@@ -412,3 +412,38 @@ document.getElementById("profile-btn").addEventListener("click", function() {
 
 
 startApp();
+
+// ============================================================================
+// 📱 11. RESPONSIVE & PERFORMANCE OPTIMIZATIONS
+// ============================================================================
+
+// Debounce utility function for performance optimization
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+// Optimized Search Handler (Debounced)
+const handleSearch = debounce(function(userInput) {
+    if (userInput !== "") {
+        isSearching = true;
+        searchText = userInput;
+        currentPage = 0;
+        fetchDecider();
+    } else {
+        resetSearch();
+    }
+}, 300);
+
+// Hamburger Menu Toggle for Mobile
+const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+const navMenu = document.getElementById("nav-menu");
+
+if (mobileMenuBtn && navMenu) {
+    mobileMenuBtn.addEventListener("click", function() {
+        navMenu.classList.toggle("active");
+    });
+}

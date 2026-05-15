@@ -324,3 +324,116 @@ body {
 .scrollable-desc::-webkit-scrollbar-track {
     background: #f0f0f0; 
 }
+
+/* ===== RESPONSIVE STYLES - DO NOT MODIFY ABOVE ===== */
+
+/* Desktop First - Hamburger hidden on desktop */
+.hamburger-menu {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #0a66c2;
+    cursor: pointer;
+    min-height: 44px;
+    min-width: 44px;
+}
+
+@media screen and (max-width: 1024px) {
+    .main-container {
+        flex-direction: column;
+        align-items: center;
+        padding: 0 10px;
+        margin-top: 70px;
+    }
+    .left-sidebar, .feed-container, .right-sidebar {
+        width: 100%;
+        max-width: 650px;
+        position: static;
+        margin-bottom: 20px;
+    }
+    .nav-right {
+        gap: 30px;
+        margin-left: 20px;
+    }
+    .search-box {
+        width: 200px;
+    }
+    .search-box:focus-within {
+        width: 250px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .nav-content {
+        justify-content: space-between;
+    }
+    .hamburger-menu {
+        display: block; /* Show hamburger on mobile/tablet */
+    }
+    .nav-right {
+        display: none; /* Hide nav items by default */
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        background: white;
+        padding: 20px 0;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        gap: 20px;
+        margin-left: 0;
+    }
+    .nav-right.active {
+        display: flex; /* Shown when toggled by JS */
+    }
+    .nav-item {
+        flex-direction: row;
+        gap: 15px;
+        font-size: 16px;
+        width: 100%;
+        justify-content: center;
+        min-height: 44px; /* Touch target size */
+    }
+    .nav-divider {
+        width: 80%;
+        height: 1px;
+        margin: 10px auto;
+    }
+    .search-box {
+        width: 150px;
+    }
+    .search-box:focus-within {
+        width: 180px;
+    }
+    .logo {
+        margin-right: 10px;
+        font-size: 20px;
+    }
+    .blog-image {
+        height: auto;
+        max-height: 300px;
+    }
+    .action-btn {
+        min-height: 44px; /* Touch target size */
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .search-box {
+        width: 120px;
+        padding: 8px 10px;
+    }
+    .search-box:focus-within {
+        width: 140px;
+    }
+    .blog-meta {
+        flex-direction: column;
+        gap: 5px;
+    }
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px;
+    }
+}

@@ -1,14 +1,29 @@
+<!--
+CHANGES MADE:
+- Added SEO meta tags (keywords, canonical, og:image).
+- Added performance optimization (rel="preload").
+- Added Hamburger menu icon for mobile responsiveness.
+- Changed <div class="main-container"> to <main class="main-container">.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Blooms - Blog Management System Categories">
+    <meta name="keywords" content="Blooms, blog categories, topics, sections">
+    <link rel="canonical" href="https://blooms.in/categories.html">
     <meta property="og:title" content="Blooms Categories">
     <meta property="og:description" content="Explore categories on Blooms Blog Management System">
+    <meta property="og:image" content="https://blooms.in/assets/og-categories.jpg">
     <title>Blooms - Categories</title>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://ui-avatars.com" crossorigin>
+    
+    <!-- Performance: Preload critical CSS -->
+    <link rel="preload" href="categories.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="categories.css">
 </head>
@@ -26,7 +41,11 @@
                 </div>
             </div>
             
-            <div class="nav-right">
+            <button class="hamburger-menu" id="mobile-menu-btn" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            
+            <div class="nav-right" id="nav-menu">
                 <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
                 <!-- NAYA: 'active' class ab Categories par laga di hai -->
                 <a href="categories.html" class="nav-item active"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
@@ -43,7 +62,7 @@
     </nav>
 
     <!-- ================== MAIN CONTENT (No sidebars) ================== -->
-    <div class="main-container">
+    <main class="main-container">
         
         <!-- Pura section center aur bada dikhega -->
         <div class="categories-section">
@@ -58,7 +77,7 @@
             <div id="pagination-container"></div>
         </div>
 
-    </div>
+    </main>
 
 
 

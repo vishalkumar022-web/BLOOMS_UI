@@ -1,9 +1,27 @@
+<!--
+CHANGES MADE:
+- Added SEO meta tags (keywords, canonical, og:image).
+- Added performance optimization (rel="preload").
+- Added Hamburger menu icon for mobile responsiveness.
+- Changed <div class="chat-container"> to <main class="chat-container">.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blooms - Secure Chat">
+    <meta name="keywords" content="Blooms, messaging, secure chat, communication">
+    <link rel="canonical" href="https://blooms.in/chat.html">
+    <meta property="og:title" content="Blooms Chat">
+    <meta property="og:description" content="Connect and chat securely on Blooms">
+    <meta property="og:image" content="https://blooms.in/assets/og-chat.jpg">
     <title>Blooms - Chat</title>
+    
+    <!-- Performance: Preload critical CSS -->
+    <link rel="preload" href="chat.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="chat.css">
 </head>
@@ -15,7 +33,11 @@
                 <a href="dashboard.html" class="logo"><i class="fa-solid fa-leaf"></i> Blooms</a>
             </div>
             
-            <div class="nav-right">
+            <button class="hamburger-menu" id="mobile-menu-btn" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            
+            <div class="nav-right" id="nav-menu">
                 <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
                 <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
                 <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
@@ -28,7 +50,7 @@
         </div>
     </nav>
 
-    <div class="chat-container" id="main-chat-container">
+    <main class="chat-container" id="main-chat-container">
         
         <div class="chat-sidebar">
 
@@ -111,7 +133,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>

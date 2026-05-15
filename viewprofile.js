@@ -163,7 +163,7 @@ function renderTabContent(containerId, listData, type, emptyMessage) {
             // 🚨 NAYA HTML: Bina Edit/Delete Button Ke, but naye CSS classes k sath!
             html += `
                 <div class="profile-item-card">
-                    <img src="${imgUrl}" class="card-mini-img" alt="image" onerror="this.src='https://via.placeholder.com/200x120?text=Image+Load+Error'">
+                    <img src="${imgUrl}" class="card-mini-img" alt="image" onerror="this.src='https://via.placeholder.com/200x120?text=Image+Load+Error'" loading="lazy" decoding="async">
                     
                     <div class="card-info">
                         <div style="font-size:10px; color:#0a66c2; margin-bottom:4px;">
@@ -263,7 +263,7 @@ function renderFollowList(list) {
         html += `
             <div class="list-user-box" style="display:flex; justify-content:space-between; align-items:center; padding:10px 15px; border-bottom:1px solid #f0f0f0;">
                 <a href="viewprofile.html?userId=${person.userId}" style="text-decoration:none; display:flex; align-items:center; color:#333; flex:1;">
-                    <img src="${pic}" style="width:44px; height:44px; border-radius:50%; margin-right:15px; object-fit:cover;">
+                    <img src="${pic}" style="width:44px; height:44px; border-radius:50%; margin-right:15px; object-fit:cover;" loading="lazy" decoding="async">
                     <div style="display:flex; flex-direction:column;">
                         <strong style="font-size:14px; font-weight:600;">${person.userName}</strong>
                         <span style="font-size:12px; color:#888;">${person.name || 'User'}</span>
@@ -330,3 +330,17 @@ window.addEventListener('click', function(event) {
     if (event.target === document.getElementById("likes-modal")) closeModal('likes-modal'); 
     if (event.target === document.getElementById("comments-modal")) closeModal('comments-modal'); 
 });
+
+// ============================================================================
+// 📱 6. RESPONSIVE & PERFORMANCE OPTIMIZATIONS
+// ============================================================================
+
+// Hamburger Menu Toggle for Mobile
+const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+const navMenu = document.getElementById("nav-menu");
+
+if (mobileMenuBtn && navMenu) {
+    mobileMenuBtn.addEventListener("click", function() {
+        navMenu.classList.toggle("active");
+    });
+}

@@ -471,3 +471,26 @@ window.addEventListener('click', function(event) {
 });
 
 document.getElementById("logout-btn").addEventListener("click", function() { localStorage.clear(); window.location.replace("login.html"); });
+
+// ============================================================================
+// 📱 9. RESPONSIVE & PERFORMANCE OPTIMIZATIONS
+// ============================================================================
+
+// Debounce utility function for performance optimization
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+// Hamburger Menu Toggle for Mobile
+const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+const navMenu = document.getElementById("nav-menu");
+
+if (mobileMenuBtn && navMenu) {
+    mobileMenuBtn.addEventListener("click", function() {
+        navMenu.classList.toggle("active");
+    });
+}

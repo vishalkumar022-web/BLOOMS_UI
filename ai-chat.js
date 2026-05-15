@@ -118,3 +118,17 @@ async function sendAiMessage() {
         userInputField.focus();
     }
 }
+
+// ============================================================================
+// 📱 9. RESPONSIVE & PERFORMANCE OPTIMIZATIONS
+// ============================================================================
+
+// Hamburger Menu Toggle for Mobile
+const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+const navMenu = document.getElementById("nav-menu");
+
+if (mobileMenuBtn && navMenu) {
+    mobileMenuBtn.addEventListener("click", function() {
+        navMenu.classList.toggle("active");
+    });
+}

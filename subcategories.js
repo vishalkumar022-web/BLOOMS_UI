@@ -108,7 +108,7 @@ function printSubCategoriesOnScreen(subCategoryArray) {
         let cardHeaderHtml = `
             <div class="card-header">
                 <div style="display:flex; align-items:center;">
-                    <img src="${creatorPicUrl}" class="author-pic">
+                    <img src="${creatorPicUrl}" class="author-pic" loading="lazy" decoding="async">
                     <div class="author-info">
                         <h4><a href="viewprofile.html?userId=${creatorIdFromBackend}" style="text-decoration:none; color:#000; transition:color 0.2s;" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='#000'">Author ID: ${creatorIdFromBackend.substring(0,8)}</a></h4>
                         <p>${timeString} • ${subcatStatus}</p> 
@@ -125,7 +125,7 @@ function printSubCategoriesOnScreen(subCategoryArray) {
         `;
 
         let imgSource = subcat.subCategoryUrl ? subcat.subCategoryUrl : "https://via.placeholder.com/400x250?text=No+Image+Available";
-        let cardImageHtml = `<img src="${imgSource}" class="category-img" alt="${subcat.subCategoryTittle}">`;
+        let cardImageHtml = `<img src="${imgSource}" class="category-img" alt="${subcat.subCategoryTittle}" loading="lazy" decoding="async">`;
 
         let statusBadgeHtml = `<span class="status-badge">Active</span>`;
 
@@ -325,4 +325,39 @@ document.getElementById("profile-btn").addEventListener("click", function() {
 // ============================================================================
 if (checkTokenLive()) {
     fetchDecider();
+}
+
+// ============================================================================
+// 📱 10. RESPONSIVE & PERFORMANCE OPTIMIZATIONS
+// ============================================================================
+
+// Debounce utility function for performance optimization
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+// Optimized Search Handler (Debounced)
+const handleSearch = debounce(function(userInput) {
+    if (userInput !== "") {
+        isSearching = true;
+        searchText = userInput;
+        currentPage = 0;
+        fetchDecider();
+    } else {
+        resetSearch();
+    }
+}, 300);
+
+// Hamburger Menu Toggle for Mobile
+const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+const navMenu = document.getElementById("nav-menu");
+
+if (mobileMenuBtn && navMenu) {
+    mobileMenuBtn.addEventListener("click", function() {
+        navMenu.classList.toggle("active");
+    });
 }

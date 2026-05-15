@@ -262,3 +262,60 @@ input[readonly] {
     box-shadow: 0 0 5px rgba(13, 110, 253, 0.5);
     border: #0b5ed7 solid 1px;
 }
+
+/* ===== RESPONSIVE STYLES - DO NOT MODIFY ABOVE ===== */
+/* Responsive Styles for login.html & register.html forms */
+@media screen and (max-width: 600px) {
+    .glass-container {
+        padding: 25px 20px 30px 20px; /* Reduced padding for mobile */
+        border-radius: 10px;
+        margin: 15px; /* Prevent container from touching screen edges */
+    }
+    .glass-container h1 {
+        font-size: 20px;
+    }
+    .glass-container h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+        min-height: 44px; /* Touch target minimum size */
+        font-size: 16px; /* Prevent iOS zoom */
+    }
+    .eye-icon {
+        top: 36px;
+        padding: 10px; /* Increase touch area */
+        right: 5px;
+    }
+    button, .login-button, .submit-btn {
+        min-height: 44px; /* Touch target minimum size */
+    }
+    .top-link {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+    .top-link span {
+        margin-right: 0;
+    }
+    .top-link a {
+        margin-left: 0;
+        display: block;
+        width: 100%;
+        min-height: 44px;
+        line-height: 34px;
+    }
+    .forgotten-password {
+        min-height: 44px;
+    }
+}
+@media screen and (max-width: 320px) {
+    .glass-container {
+        padding: 15px 15px 20px 15px;
+    }
+    .glass-container h2 {
+        font-size: 20px;
+    }
+}

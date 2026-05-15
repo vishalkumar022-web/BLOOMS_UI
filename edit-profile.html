@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blooms - Edit Profile">
+    <meta name="keywords" content="Blooms, edit profile, settings">
     <title>Edit Profile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -58,6 +60,13 @@
             display: flex; justify-content: center; align-items: center; overflow: hidden;
         }
         .img-container img { max-width: 100%; display: block; }
+
+        /* ===== RESPONSIVE STYLES ===== */
+        @media (max-width: 768px) {
+            body { padding-top: 20px; padding-bottom: 20px; }
+            .edit-box { width: 95%; padding: 20px; }
+            div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; gap: 10px !important; }
+        }
     </style>
 </head>
 <body>

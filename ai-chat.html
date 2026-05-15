@@ -1,9 +1,27 @@
+<!--
+CHANGES MADE:
+- Added SEO meta tags (keywords, canonical, og:image).
+- Added performance optimization (rel="preload").
+- Added Hamburger menu icon for mobile responsiveness.
+- Changed <div class="ai-main-container"> to <main class="ai-main-container">.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blooms - AI Chat Assistant powered by RAG">
+    <meta name="keywords" content="Blooms, AI Chat, Blog assistant, RAG">
+    <link rel="canonical" href="https://blooms.in/ai-chat.html">
+    <meta property="og:title" content="Blooms AI Assistant">
+    <meta property="og:description" content="Chat with our AI assistant on Blooms Blog Management System">
+    <meta property="og:image" content="https://blooms.in/assets/og-ai-chat.jpg">
     <title>Blooms - RAG AI Assistant</title>
+    
+    <!-- Performance: Preload critical CSS -->
+    <link rel="preload" href="ai-chat.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="ai-chat.css">
 </head>
@@ -16,7 +34,11 @@
                 <a href="dashboard.html" class="logo"><i class="fa-solid fa-leaf"></i> Blooms</a>
             </div>
             
-            <div class="nav-right">
+            <button class="hamburger-menu" id="mobile-menu-btn" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            
+            <div class="nav-right" id="nav-menu">
                 <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-home"></i><span>Home</span></a>
                 <a href="categories.html" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
                 <a href="subcategories.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Subcategories</span></a>
@@ -30,7 +52,7 @@
     </nav>
 
     <!-- Main Chat Interface -->
-    <div class="ai-main-container">
+    <main class="ai-main-container">
         <div class="ai-chat-box">
             
             <div class="ai-chat-header">
@@ -62,7 +84,7 @@
             </div>
 
         </div>
-    </div>
+    </main>
 
     <script src="ai-chat.js"></script>
 </body>

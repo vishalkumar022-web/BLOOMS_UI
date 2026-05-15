@@ -203,43 +203,73 @@ body { background-color: #d1d7db; overflow: hidden; }
     }
 
     /* =======================================================
-       BUG 1 FIX: Chat Sidebar Search Bar on Mobile
+       BUG 2 FIX: Chat Sidebar Search Bar on Mobile
        ======================================================= */
-    .search-chat-container {
-        display: flex !important; /* Force visible */
+    
+    /* Default state (no chat selected) */
+    .chat-sidebar { 
+        width: 100% !important; 
+        min-width: 100% !important; 
+        display: flex !important; 
+        flex-direction: column !important;
+    }
+
+    /* When chat is active */
+    .chat-container.chat-active .chat-sidebar { 
+        display: none !important; 
+    }
+    
+    .chat-container.chat-active .chat-area { 
+        display: flex !important; 
         width: 100% !important;
-        background-color: #ffffff !important;
-        padding: 0 !important;
-        border-bottom: 1px solid #f2f2f2 !important;
+    }
+
+    .back-btn-mobile { 
+        display: block !important; 
+    }
+
+    /* Search Container Styling */
+    .search-chat-container {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: calc(100% - 20px) !important;
+        margin: 8px 10px !important;
+        height: 40px !important;
+        background: #f0f2f5 !important;
+        border-radius: 20px !important;
+        border: 1.5px solid #d0d0d0 !important;
+        align-items: center !important;
+        padding: 0 12px !important;
+        box-sizing: border-box !important;
+        flex-shrink: 0 !important;
     }
 
     .search-chat-box {
         display: flex !important;
-        width: calc(100% - 24px) !important;
-        margin: 10px 12px !important;
-        background: #ffffff !important;
-        border: 1.5px solid #e0e0e0 !important;
-        border-radius: 25px !important;
-        padding: 0 12px !important;
-        height: 42px !important;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
-        box-sizing: border-box !important;
+        width: 100% !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
         align-items: center !important;
     }
 
     .search-chat-box input {
+        display: block !important;
         flex: 1 !important;
         border: none !important;
         outline: none !important;
         background: transparent !important;
         font-size: 14px !important;
-        color: #333333 !important;
-        padding: 0 8px !important;
+        color: #333 !important;
     }
 
     .search-chat-box i {
-        color: #888888 !important;
+        color: #888 !important;
         font-size: 15px !important;
+        margin-right: 6px !important;
         flex-shrink: 0 !important;
     }
 }

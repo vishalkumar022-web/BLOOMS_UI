@@ -361,3 +361,20 @@ if (mobileMenuBtn && navMenu) {
         navMenu.classList.toggle("active");
     });
 }
+
+/* =======================================================
+   Mobile Search Bar Focus Effect
+   ======================================================= */
+const searchInput = document.querySelector('.search-box input, .search-input, input[type="search"], input[type="text"]');
+if (searchInput) {
+  searchInput.addEventListener('focus', () => {
+    searchInput.parentElement.style.border = '1.5px solid #1a73e8';
+    searchInput.parentElement.style.background = '#ffffff';
+    searchInput.parentElement.style.boxShadow = '0 0 0 3px rgba(26,115,232,0.15)';
+  });
+  searchInput.addEventListener('blur', () => {
+    searchInput.parentElement.style.border = '1.5px solid #d0d0d0';
+    searchInput.parentElement.style.background = '#f0f2f5';
+    searchInput.parentElement.style.boxShadow = 'none';
+  });
+}

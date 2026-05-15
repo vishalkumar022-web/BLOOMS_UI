@@ -427,83 +427,53 @@ if (searchInput) {
     }
 })();
 
-// ===== TASK 3: CHAT NOTIFICATION POLLING (WHATSAPP STYLE) =====
-(function() {
-    let unreadPollInterval = null;
+// ===== CHAT DOT NOTIFICATION =====
+function refreshNotificationDot() {
+  const counts = JSON.parse(
+    localStorage.getItem('blooms_unread_counts') 
+    || '{}'
+  );
+  const hasUnread = Object.values(counts)
+    .some(v => v > 0);
 
-    async function fetchUnreadCounts() {
-        const liveToken = localStorage.getItem("token");
-        const myUserId = localStorage.getItem("userId");
-        if (!liveToken || !myUserId) return;
-
-        try {
-            const BASE_URL = "https://blog-management-system-blooms-2.onrender.com";
-            const response = await fetch(`${BASE_URL}/api/chat/unread-counts?userId=${myUserId}`, {
-                headers: { "Authorization": "Bearer " + liveToken }
-            });
-            const data = await response.json();
-            
-            if (data && data.success && data.data) {
-                let totalUnread = 0;
-                const unreadCountsMap = data.data;
-                
-                for (let key in unreadCountsMap) {
-                    totalUnread += unreadCountsMap[key];
-                }
-                
-                localStorage.setItem("blooms_unread_counts", totalUnread);
-                updateChatNotificationBadge();
-            }
-        } catch (error) {
-            console.log("Error fetching unread counts:", error);
-        }
+  // Desktop: Chat nav icon
+  const chatNavLink = document.querySelector(
+    'a[href="chat.html"], ' +
+    '.nav-item[data-page="chat"], ' +
+    'a[href*="chat"]:not([href*="ai"])'
+  );
+  if (chatNavLink) {
+    chatNavLink.style.position = 'relative';
+    let dot = chatNavLink.querySelector(
+      '.chat-notification-dot');
+    if (hasUnread && !dot) {
+      dot = document.createElement('span');
+      dot.className = 'chat-notification-dot';
+      chatNavLink.appendChild(dot);
+    } else if (!hasUnread && dot) {
+      dot.remove();
     }
+  }
 
-    function updateChatNotificationBadge() {
-        const totalUnread = parseInt(localStorage.getItem("blooms_unread_counts") || "0", 10);
-        
-        // Update Desktop/Mobile Nav Icon
-        const chatNavItems = document.querySelectorAll('.nav-item[href="chat.html"], .nav-item[onclick*="chat.html"]');
-        
-        chatNavItems.forEach(item => {
-            let badge = item.querySelector('.nav-notification-badge');
-            if (totalUnread > 0) {
-                if (!badge) {
-                    badge = document.createElement('span');
-                    badge.className = 'nav-notification-badge';
-                    item.style.position = 'relative'; // Ensure positioning
-                    item.appendChild(badge);
-                }
-                badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
-            } else {
-                if (badge) badge.remove();
-            }
-        });
-
-        // Update Hamburger Menu Icon
-        const hamburgerBtn = document.querySelector('.hamburger-menu, .hamburger-btn, #mobile-menu-btn');
-        if (hamburgerBtn) {
-            let dot = hamburgerBtn.querySelector('.hamburger-notification-dot');
-            if (totalUnread > 0) {
-                if (!dot) {
-                    dot = document.createElement('span');
-                    dot.className = 'hamburger-notification-dot';
-                    hamburgerBtn.style.position = 'relative';
-                    hamburgerBtn.appendChild(dot);
-                }
-            } else {
-                if (dot) dot.remove();
-            }
-        }
+  // Mobile: Hamburger button dot
+  const hamburger = document.querySelector(
+    '.hamburger-menu, .hamburger-btn, ' +
+    'button[class*="hamburger"]'
+  );
+  if (hamburger) {
+    hamburger.style.position = 'relative';
+    let dot = hamburger.querySelector(
+      '.chat-notification-dot');
+    if (hasUnread && !dot) {
+      dot = document.createElement('span');
+      dot.className = 'chat-notification-dot';
+      hamburger.appendChild(dot);
+    } else if (!hasUnread && dot) {
+      dot.remove();
     }
+  }
+}
 
-    // Initialize polling
-    if (localStorage.getItem("token")) {
-        updateChatNotificationBadge(); // Initial UI update from localStorage
-        fetchUnreadCounts(); // Immediate fetch
-        unreadPollInterval = setInterval(fetchUnreadCounts, 5000); // Poll every 5s
-    }
-
-    // Make updateChatNotificationBadge globally available if needed
-    window.updateChatNotificationBadge = updateChatNotificationBadge;
-})();
+refreshNotificationDot();
+setInterval(refreshNotificationDot, 4000);
+// ===== END CHAT DOT NOTIFICATION =====

@@ -23,6 +23,9 @@ let stompClient = null;
 // ============================================================================
 async function initChat() {
     if(!checkTokenLive()) return;
+
+    localStorage.removeItem('blooms_unread_counts');
+    if(typeof refreshNotificationDot === "function") refreshNotificationDot();
     
     // 🚨 THE FIX: Seedha backend se apni real photo aur naam mangwa rahe hain!
     try {
@@ -113,6 +116,11 @@ function renderUsersList(users) {
 function openChatWindow(userId, name, pic) {
     targetUserId = userId;
     document.getElementById("empty-chat-state").style.display = "none";
+
+    const counts = JSON.parse(localStorage.getItem('blooms_unread_counts') || '{}');
+    delete counts[userId];
+    localStorage.setItem('blooms_unread_counts', JSON.stringify(counts));
+    if(typeof refreshNotificationDot === "function") refreshNotificationDot();
     document.getElementById("active-chat-window").style.display = "flex";
     document.getElementById("target-user-name").innerText = name;
     document.getElementById("target-user-pic").src = pic;
@@ -331,12 +339,11 @@ function connectWebSocket() {
                     userLi.querySelector('.user-item-last-msg').style.color = "#25d366"; 
                     userLi.querySelector('.user-item-last-msg').style.fontWeight = "bold";
                 }
-                // ===== TASK 3: INSTANT UNREAD UPDATE =====
-                if (localStorage.getItem("blooms_unread_counts") !== null) {
-                    let currentCount = parseInt(localStorage.getItem("blooms_unread_counts"), 10);
-                    localStorage.setItem("blooms_unread_counts", currentCount + 1);
-                    if (window.updateChatNotificationBadge) window.updateChatNotificationBadge();
-                }
+                // Mark unread in localStorage
+                const counts = JSON.parse(localStorage.getItem('blooms_unread_counts') || '{}');
+                counts[receivedMsg.senderId] = (counts[receivedMsg.senderId] || 0) + 1;
+                localStorage.setItem('blooms_unread_counts', JSON.stringify(counts));
+                if(typeof refreshNotificationDot === "function") refreshNotificationDot();
             }
         });
     }, function(error) {
@@ -361,131 +368,123 @@ if (mobileMenuBtn && navMenu) {
     });
 }
 
-// ===== TASK 1: HAMBURGER MENU COMPACT DROPDOWN LOGIC =====
+// ===== HAMBURGER FIX FOR THIS PAGE =====
 (function() {
-    const hamburgerBtn = document.querySelector('.hamburger-menu, .hamburger-btn, button[class*="hamburger"], #mobile-menu-btn');
-    const navDropdown = document.querySelector('.nav-right, #nav-menu');
-    
-    if (hamburgerBtn && navDropdown) {
-        // Clone and replace button to remove old event listeners if any
-        const newHamburgerBtn = hamburgerBtn.cloneNode(true);
-        hamburgerBtn.parentNode.replaceChild(newHamburgerBtn, hamburgerBtn);
-        
-        let overlayDiv = null;
+  function initHamburger() {
+    const hamburger = document.querySelector(
+      '.hamburger-menu, .hamburger-btn, ' +
+      'button[class*="hamburger"]'
+    );
+    const navMenu = document.querySelector(
+      '.nav-right, .nav-links, .nav-menu, ' +
+      'nav ul, .navbar-menu'
+    );
+    if (!hamburger || !navMenu) return;
 
-        function closeMenu() {
-            navDropdown.classList.remove('active');
-            if (overlayDiv) {
-                overlayDiv.remove();
-                overlayDiv = null;
-            }
-        }
+    // Remove any old listeners by cloning
+    const newHamburger = hamburger.cloneNode(true);
+    hamburger.parentNode.replaceChild(
+      newHamburger, hamburger
+    );
 
-        newHamburgerBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const isActive = navDropdown.classList.toggle('active');
-            
-            if (isActive) {
-                if (!overlayDiv) {
-                    overlayDiv = document.createElement('div');
-                    overlayDiv.className = 'mobile-menu-overlay';
-                    document.body.appendChild(overlayDiv);
-                    
-                    overlayDiv.addEventListener('click', closeMenu);
-                }
-            } else {
-                closeMenu();
-            }
+    newHamburger.addEventListener('click', 
+    function(e) {
+      e.stopPropagation();
+      navMenu.classList.toggle('active');
+      
+      // Overlay
+      let overlay = document.getElementById(
+        'nav-overlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'nav-overlay';
+        overlay.style.cssText = 
+          'position:fixed;top:0;left:0;' +
+          'width:100%;height:100%;' +
+          'background:rgba(0,0,0,0.3);' +
+          'z-index:999;display:none;';
+        document.body.appendChild(overlay);
+        overlay.addEventListener('click', 
+        function() {
+          navMenu.classList.remove('active');
+          overlay.style.display = 'none';
         });
+      }
+      
+      if (navMenu.classList.contains('active')) {
+        overlay.style.display = 'block';
+      } else {
+        overlay.style.display = 'none';
+      }
+    });
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeMenu();
-        });
+    document.addEventListener('keydown', 
+    function(e) {
+      if (e.key === 'Escape') {
+        navMenu.classList.remove('active');
+        const ov = document.getElementById(
+          'nav-overlay');
+        if (ov) ov.style.display = 'none';
+      }
+    });
+  }
 
-        const navLinks = navDropdown.querySelectorAll('.nav-item, a, button');
-        navLinks.forEach(link => {
-            link.addEventListener('click', closeMenu);
-        });
-    }
+  if (document.readyState === 'loading') {
+    document.addEventListener(
+      'DOMContentLoaded', initHamburger);
+  } else {
+    initHamburger();
+  }
 })();
+// ===== END HAMBURGER FIX =====
 
-// ===== TASK 3: CHAT NOTIFICATION POLLING (WHATSAPP STYLE) =====
-(function() {
-    let unreadPollInterval = null;
+// ===== CHAT DOT NOTIFICATION =====
+function refreshNotificationDot() {
+  const counts = JSON.parse(
+    localStorage.getItem('blooms_unread_counts') 
+    || '{}'
+  );
+  const hasUnread = Object.values(counts)
+    .some(v => v > 0);
 
-    async function fetchUnreadCounts() {
-        const liveToken = localStorage.getItem("token");
-        const myUserId = localStorage.getItem("userId");
-        if (!liveToken || !myUserId) return;
-
-        try {
-            const BASE_URL = "https://blog-management-system-blooms-2.onrender.com";
-            const response = await fetch(`${BASE_URL}/api/chat/unread-counts?userId=${myUserId}`, {
-                headers: { "Authorization": "Bearer " + liveToken }
-            });
-            const data = await response.json();
-            
-            if (data && data.success && data.data) {
-                let totalUnread = 0;
-                const unreadCountsMap = data.data;
-                
-                for (let key in unreadCountsMap) {
-                    totalUnread += unreadCountsMap[key];
-                }
-                
-                localStorage.setItem("blooms_unread_counts", totalUnread);
-                updateChatNotificationBadge();
-            }
-        } catch (error) {
-            console.log("Error fetching unread counts:", error);
-        }
+  // Desktop: Chat nav icon
+  const chatNavLink = document.querySelector(
+    'a[href="chat.html"], ' +
+    '.nav-item[data-page="chat"], ' +
+    'a[href*="chat"]:not([href*="ai"])'
+  );
+  if (chatNavLink) {
+    chatNavLink.style.position = 'relative';
+    let dot = chatNavLink.querySelector(
+      '.chat-notification-dot');
+    if (hasUnread && !dot) {
+      dot = document.createElement('span');
+      dot.className = 'chat-notification-dot';
+      chatNavLink.appendChild(dot);
+    } else if (!hasUnread && dot) {
+      dot.remove();
     }
+  }
 
-    function updateChatNotificationBadge() {
-        const totalUnread = parseInt(localStorage.getItem("blooms_unread_counts") || "0", 10);
-        
-        // Update Desktop/Mobile Nav Icon
-        const chatNavItems = document.querySelectorAll('.nav-item[href="chat.html"], .nav-item[onclick*="chat.html"]');
-        
-        chatNavItems.forEach(item => {
-            let badge = item.querySelector('.nav-notification-badge');
-            if (totalUnread > 0) {
-                if (!badge) {
-                    badge = document.createElement('span');
-                    badge.className = 'nav-notification-badge';
-                    item.style.position = 'relative'; // Ensure positioning
-                    item.appendChild(badge);
-                }
-                badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
-            } else {
-                if (badge) badge.remove();
-            }
-        });
-
-        // Update Hamburger Menu Icon
-        const hamburgerBtn = document.querySelector('.hamburger-menu, .hamburger-btn, #mobile-menu-btn');
-        if (hamburgerBtn) {
-            let dot = hamburgerBtn.querySelector('.hamburger-notification-dot');
-            if (totalUnread > 0) {
-                if (!dot) {
-                    dot = document.createElement('span');
-                    dot.className = 'hamburger-notification-dot';
-                    hamburgerBtn.style.position = 'relative';
-                    hamburgerBtn.appendChild(dot);
-                }
-            } else {
-                if (dot) dot.remove();
-            }
-        }
+  // Mobile: Hamburger button dot
+  const hamburger = document.querySelector(
+    '.hamburger-menu, .hamburger-btn, ' +
+    'button[class*="hamburger"]'
+  );
+  if (hamburger) {
+    hamburger.style.position = 'relative';
+    let dot = hamburger.querySelector(
+      '.chat-notification-dot');
+    if (hasUnread && !dot) {
+      dot = document.createElement('span');
+      dot.className = 'chat-notification-dot';
+      hamburger.appendChild(dot);
+    } else if (!hasUnread && dot) {
+      dot.remove();
     }
+  }
+}
 
-    // Initialize polling
-    if (localStorage.getItem("token")) {
-        updateChatNotificationBadge(); // Initial UI update from localStorage
-        fetchUnreadCounts(); // Immediate fetch
-        unreadPollInterval = setInterval(fetchUnreadCounts, 5000); // Poll every 5s
-    }
-
-    // Make updateChatNotificationBadge globally available if needed
-    window.updateChatNotificationBadge = updateChatNotificationBadge;
-})();
+refreshNotificationDot();
+setInterval(refreshNotificationDot, 4000);
+// ===== END CHAT DOT NOTIFICATION =====

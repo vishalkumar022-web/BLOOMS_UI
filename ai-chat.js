@@ -133,50 +133,123 @@ if (mobileMenuBtn && navMenu) {
     });
 }
 
-// ===== TASK 1: HAMBURGER MENU COMPACT DROPDOWN LOGIC =====
+// ===== HAMBURGER FIX FOR THIS PAGE =====
 (function() {
-    const hamburgerBtn = document.querySelector('.hamburger-menu, .hamburger-btn, button[class*="hamburger"], #mobile-menu-btn');
-    const navDropdown = document.querySelector('.nav-right, #nav-menu');
-    
-    if (hamburgerBtn && navDropdown) {
-        // Clone and replace button to remove old event listeners if any
-        const newHamburgerBtn = hamburgerBtn.cloneNode(true);
-        hamburgerBtn.parentNode.replaceChild(newHamburgerBtn, hamburgerBtn);
-        
-        let overlayDiv = null;
+  function initHamburger() {
+    const hamburger = document.querySelector(
+      '.hamburger-menu, .hamburger-btn, ' +
+      'button[class*="hamburger"]'
+    );
+    const navMenu = document.querySelector(
+      '.nav-right, .nav-links, .nav-menu, ' +
+      'nav ul, .navbar-menu'
+    );
+    if (!hamburger || !navMenu) return;
 
-        function closeMenu() {
-            navDropdown.classList.remove('active');
-            if (overlayDiv) {
-                overlayDiv.remove();
-                overlayDiv = null;
-            }
-        }
+    // Remove any old listeners by cloning
+    const newHamburger = hamburger.cloneNode(true);
+    hamburger.parentNode.replaceChild(
+      newHamburger, hamburger
+    );
 
-        newHamburgerBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const isActive = navDropdown.classList.toggle('active');
-            
-            if (isActive) {
-                if (!overlayDiv) {
-                    overlayDiv = document.createElement('div');
-                    overlayDiv.className = 'mobile-menu-overlay';
-                    document.body.appendChild(overlayDiv);
-                    
-                    overlayDiv.addEventListener('click', closeMenu);
-                }
-            } else {
-                closeMenu();
-            }
+    newHamburger.addEventListener('click', 
+    function(e) {
+      e.stopPropagation();
+      navMenu.classList.toggle('active');
+      
+      // Overlay
+      let overlay = document.getElementById(
+        'nav-overlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'nav-overlay';
+        overlay.style.cssText = 
+          'position:fixed;top:0;left:0;' +
+          'width:100%;height:100%;' +
+          'background:rgba(0,0,0,0.3);' +
+          'z-index:999;display:none;';
+        document.body.appendChild(overlay);
+        overlay.addEventListener('click', 
+        function() {
+          navMenu.classList.remove('active');
+          overlay.style.display = 'none';
         });
+      }
+      
+      if (navMenu.classList.contains('active')) {
+        overlay.style.display = 'block';
+      } else {
+        overlay.style.display = 'none';
+      }
+    });
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeMenu();
-        });
+    document.addEventListener('keydown', 
+    function(e) {
+      if (e.key === 'Escape') {
+        navMenu.classList.remove('active');
+        const ov = document.getElementById(
+          'nav-overlay');
+        if (ov) ov.style.display = 'none';
+      }
+    });
+  }
 
-        const navLinks = navDropdown.querySelectorAll('.nav-item, a, button');
-        navLinks.forEach(link => {
-            link.addEventListener('click', closeMenu);
-        });
-    }
+  if (document.readyState === 'loading') {
+    document.addEventListener(
+      'DOMContentLoaded', initHamburger);
+  } else {
+    initHamburger();
+  }
 })();
+// ===== END HAMBURGER FIX =====
+
+// ===== CHAT DOT NOTIFICATION =====
+function refreshNotificationDot() {
+  const counts = JSON.parse(
+    localStorage.getItem('blooms_unread_counts') 
+    || '{}'
+  );
+  const hasUnread = Object.values(counts)
+    .some(v => v > 0);
+
+  // Desktop: Chat nav icon
+  const chatNavLink = document.querySelector(
+    'a[href="chat.html"], ' +
+    '.nav-item[data-page="chat"], ' +
+    'a[href*="chat"]:not([href*="ai"])'
+  );
+  if (chatNavLink) {
+    chatNavLink.style.position = 'relative';
+    let dot = chatNavLink.querySelector(
+      '.chat-notification-dot');
+    if (hasUnread && !dot) {
+      dot = document.createElement('span');
+      dot.className = 'chat-notification-dot';
+      chatNavLink.appendChild(dot);
+    } else if (!hasUnread && dot) {
+      dot.remove();
+    }
+  }
+
+  // Mobile: Hamburger button dot
+  const hamburger = document.querySelector(
+    '.hamburger-menu, .hamburger-btn, ' +
+    'button[class*="hamburger"]'
+  );
+  if (hamburger) {
+    hamburger.style.position = 'relative';
+    let dot = hamburger.querySelector(
+      '.chat-notification-dot');
+    if (hasUnread && !dot) {
+      dot = document.createElement('span');
+      dot.className = 'chat-notification-dot';
+      hamburger.appendChild(dot);
+    } else if (!hasUnread && dot) {
+      dot.remove();
+    }
+  }
+}
+
+refreshNotificationDot();
+setInterval(refreshNotificationDot, 4000);
+// ===== END CHAT DOT NOTIFICATION =====

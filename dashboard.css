@@ -439,39 +439,73 @@ body {
 }
 
 /* =======================================================
-   URGENT FIX: Perfect Mobile Search Bar
+   URGENT FIX: Clear Separation of Navbar and Search
    ======================================================= */
 @media screen and (max-width: 768px) {
+    /* 1. NAVBAR styling */
     .navbar {
-        height: 126px !important; /* 60px top + 66px search area */
-        transform: translateZ(0); 
-    }
-    
-    /* We use absolute instead of sticky because navbar is already fixed */
-    .search-box {
-        position: absolute !important;
-        top: 60px !important;
-        left: 0 !important;
+        height: 60px !important;
+        padding: 0 16px !important;
         display: flex !important;
         align-items: center !important;
-        width: calc(100% - 32px) !important;
-        margin: 10px 16px !important;
+        justify-content: space-between !important;
         background: #ffffff !important;
-        border: 1.5px solid #e0e0e0 !important;
+        border-bottom: 1px solid #e8e8e8 !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.07) !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1000 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .nav-content {
+        padding: 0 !important; 
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+
+    /* 2 & 3. SEARCH BAR WRAPPER & PILL CONTAINER */
+    .search-box {
+        /* Positioning it exactly where the pill should be */
+        position: absolute !important;
+        top: 72px !important; /* 60px (navbar) + 12px (wrapper top padding) */
+        left: 16px !important; /* Wrapper left padding */
+        width: calc(100% - 32px) !important;
+        z-index: 999 !important;
+        
+        /* Pill Styling */
+        display: flex !important;
+        align-items: center !important;
+        background: #ffffff !important;
+        border: 1.5px solid #dddddd !important;
         border-radius: 25px !important;
         padding: 0 14px !important;
-        height: 46px !important;
-        min-height: 46px !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+        height: 44px !important;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
         box-sizing: border-box !important;
-        z-index: 99 !important;
+    }
+    
+    /* Simulate the Wrapper using ::before to avoid changing HTML */
+    .search-box::before {
+        content: "";
+        position: absolute;
+        top: -12px;
+        left: -16px;
+        width: 100vw;
+        height: 66px; /* 12px top padding + 44px pill height + 10px bottom padding */
+        background: #f5f5f5;
+        border-bottom: 1px solid #eeeeee;
+        z-index: -1; /* Behind the pill */
+        box-sizing: border-box;
     }
 
     .search-box:focus-within {
         border-color: #1a73e8 !important;
-        width: calc(100% - 32px) !important; /* Prevent width jump on focus */
+        width: calc(100% - 32px) !important;
     }
 
+    /* 4. SEARCH INPUT field */
     .search-box input {
         flex: 1 !important;
         border: none !important;
@@ -480,10 +514,11 @@ body {
         font-size: 15px !important;
         color: #333333 !important;
         padding: 0 8px !important;
-        width: 100% !important;
         box-sizing: border-box !important;
+        width: 100% !important;
     }
 
+    /* 5. SEARCH ICON */
     .search-box i {
         color: #888888 !important;
         font-size: 16px !important;
@@ -495,11 +530,14 @@ body {
         font-size: 14px !important;
     }
 
+    /* Mobile Menu adjustment */
     .nav-right {
-        top: 126px !important; /* Push menu down below new search bar height */
+        top: 126px !important; /* Push dropdown below wrapper (60 + 66) */
     }
 
+    /* 6. PAGE CONTENT AREA (main content below search) */
     .main-container, .categories-container, .profile-container {
-        margin-top: 140px !important; /* Push feed down below taller navbar */
+        margin-top: 126px !important; /* 60px navbar + 66px wrapper */
+        padding-top: 16px !important;
     }
 }

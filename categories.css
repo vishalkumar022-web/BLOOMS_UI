@@ -448,3 +448,40 @@ body {
         gap: 15px;
     }
 }
+
+/* =======================================================
+   BUG 1 FIX & PERFORMANCE: Search Bar on Mobile
+   ======================================================= */
+@media screen and (max-width: 768px) {
+    .navbar {
+        height: 116px !important;
+        transform: translateZ(0);
+    }
+    .search-box {
+        position: absolute !important;
+        top: 60px !important;
+        left: 0 !important;
+        width: 100% !important;
+        min-height: 56px !important;
+        box-sizing: border-box !important;
+        border-radius: 0 !important;
+        background-color: #f8f9fa !important;
+        border-top: 1px solid #e0e0e0 !important;
+        border-bottom: 1px solid #e0e0e0 !important;
+        padding: 10px 20px !important;
+    }
+    .search-box input {
+        font-size: 14px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+    }
+    .search-box:focus-within {
+        width: 100% !important;
+    }
+    .nav-right {
+        top: 116px !important;
+    }
+    .main-container, .categories-container, .profile-container {
+        margin-top: 130px !important;
+    }
+}

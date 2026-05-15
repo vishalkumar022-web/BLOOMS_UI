@@ -157,4 +157,48 @@ body { background-color: #d1d7db; overflow: hidden; }
     .chat-container.chat-active .chat-sidebar { display: none; }
     .chat-container.chat-active .chat-area { display: flex; }
     .back-btn-mobile { display: block; } 
+
+    /* =======================================================
+       BUG 2 FIX: Chat Page Message Input Bar
+       ======================================================= */
+    .chat-input-area {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        box-sizing: border-box;
+        min-height: 56px;
+        z-index: 100;
+        padding: 8px 10px;
+        transform: translateZ(0); /* Performance Boost: GPU acceleration */
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #active-chat-window {
+        padding-bottom: 65px; /* Prevent messages overlapping */
+        height: 100vh; /* Adjust height */
+    }
+
+    .chat-input-box {
+        font-size: 14px;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .emoji-picker-box {
+        bottom: 70px;
+        position: fixed;
+    }
+
+    /* Performance Boosts */
+    .messages-container {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+    
+    .user-list {
+        -webkit-overflow-scrolling: touch;
+    }
 }

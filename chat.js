@@ -119,9 +119,7 @@ function openChatWindow(userId, name, pic) {
     document.getElementById("empty-chat-state").style.display = "none";
 
     // Clear unread for this contact
-    const counts = JSON.parse(localStorage.getItem('blooms_unread') || '{}');
-    delete counts[userId];
-    localStorage.setItem('blooms_unread', JSON.stringify(counts));
+    localStorage.removeItem('blooms_unread');
     if(typeof updateNotificationDot === "function") updateNotificationDot();
     document.getElementById("active-chat-window").style.display = "flex";
     document.getElementById("target-user-name").innerText = name;
@@ -361,16 +359,9 @@ function connectWebSocket() {
                 // don't count as unread
                 if (document.visibilityState === 'hidden' || 
                     targetUserId !== receivedMsg.senderId) {
-                const counts = JSON.parse(
-                    localStorage.getItem('blooms_unread') || '{}'
-                );
-                counts[receivedMsg.senderId] = 
-                    (counts[receivedMsg.senderId] || 0) + 1;
-                localStorage.setItem(
-                    'blooms_unread', JSON.stringify(counts)
-                );
-                // Update dot on THIS page too
-                if(typeof updateNotificationDot === "function") updateNotificationDot();
+                    localStorage.setItem('blooms_unread', 'true');
+                    // Update dot on THIS page too
+                    if(typeof updateNotificationDot === "function") updateNotificationDot();
                 }
             }
         });
@@ -388,11 +379,16 @@ initChat();
 
 // ===== NOTIFICATION DOT SYSTEM =====
 function updateNotificationDot() {
-  const counts = JSON.parse(
-    localStorage.getItem('blooms_unread') || '{}'
-  );
-  const hasUnread = Object.values(counts)
-    .some(function(v) { return v > 0; });
+  const unreadVal = localStorage.getItem('blooms_unread');
+  let hasUnread = false;
+  if (unreadVal === 'true') {
+      hasUnread = true;
+  } else {
+      try {
+          const counts = JSON.parse(unreadVal || '{}');
+          hasUnread = Object.values(counts).some(function(v) { return v > 0; });
+      } catch(e) {}
+  }
 
   // ---- Desktop: Chat nav icon ----
   // Find chat link in navbar (not ai-chat link)

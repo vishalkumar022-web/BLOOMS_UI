@@ -364,26 +364,25 @@ if (forgotForm) {
 
     // 3. Render the Simple Green Dot
     function showGreenDotOnChatNav() {
-        document.querySelectorAll('nav a, .navbar a, header a, .hamburger-menu').forEach(link => {
-            const href = link.getAttribute('href') || '';
-            const text = link.innerText ? link.innerText.trim() : '';
-            const isHamburger = link.classList.contains('hamburger-menu');
-            
-            if (href.includes('ai-chat') || text === 'AI Chat') {
-                return;
-            }
-            
-            const isChatLink = text === 'Chat' || href.includes('chat.html');
-            
-            if (isChatLink || isHamburger) {
-                console.log("Adding green dot to:", link);
+        const targetLinks = Array.from(document.querySelectorAll('a, button, div')).filter(el => {
+            const href = el.getAttribute('href') || '';
+            return (href.includes('chat') && !href.includes('ai-chat')) || 
+                   el.textContent.trim().toLowerCase() === 'chat' || 
+                   el.classList.contains('hamburger-menu') || 
+                   el.id === 'hamburger-menu';
+        });
+
+        targetLinks.forEach(link => {
+            console.log("Adding green dot to:", link);
+            const style = window.getComputedStyle(link);
+            if (style.position === 'static') {
                 link.style.position = 'relative';
-                if (!link.querySelector('.global-green-dot')) {
-                    const dot = document.createElement('span');
-                    dot.className = 'global-green-dot';
-                    dot.style.cssText = 'position:absolute; top:2px; right:2px; width:12px; height:12px; background-color:#25d366; border-radius:50%; border:2px solid white; z-index:99;';
-                    link.appendChild(dot);
-                }
+            }
+            if (!link.querySelector('.global-green-dot')) {
+                const dot = document.createElement('span');
+                dot.className = 'global-green-dot';
+                dot.style.cssText = 'position:absolute; top:2px; right:2px; width:12px; height:12px; background-color:#25d366; border-radius:50%; border:2px solid white; z-index:9999;';
+                link.appendChild(dot);
             }
         });
     }
@@ -396,10 +395,14 @@ if (forgotForm) {
         }
     });
 
-    // 5. Fallback: Check local storage on page load in case of existing missed messages
+    // 5. Cross-Tab Sync via LocalStorage (Crucial Fallback)
+    window.addEventListener('storage', (e) => { 
+        if (e.key === 'blooms_unread' && e.newValue === 'true') showGreenDotOnChatNav(); 
+    });
+
+    // Fallback: Check local storage on page load in case of existing missed messages
     setTimeout(() => {
-        const counts = JSON.parse(localStorage.getItem('blooms_unread') || '{}');
-        if (Object.values(counts).some(v => v > 0)) {
+        if (localStorage.getItem('blooms_unread') === 'true') {
             showGreenDotOnChatNav();
         }
     }, 1000);

@@ -513,35 +513,46 @@ if (searchInput) {
     }
 })();
 
-// ===== CHAT DOT NOTIFICATION =====
-function refreshNotificationDot() {
+// ===== NOTIFICATION DOT SYSTEM =====
+function updateNotificationDot() {
   const counts = JSON.parse(
-    localStorage.getItem('blooms_unread_counts') 
-    || '{}'
+    localStorage.getItem('blooms_unread') || '{}'
   );
   const hasUnread = Object.values(counts)
-    .some(v => v > 0);
+    .some(function(v) { return v > 0; });
 
-  // Desktop: Chat nav icon
-  const chatNavLink = document.querySelector(
-    'a[href="chat.html"], ' +
-    '.nav-item[data-page="chat"], ' +
-    'a[href*="chat"]:not([href*="ai"])'
+  // ---- Desktop: Chat nav icon ----
+  // Find chat link in navbar (not ai-chat link)
+  const allNavLinks = document.querySelectorAll(
+    'nav a, .navbar a, header a'
   );
-  if (chatNavLink) {
-    chatNavLink.style.position = 'relative';
-    let dot = chatNavLink.querySelector(
-      '.chat-notification-dot');
-    if (hasUnread && !dot) {
-      dot = document.createElement('span');
-      dot.className = 'chat-notification-dot';
-      chatNavLink.appendChild(dot);
-    } else if (!hasUnread && dot) {
-      dot.remove();
+  let chatLink = null;
+  allNavLinks.forEach(function(link) {
+    const href = link.getAttribute('href') || '';
+    if (href.includes('chat') && 
+        !href.includes('ai-chat')) {
+      chatLink = link;
+    }
+  });
+
+  if (chatLink) {
+    chatLink.style.position = 'relative';
+    chatLink.style.display = 'inline-flex';
+    let dot = chatLink.querySelector(
+      '.bloom-notif-dot'
+    );
+    if (hasUnread) {
+      if (!dot) {
+        dot = document.createElement('span');
+        dot.className = 'bloom-notif-dot';
+        chatLink.appendChild(dot);
+      }
+    } else {
+      if (dot) dot.remove();
     }
   }
 
-  // Mobile: Hamburger button dot
+  // ---- Mobile: Hamburger icon ----
   const hamburger = document.querySelector(
     '.hamburger-menu, .hamburger-btn, ' +
     'button[class*="hamburger"]'
@@ -549,17 +560,29 @@ function refreshNotificationDot() {
   if (hamburger) {
     hamburger.style.position = 'relative';
     let dot = hamburger.querySelector(
-      '.chat-notification-dot');
-    if (hasUnread && !dot) {
-      dot = document.createElement('span');
-      dot.className = 'chat-notification-dot';
-      hamburger.appendChild(dot);
-    } else if (!hasUnread && dot) {
-      dot.remove();
+      '.bloom-notif-dot'
+    );
+    if (hasUnread) {
+      if (!dot) {
+        dot = document.createElement('span');
+        dot.className = 'bloom-notif-dot';
+        hamburger.appendChild(dot);
+      }
+    } else {
+      if (dot) dot.remove();
     }
   }
 }
 
-refreshNotificationDot();
-setInterval(refreshNotificationDot, 4000);
-// ===== END CHAT DOT NOTIFICATION =====
+// Run on load and every 3 seconds
+updateNotificationDot();
+setInterval(updateNotificationDot, 3000);
+
+// Also update when localStorage changes
+// (works across browser tabs)
+window.addEventListener('storage', function(e) {
+  if (e.key === 'blooms_unread') {
+    updateNotificationDot();
+  }
+});
+// ===== END NOTIFICATION DOT SYSTEM =====

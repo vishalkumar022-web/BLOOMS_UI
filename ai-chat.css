@@ -311,20 +311,63 @@ body { background-color: #f3f2ef; color: #333; overflow: hidden; }
   z-index: 999 !important;
 }
 
-/* ===== BUG 1: HAMBURGER VISIBILITY FIX ===== */
-@media screen and (max-width: 768px) {
+/* ===== HAMBURGER OVERRIDE FIX ===== */
+@media (max-width: 768px) {
+
+  /* Force navbar above everything */
+  nav, .navbar, header, .nav-container,
+  .top-nav, [class*="navbar"],
+  [class*="nav-bar"] {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 99999 !important;
+  }
+
+  /* Force hamburger visible and clickable */
   .hamburger-menu,
   .hamburger-btn,
-  button[class*="hamburger"] {
+  button[class*="hamburger"],
+  [class*="hamburger"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 100000 !important;
+    position: relative !important;
     color: #1a73e8 !important;
     background: transparent !important;
     border: none !important;
-    font-size: 24px !important;
     cursor: pointer !important;
-    z-index: 1001 !important;
+    font-size: 24px !important;
+  }
+
+  /* Force chat layout to NOT cover navbar */
+  .chat-container, .chat-wrapper,
+  .chat-layout, .main-chat,
+  [class*="chat-container"],
+  [class*="chat-layout"] {
     position: relative !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
+    z-index: 1 !important;
+    margin-top: 0 !important;
+  }
+
+  /* Nav dropdown when active */
+  .nav-right.active, .nav-links.active,
+  .nav-menu.active,
+  [class*="nav-right"].active,
+  [class*="nav-links"].active {
+    display: flex !important;
+    flex-direction: column !important;
+    position: fixed !important;
+    top: 60px !important;
+    right: 0 !important;
+    width: 220px !important;
+    background: #ffffff !important;
+    box-shadow: -4px 4px 20px rgba(0,0,0,0.15)
+      !important;
+    border-radius: 0 0 0 12px !important;
+    z-index: 99998 !important;
+    padding: 8px 0 !important;
   }
 }
+/* ===== END HAMBURGER OVERRIDE FIX ===== */

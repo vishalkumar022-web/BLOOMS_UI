@@ -123,115 +123,46 @@ async function sendAiMessage() {
 // 📱 9. RESPONSIVE & PERFORMANCE OPTIMIZATIONS
 // ============================================================================
 
-// Hamburger Menu Toggle for Mobile
-const mobileMenuBtn = document.getElementById("mobile-menu-btn");
-const navMenu = document.getElementById("nav-menu");
-
-if (mobileMenuBtn && navMenu) {
-    mobileMenuBtn.addEventListener("click", function() {
-        navMenu.classList.toggle("active");
-    });
-}
-
-// ===== HAMBURGER FIX FOR THIS PAGE =====
-(function() {
-  function initHamburger() {
-    const hamburger = document.querySelector(
-      '.hamburger-menu, .hamburger-btn, ' +
-      'button[class*="hamburger"]'
-    );
-    const navMenu = document.querySelector(
-      '.nav-right, .nav-links, .nav-menu, ' +
-      'nav ul, .navbar-menu'
-    );
-    if (!hamburger || !navMenu) return;
-
-    // Remove any old listeners by cloning
-    const newHamburger = hamburger.cloneNode(true);
-    hamburger.parentNode.replaceChild(
-      newHamburger, hamburger
-    );
-
-    newHamburger.addEventListener('click', 
-    function(e) {
-      e.stopPropagation();
-      navMenu.classList.toggle('active');
-      
-      // Overlay
-      let overlay = document.getElementById(
-        'nav-overlay');
-      if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'nav-overlay';
-        overlay.style.cssText = 
-          'position:fixed;top:0;left:0;' +
-          'width:100%;height:100%;' +
-          'background:rgba(0,0,0,0.3);' +
-          'z-index:999;display:none;';
-        document.body.appendChild(overlay);
-        overlay.addEventListener('click', 
-        function() {
-          navMenu.classList.remove('active');
-          overlay.style.display = 'none';
-        });
-      }
-      
-      if (navMenu.classList.contains('active')) {
-        overlay.style.display = 'block';
-      } else {
-        overlay.style.display = 'none';
-      }
-    });
-
-    document.addEventListener('keydown', 
-    function(e) {
-      if (e.key === 'Escape') {
-        navMenu.classList.remove('active');
-        const ov = document.getElementById(
-          'nav-overlay');
-        if (ov) ov.style.display = 'none';
-      }
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener(
-      'DOMContentLoaded', initHamburger);
-  } else {
-    initHamburger();
-  }
-})();
-// ===== END HAMBURGER FIX =====
-
-// ===== CHAT DOT NOTIFICATION =====
-function refreshNotificationDot() {
+// ===== NOTIFICATION DOT SYSTEM =====
+function updateNotificationDot() {
   const counts = JSON.parse(
-    localStorage.getItem('blooms_unread_counts') 
-    || '{}'
+    localStorage.getItem('blooms_unread') || '{}'
   );
   const hasUnread = Object.values(counts)
-    .some(v => v > 0);
+    .some(function(v) { return v > 0; });
 
-  // Desktop: Chat nav icon
-  const chatNavLink = document.querySelector(
-    'a[href="chat.html"], ' +
-    '.nav-item[data-page="chat"], ' +
-    'a[href*="chat"]:not([href*="ai"])'
+  // ---- Desktop: Chat nav icon ----
+  // Find chat link in navbar (not ai-chat link)
+  const allNavLinks = document.querySelectorAll(
+    'nav a, .navbar a, header a'
   );
-  if (chatNavLink) {
-    chatNavLink.style.position = 'relative';
-    let dot = chatNavLink.querySelector(
-      '.chat-notification-dot');
-    if (hasUnread && !dot) {
-      dot = document.createElement('span');
-      dot.className = 'chat-notification-dot';
-      chatNavLink.appendChild(dot);
-    } else if (!hasUnread && dot) {
-      dot.remove();
+  let chatLink = null;
+  allNavLinks.forEach(function(link) {
+    const href = link.getAttribute('href') || '';
+    if (href.includes('chat') && 
+        !href.includes('ai-chat')) {
+      chatLink = link;
+    }
+  });
+
+  if (chatLink) {
+    chatLink.style.position = 'relative';
+    chatLink.style.display = 'inline-flex';
+    let dot = chatLink.querySelector(
+      '.bloom-notif-dot'
+    );
+    if (hasUnread) {
+      if (!dot) {
+        dot = document.createElement('span');
+        dot.className = 'bloom-notif-dot';
+        chatLink.appendChild(dot);
+      }
+    } else {
+      if (dot) dot.remove();
     }
   }
 
-  // Mobile: Hamburger button dot
+  // ---- Mobile: Hamburger icon ----
   const hamburger = document.querySelector(
     '.hamburger-menu, .hamburger-btn, ' +
     'button[class*="hamburger"]'
@@ -239,17 +170,96 @@ function refreshNotificationDot() {
   if (hamburger) {
     hamburger.style.position = 'relative';
     let dot = hamburger.querySelector(
-      '.chat-notification-dot');
-    if (hasUnread && !dot) {
-      dot = document.createElement('span');
-      dot.className = 'chat-notification-dot';
-      hamburger.appendChild(dot);
-    } else if (!hasUnread && dot) {
-      dot.remove();
+      '.bloom-notif-dot'
+    );
+    if (hasUnread) {
+      if (!dot) {
+        dot = document.createElement('span');
+        dot.className = 'bloom-notif-dot';
+        hamburger.appendChild(dot);
+      }
+    } else {
+      if (dot) dot.remove();
     }
   }
 }
 
-refreshNotificationDot();
-setInterval(refreshNotificationDot, 4000);
-// ===== END CHAT DOT NOTIFICATION =====
+// Run on load and every 3 seconds
+updateNotificationDot();
+setInterval(updateNotificationDot, 3000);
+
+// Also update when localStorage changes
+// (works across browser tabs)
+window.addEventListener('storage', function(e) {
+  if (e.key === 'blooms_unread') {
+    updateNotificationDot();
+  }
+});
+// ===== END NOTIFICATION DOT SYSTEM =====
+
+// ===== HAMBURGER FINAL FIX (ai-chat page) =====
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    const hamburger = document.querySelector(
+      '.hamburger-menu, .hamburger-btn, ' +
+      'button[class*="hamburger"]'
+    );
+    const navMenu = document.querySelector(
+      '.nav-right, .nav-links, ' +
+      '.nav-menu, nav ul'
+    );
+
+    if (!hamburger || !navMenu) {
+      console.warn('Hamburger: elements not found');
+      return;
+    }
+
+    // Remove ALL old listeners safely
+    const freshBtn = hamburger.cloneNode(true);
+    hamburger.parentNode.replaceChild(
+      freshBtn, hamburger
+    );
+
+    freshBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      navMenu.classList.toggle('active');
+
+      let overlay = document.getElementById(
+        'bloom-nav-overlay'
+      );
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'bloom-nav-overlay';
+        overlay.style.cssText =
+          'position:fixed;top:0;left:0;width:100%;' +
+          'height:100%;background:rgba(0,0,0,0.3);' +
+          'z-index:99997;display:none;';
+        document.body.appendChild(overlay);
+        overlay.addEventListener('click', function(){
+          navMenu.classList.remove('active');
+          overlay.style.display = 'none';
+        });
+      }
+
+      overlay.style.display =
+        navMenu.classList.contains('active')
+        ? 'block' : 'none';
+    });
+
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') {
+        navMenu.classList.remove('active');
+        const ov = document.getElementById(
+          'bloom-nav-overlay'
+        );
+        if (ov) ov.style.display = 'none';
+      }
+    });
+
+    console.log('Hamburger initialized on ai-chat page');
+  }, 800);
+});
+// ===== END HAMBURGER FINAL FIX =====

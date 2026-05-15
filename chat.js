@@ -143,7 +143,7 @@ function openChatWindow(userId, name, pic) {
     document.getElementById("in-chat-search").style.display = "none";
     document.getElementById("emoji-picker").style.display = "none";
 
-    loadPreviousMessages(userId);
+    loadPreviousMessages(userId).then(() => scrollToBottom());
 }
 
 function closeChatMobile(event) { 
@@ -309,7 +309,16 @@ function appendMessageToUI(content, type, time, tickStatus = "none") {
         </div>
     `;
     container.appendChild(msgDiv);
-    container.scrollTop = container.scrollHeight; 
+    scrollToBottom(); 
+}
+
+function scrollToBottom() {
+    const container = document.getElementById("messages-container");
+    if (container) {
+        setTimeout(() => {
+            container.scrollTop = container.scrollHeight;
+        }, 150);
+    }
 }
 
 // ============================================================================

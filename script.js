@@ -307,3 +307,88 @@ if (forgotForm) {
     setupImageUpload('reg-profile-file', 'reg-profile-name', 'reg-profile-url', 'preview-img');
     setupImageUpload('reg-bg-file', 'reg-bg-name', 'reg-bg-url', null);
 })();
+
+// =========================================================================
+// GLOBAL UNREAD MESSAGE LISTENER & GREEN DOT BADGE
+// =========================================================================
+(function initGlobalUnreadListener() {
+    const token = localStorage.getItem("token");
+    const myUserId = localStorage.getItem("userId");
+    if (!token || !myUserId) return;
+
+    // 1. Dynamically Load Socket libraries globally if missing on the current page
+    if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
+        const sock = document.createElement('script');
+        sock.src = "https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js";
+        document.head.appendChild(sock);
+
+        const stomp = document.createElement('script');
+        stomp.src = "https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js";
+        document.head.appendChild(stomp);
+
+        stomp.onload = () => connectGlobalSocket();
+    } else {
+        connectGlobalSocket();
+    }
+
+    // 2. Connect and Listen Globally
+    function connectGlobalSocket() {
+        if (window.globalStompActive) return;
+        window.globalStompActive = true;
+
+        let socket = new SockJS(`${BASE_URL}/ws`);
+        let client = Stomp.over(socket);
+        client.debug = null; 
+
+        client.connect({ "Authorization": "Bearer " + token }, function () {
+            client.subscribe(`/topic/messages/${myUserId}`, function (message) {
+                const msg = JSON.parse(message.body);
+                
+                // If message is from someone else, and we aren't currently viewing their chat window
+                const isViewingThisChat = window.location.pathname.includes('chat.html') && 
+                                          window.targetUserId === msg.senderId && 
+                                          document.visibilityState === 'visible';
+                
+                if (msg.senderId !== myUserId && !isViewingThisChat) {
+                    showGreenDotOnChatNav();
+                }
+            });
+        }, () => setTimeout(connectGlobalSocket, 5000));
+    }
+
+    // 3. Render the Simple Green Dot
+    function showGreenDotOnChatNav() {
+        // Find the Chat link in nav (excluding AI chat)
+        document.querySelectorAll('nav a, .navbar a, header a, .hamburger-menu').forEach(link => {
+            const href = link.getAttribute('href') || '';
+            const isChatLink = href.includes('chat') && !href.includes('ai-chat');
+            const isHamburger = link.classList.contains('hamburger-menu');
+            
+            if (isChatLink || isHamburger) {
+                link.style.position = 'relative';
+                if (!link.querySelector('.global-green-dot')) {
+                    const dot = document.createElement('span');
+                    dot.className = 'global-green-dot';
+                    dot.style.cssText = 'position:absolute; top:2px; right:2px; width:12px; height:12px; background-color:#25d366; border-radius:50%; border:2px solid white; z-index:99;';
+                    link.appendChild(dot);
+                }
+            }
+        });
+    }
+
+    // 4. Remove Dot when Chat is explicitly clicked
+    document.addEventListener('click', function(e) {
+        let target = e.target.closest('a');
+        if (target && target.getAttribute('href') && target.getAttribute('href').includes('chat') && !target.getAttribute('href').includes('ai-chat')) {
+            document.querySelectorAll('.global-green-dot').forEach(dot => dot.remove());
+        }
+    });
+
+    // 5. Fallback: Check local storage on page load in case of existing missed messages
+    setTimeout(() => {
+        const counts = JSON.parse(localStorage.getItem('blooms_unread') || '{}');
+        if (Object.values(counts).some(v => v > 0)) {
+            showGreenDotOnChatNav();
+        }
+    }, 1000);
+})();

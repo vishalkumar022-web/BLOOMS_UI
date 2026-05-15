@@ -154,43 +154,40 @@ function renderTabContent(containerId, listData, type, emptyMessage) {
                 formattedDateHtml = `<i class="fa-solid fa-clock"></i> Created: Recently`;
             }
 
-            // Dummy stats for now
-            let likesCount = Math.floor(Math.random() * 20) + 1; 
-            let commentsCount = Math.floor(Math.random() * 5); 
-
+            // FIX 2 - Read More only when content is long
+            const WORD_LIMIT = 20;
+            let words = rawDescription.split(/\s+/).filter(w => w.length > 0);
+            
+            let isLong = words.length > WORD_LIMIT;
+            let displayDesc = isLong ? words.slice(0, WORD_LIMIT).join(" ") + "..." : rawDescription;
             let descUniqueId = `desc-other-${type}-${rawId.substring(0,5)}`;
 
-            // 🚨 NAYA HTML: Bina Edit/Delete Button Ke, but naye CSS classes k sath!
+            let safeFullDesc = encodeURIComponent(rawDescription);
+            let safeShortDesc = encodeURIComponent(displayDesc);
+            
+            let readMoreBtnHtml = isLong ? `<a href="javascript:void(0)" onclick="toggleCardReadMore('${descUniqueId}', event)" style="color:#0a66c2; font-weight:bold; text-decoration:none; font-size:11px; display:block; text-align:right; margin-top:4px;">Read More</a>` : "";
+
+            // 🚨 NAYA HTML: Bina Edit/Delete, Identical to profile.js styling, No Likes/Comments
             html += `
-                <div class="profile-item-card">
-                    <img src="${imgUrl}" class="card-mini-img" alt="image" onerror="this.src='https://via.placeholder.com/200x120?text=Image+Load+Error'" loading="lazy" decoding="async">
+                <div class="profile-item-card" style="background: white; border: 1px solid #dbdbdb; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <img src="${imgUrl}" style="width: 100%; height: 120px; object-fit: cover; border-bottom: 1px solid #efefef;" onerror="this.src='https://via.placeholder.com/200x120?text=Image+Load+Error'" loading="lazy" decoding="async">
                     
-                    <div class="card-info">
-                        <div style="font-size:10px; color:#0a66c2; margin-bottom:4px;">
+                    <div class="card-info" style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
+                        
+                        <div style="font-size:10px; color:#0a66c2; margin-bottom:5px; word-break: break-all;">
                             ${idLabelHtml}
                         </div>
-                        <h3>${rawTitle}</h3>
                         
-                        <div id="${descUniqueId}" class="readmore-constrained" style="font-size:11px; max-height:0; overflow:hidden;">
-                            ${rawDescription}
-                        </div>
-                        <div style="text-align:right;">
-                            <a href="javascript:void(0)" onclick="toggleCardReadMore('${descUniqueId}', event)" style="font-size:10px; color:#0a66c2; font-weight:bold; text-decoration:none;">Read More</a>
-                        </div>
+                        <h3 style="font-size: 15px; color: #262626; margin-bottom: 5px;">${rawTitle}</h3>
                         
-                        <div class="card-stats-row">
-                            <span>${formattedDateHtml}</span>
+                        <div id="${descUniqueId}" data-full="${safeFullDesc}" data-short="${safeShortDesc}" style="font-size:12px; color:#555; line-height:1.4; max-height:40px; overflow-y:hidden; transition: max-height 0.3s ease;">
+                            ${displayDesc}
                         </div>
-
-                        ${type === 'blogs' ? `
-                            <div style="border-top:1px solid #efefef; margin-top:5px; padding-top:5px;">
-                                <div class="blog-interaction-btns">
-                                    <button onclick="openBlogLikesModal('${rawId}', event)"><i class="fa-solid fa-heart"></i> ${likesCount} Likes</button>
-                                    <button onclick="openBlogCommentsModal('${rawId}', event)"><i class="fa-solid fa-comment"></i> ${commentsCount} Comments</button>
-                                </div>
-                            </div>
-                        ` : ''}
-
+                        ${readMoreBtnHtml}
+                        
+                        <div style="font-size: 10px; color: #888; margin-top: auto; padding-top: 8px; border-top: 1px solid #efefef;">
+                            ${formattedDateHtml}
+                        </div>
                     </div>
                 </div>
             `;
@@ -206,11 +203,21 @@ function toggleCardReadMore(descId, event) {
     if (event) event.stopPropagation();
     const descDabba = document.getElementById(descId);
     const trigger = event.target; 
+    
+    let fullText = decodeURIComponent(descDabba.getAttribute("data-full"));
+    let shortText = decodeURIComponent(descDabba.getAttribute("data-short"));
+
     if (descDabba.classList.contains("open")) {
         descDabba.classList.remove("open");
+        descDabba.innerHTML = shortText;
+        descDabba.style.maxHeight = "40px";
+        descDabba.style.overflowY = "hidden";
         trigger.innerText = "Read More";
     } else {
         descDabba.classList.add("open");
+        descDabba.innerHTML = fullText;
+        descDabba.style.maxHeight = "120px";
+        descDabba.style.overflowY = "auto";
         trigger.innerText = "Show Less";
     }
 }

@@ -314,11 +314,13 @@ function appendMessageToUI(content, type, time, tickStatus = "none") {
 
 function scrollToBottom() {
     const container = document.getElementById("messages-container");
-    if (container) {
-        setTimeout(() => {
-            container.scrollTop = container.scrollHeight;
-        }, 150);
+    if (container && container.lastElementChild) {
+        container.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
+}
+
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', scrollToBottom);
 }
 
 // ============================================================================

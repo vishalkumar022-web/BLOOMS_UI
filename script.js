@@ -336,12 +336,15 @@ if (forgotForm) {
         if (window.globalStompActive) return;
         window.globalStompActive = true;
 
+        console.log("Attempting global socket connection...");
         let socket = new SockJS(`${BASE_URL}/ws`);
         let client = Stomp.over(socket);
         client.debug = null; 
 
         client.connect({ "Authorization": "Bearer " + token }, function () {
+            console.log("Global socket connected successfully");
             client.subscribe(`/topic/messages/${myUserId}`, function (message) {
+                console.log("New message received globally: ", message.body);
                 const msg = JSON.parse(message.body);
                 
                 // If message is from someone else, and we aren't currently viewing their chat window
@@ -353,18 +356,27 @@ if (forgotForm) {
                     showGreenDotOnChatNav();
                 }
             });
-        }, () => setTimeout(connectGlobalSocket, 5000));
+        }, function(error) {
+            console.log("WebSocket Error: ", error);
+            setTimeout(connectGlobalSocket, 5000);
+        });
     }
 
     // 3. Render the Simple Green Dot
     function showGreenDotOnChatNav() {
-        // Find the Chat link in nav (excluding AI chat)
         document.querySelectorAll('nav a, .navbar a, header a, .hamburger-menu').forEach(link => {
             const href = link.getAttribute('href') || '';
-            const isChatLink = href.includes('chat') && !href.includes('ai-chat');
+            const text = link.innerText ? link.innerText.trim() : '';
             const isHamburger = link.classList.contains('hamburger-menu');
             
+            if (href.includes('ai-chat') || text === 'AI Chat') {
+                return;
+            }
+            
+            const isChatLink = text === 'Chat' || href.includes('chat.html');
+            
             if (isChatLink || isHamburger) {
+                console.log("Adding green dot to:", link);
                 link.style.position = 'relative';
                 if (!link.querySelector('.global-green-dot')) {
                     const dot = document.createElement('span');
